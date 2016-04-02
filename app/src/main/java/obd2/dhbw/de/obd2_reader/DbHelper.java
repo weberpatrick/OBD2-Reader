@@ -14,6 +14,7 @@ public class DbHelper
 {
 //    http://www.programmierenlernenhq.de/daten-in-sqlite-datenbank-schreiben-und-lesen-in-android/
 
+
     private static final String LOG_TAG = DbHelper.class.getName();
 
 //  database
