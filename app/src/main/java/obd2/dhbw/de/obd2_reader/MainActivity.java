@@ -57,7 +57,7 @@ public class MainActivity
                                         ,0
                                         );
         listView.setAdapter(listAdapter);
-
+        pairedDevices = new ArrayList<BluetoothDevice>();
         btAdapter = BluetoothAdapter.getDefaultAdapter();
     }
 
