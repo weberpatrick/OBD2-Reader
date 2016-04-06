@@ -1,4 +1,4 @@
-package obd2.dhbw.de.obd2_reader;
+package obd2.dhbw.de.obd2_reader.storage;
 
 import android.content.Context;
 import android.database.SQLException;
@@ -34,7 +34,7 @@ public class DbHelper
     private static final String DICTIONARY_TABLE_DROP =
             "DROP TABLE " + DICTIONARY_TABLE_NAME;
 
-    DbHelper(Context context)
+    public DbHelper(Context context)
     {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
