@@ -19,6 +19,15 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.github.pires.obd.commands.ObdCommand;
+import com.github.pires.obd.commands.protocol.EchoOffCommand;
+import com.github.pires.obd.commands.protocol.LineFeedOffCommand;
+import com.github.pires.obd.commands.protocol.ObdResetCommand;
+import com.github.pires.obd.commands.protocol.SelectProtocolCommand;
+import com.github.pires.obd.commands.protocol.TimeoutCommand;
+import com.github.pires.obd.enums.ObdProtocols;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Set;
 
@@ -59,7 +68,56 @@ public class MainActivity
                                         );
         listView.setAdapter(listAdapter);
         pairedDevices = new ArrayList<BluetoothDevice>();
+
         btAdapter = BluetoothAdapter.getDefaultAdapter();
+        if(btAdapter == null)
+        {
+            Toast.makeText( getApplicationContext()
+                          , "No bluetooth adapter detected."
+                          , Toast.LENGTH_SHORT
+                          );
+            finish();
+        }
+        else if(!btAdapter.isEnabled())
+        {
+//          enable the bluetooth adapter
+            Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(intent, 1);
+        }
+    }
+
+    private void initOdb()
+    {
+        Log.d(LOG_TAG, "initOdb");
+
+        new Thread(() ->
+        {
+            try
+            {
+                Log.d(LOG_TAG, "obd reset");
+                executeCommand(new ObdResetCommand());
+
+                Log.d(LOG_TAG, "echo Off");
+                executeCommand(new EchoOffCommand());
+
+                Log.d(LOG_TAG, "echo Off");
+                executeCommand(new EchoOffCommand());
+
+                Log.d(LOG_TAG, "line feed Off");
+                executeCommand(new LineFeedOffCommand());
+
+                Log.d(LOG_TAG, "time out");
+                executeCommand(new TimeoutCommand(125));
+
+                Log.d(LOG_TAG, "protocol auto");
+                executeCommand(new SelectProtocolCommand(ObdProtocols.AUTO));
+            }
+            catch(Exception e)
+            {
+                Log.e(LOG_TAG, "exception " + e.getMessage());
+            }
+
+        }).start();
     }
 
     private void fillListView()
@@ -76,7 +134,10 @@ public class MainActivity
         }
         else
         {
-            Toast.makeText(getApplicationContext(), "No paired device detected", Toast.LENGTH_SHORT).show();
+            Toast.makeText( getApplicationContext()
+                          , "No paired device detected"
+                          , Toast.LENGTH_SHORT
+                          ).show();
         }
     }
 
@@ -134,7 +195,7 @@ public class MainActivity
 
     private void database()
     {
-        //      create the database
+//      create the database
         DbHelper dbHelper = new DbHelper(this);
         db = dbHelper.getWritableDatabase();
 
@@ -189,5 +250,23 @@ public class MainActivity
         return true;
     }
 
-
+    private void executeCommand(ObdCommand command)
+    {
+        try
+        {
+//          TODO when is the socket not connected ?!
+            if(socket.isConnected())
+            {
+                command.run(socket.getInputStream(), socket.getOutputStream());
+            }
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+        catch (InterruptedException e)
+        {
+            e.printStackTrace();
+        }
+    }
 }
