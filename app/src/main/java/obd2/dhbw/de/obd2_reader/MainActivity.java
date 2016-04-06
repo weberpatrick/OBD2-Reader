@@ -75,7 +75,7 @@ public class MainActivity
             Toast.makeText( getApplicationContext()
                           , "No bluetooth adapter detected."
                           , Toast.LENGTH_SHORT
-                          );
+                          ).show();
             finish();
         }
         else if(!btAdapter.isEnabled())
@@ -113,17 +113,17 @@ public class MainActivity
                     Log.d(LOG_TAG, "obd reset");
                     executeCommand(new ObdResetCommand());
 
-                    Log.d(LOG_TAG, "echo Off");
-                    executeCommand(new EchoOffCommand());
+                Log.d(LOG_TAG, "echo Off");
+                executeCommand(new EchoOffCommand());
 
-                    Log.d(LOG_TAG, "echo Off");
-                    executeCommand(new EchoOffCommand());
+                Log.d(LOG_TAG, "echo Off");
+                executeCommand(new EchoOffCommand());
 
-                    Log.d(LOG_TAG, "line feed Off");
-                    executeCommand(new LineFeedOffCommand());
+                Log.d(LOG_TAG, "line feed Off");
+                executeCommand(new LineFeedOffCommand());
 
-                    Log.d(LOG_TAG, "time out");
-                    executeCommand(new TimeoutCommand(125));
+                Log.d(LOG_TAG, "time out");
+                executeCommand(new TimeoutCommand(125));
 
                     Log.d(LOG_TAG, "protocol auto");
                     executeCommand(new SelectProtocolCommand(ObdProtocols.AUTO));
