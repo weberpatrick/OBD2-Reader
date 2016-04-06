@@ -4,6 +4,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.ContentValues;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
@@ -123,9 +124,12 @@ public class MainActivity
                            , long id
                            )
     {
-        createConnection(pairedDevices.get(position));
-
-        //show overview activity
+        if (createConnection(pairedDevices.get(position)))
+        {
+            //start OverviewActivity
+            Intent myIntent = new Intent(MainActivity.this, OverviewActivity.class);
+            startActivity(myIntent);
+        }
     }
 
     private void database()
@@ -163,18 +167,26 @@ public class MainActivity
         }
     }
 
-    private void createConnection(BluetoothDevice device)
+    private boolean createConnection(BluetoothDevice device)
     {
-        if(device == null) Log.e(LOG_TAG, "The device should not be null here!");
-        else               socket = BluetoothConnector.connect(device);
+        if(device == null)
+        {
+            Log.e(LOG_TAG, "The device should not be null here!");
+            return false;
+        }else
+        {
+            socket = BluetoothConnector.connect(device);
+        }
 
         if(socket == null)
         {
             Toast.makeText( getApplicationContext()
-                          , "No paired device detected"
+                          , "Connection failed, try again."
                           , Toast.LENGTH_SHORT
                           ).show();
+            return false;
         }
+        return true;
     }
 
 

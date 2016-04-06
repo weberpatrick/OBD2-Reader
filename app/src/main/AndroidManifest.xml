@@ -21,7 +21,8 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name=".OverviewActivity">
+        <activity android:name=".OverviewActivity"
+                  android:label="@string/overview_title">
         </activity>
     </application>
 
