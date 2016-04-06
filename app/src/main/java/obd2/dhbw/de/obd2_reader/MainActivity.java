@@ -86,37 +86,53 @@ public class MainActivity
         }
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(requestCode == 1 && resultCode == RESULT_OK)
+        {
+            Log.d(LOG_TAG, "Bluetooth enabled");
+            fillListView();
+        }
+        else
+        {
+            Log.d(LOG_TAG, "User don´t want to enable bluetooth.");
+        }
+    }
+
     private void initOdb()
     {
         Log.d(LOG_TAG, "initOdb");
 
-        new Thread(() ->
+        new Thread(new Runnable()
         {
-            try
+            @Override
+            public void run()
             {
-                Log.d(LOG_TAG, "obd reset");
-                executeCommand(new ObdResetCommand());
+                try
+                {
+                    Log.d(LOG_TAG, "obd reset");
+                    executeCommand(new ObdResetCommand());
 
-                Log.d(LOG_TAG, "echo Off");
-                executeCommand(new EchoOffCommand());
+                    Log.d(LOG_TAG, "echo Off");
+                    executeCommand(new EchoOffCommand());
 
-                Log.d(LOG_TAG, "echo Off");
-                executeCommand(new EchoOffCommand());
+                    Log.d(LOG_TAG, "echo Off");
+                    executeCommand(new EchoOffCommand());
 
-                Log.d(LOG_TAG, "line feed Off");
-                executeCommand(new LineFeedOffCommand());
+                    Log.d(LOG_TAG, "line feed Off");
+                    executeCommand(new LineFeedOffCommand());
 
-                Log.d(LOG_TAG, "time out");
-                executeCommand(new TimeoutCommand(125));
+                    Log.d(LOG_TAG, "time out");
+                    executeCommand(new TimeoutCommand(125));
 
-                Log.d(LOG_TAG, "protocol auto");
-                executeCommand(new SelectProtocolCommand(ObdProtocols.AUTO));
+                    Log.d(LOG_TAG, "protocol auto");
+                    executeCommand(new SelectProtocolCommand(ObdProtocols.AUTO));
+                }
+                catch (Exception e)
+                {
+                    Log.e(LOG_TAG, "exception " + e.getMessage());
+                }
             }
-            catch(Exception e)
-            {
-                Log.e(LOG_TAG, "exception " + e.getMessage());
-            }
-
         }).start();
     }
 
@@ -124,10 +140,13 @@ public class MainActivity
     {
         Set<BluetoothDevice> devicesArray = btAdapter.getBondedDevices();
 
+        Log.d(LOG_TAG, "fillListView");
+
         if(devicesArray.size() > 0)
         {
             for(BluetoothDevice device:devicesArray)
             {
+                Log.d(LOG_TAG, "add device: " + device.getName());
                 pairedDevices.add(device);
                 listAdapter.add(device.getName());
             }
@@ -185,12 +204,12 @@ public class MainActivity
                            , long id
                            )
     {
-        if (createConnection(pairedDevices.get(position)))
-        {
+//        if (createConnection(pairedDevices.get(position)))
+//        {
             //start OverviewActivity
             Intent myIntent = new Intent(MainActivity.this, OverviewActivity.class);
             startActivity(myIntent);
-        }
+//        }
     }
 
     private void database()
