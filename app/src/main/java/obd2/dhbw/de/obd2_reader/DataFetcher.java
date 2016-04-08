@@ -56,37 +56,27 @@ public class DataFetcher
     {
         Log.d(LOG_TAG, "initOdb");
 
-        new Thread(new Runnable()
-        {
-            @Override
-            public void run()
-            {
                 try
                 {
                     Log.d(LOG_TAG, "obd reset");
-                    executeCommand(new ObdResetCommand());
+                    executeCommand(new ObdResetCommand(), false);
 
                     Log.d(LOG_TAG, "echo Off");
-                    executeCommand(new EchoOffCommand());
-
-                    Log.d(LOG_TAG, "echo Off");
-                    executeCommand(new EchoOffCommand());
+                    executeCommand(new EchoOffCommand(), false);
 
                     Log.d(LOG_TAG, "line feed Off");
-                    executeCommand(new LineFeedOffCommand());
+                    executeCommand(new LineFeedOffCommand(), false);
 
                     Log.d(LOG_TAG, "time out");
-                    executeCommand(new TimeoutCommand(125));
+                    executeCommand(new TimeoutCommand(125), false);
 
                     Log.d(LOG_TAG, "protocol auto");
-                    executeCommand(new SelectProtocolCommand(ObdProtocols.AUTO));
+                    executeCommand(new SelectProtocolCommand(ObdProtocols.AUTO), false);
                 }
                 catch (Exception e)
                 {
                     Log.e(LOG_TAG, "exception " + e.getMessage());
                 }
-            }
-        }).start();
     }
 
     /**
@@ -94,7 +84,7 @@ public class DataFetcher
      *
      * @param command ObdCommand to be executed
      */
-    private String executeCommand(ObdCommand command)
+    private String executeCommand(ObdCommand command, boolean response)
     {
         try
         {
@@ -102,7 +92,11 @@ public class DataFetcher
             if(socket.isConnected())
             {
                 command.run(socket.getInputStream(), socket.getOutputStream());
-                return command.getFormattedResult();
+                if (response)
+                {
+                    return command.getFormattedResult();
+                }
+
             }
         }
         catch (IOException e)
@@ -119,9 +113,9 @@ public class DataFetcher
 
     private void showAvailablePids()
     {
-        Log.d(LOG_TAG, executeCommand(new AvailablePidsCommand_01_20()));
-        Log.d(LOG_TAG, executeCommand(new AvailablePidsCommand_21_40()));
-        Log.d(LOG_TAG, executeCommand(new AvailablePidsCommand_41_60()));
+        Log.d(LOG_TAG, executeCommand(new AvailablePidsCommand_01_20(), true));
+        Log.d(LOG_TAG, executeCommand(new AvailablePidsCommand_21_40(), true));
+        Log.d(LOG_TAG, executeCommand(new AvailablePidsCommand_41_60(), true));
     }
 
     public void start()
@@ -132,9 +126,14 @@ public class DataFetcher
 
         while(!Thread.currentThread().isInterrupted())
         {
-            Log.i(LOG_TAG, executeCommand(new RPMCommand()));
-            Log.i(LOG_TAG, executeCommand(new SpeedCommand()));
-            Log.i(LOG_TAG, executeCommand(new RuntimeCommand()));
+            Log.i(LOG_TAG, executeCommand(new RPMCommand(), true));
+            Log.i(LOG_TAG, executeCommand(new SpeedCommand(), true));
+            Log.i(LOG_TAG, executeCommand(new RuntimeCommand(), true));
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 }

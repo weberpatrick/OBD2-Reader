@@ -180,6 +180,7 @@ public class MainActivity
                     {
                         if(createConnection(deviceArray.get(which)))
                         {
+                            Log.d(LOG_TAG, "Befor starting live data");
                             startLiveData();
                         }
                     }
@@ -272,5 +273,6 @@ public class MainActivity
                 dataFetcher.start();
             }
         });
+        dataFetcherThread.start();
     }
 }
