@@ -54,29 +54,27 @@ public class DataFetcher
      */
     private void initOdb()
     {
-        Log.d(LOG_TAG, "initOdb");
+        try
+        {
+            Log.d(LOG_TAG, "obd reset");
+            executeCommand(new ObdResetCommand(), false);
 
-                try
-                {
-                    Log.d(LOG_TAG, "obd reset");
-                    executeCommand(new ObdResetCommand(), false);
+            Log.d(LOG_TAG, "echo Off");
+            executeCommand(new EchoOffCommand(), false);
 
-                    Log.d(LOG_TAG, "echo Off");
-                    executeCommand(new EchoOffCommand(), false);
+            Log.d(LOG_TAG, "line feed Off");
+            executeCommand(new LineFeedOffCommand(), false);
 
-                    Log.d(LOG_TAG, "line feed Off");
-                    executeCommand(new LineFeedOffCommand(), false);
+            Log.d(LOG_TAG, "time out");
+            executeCommand(new TimeoutCommand(125), false);
 
-                    Log.d(LOG_TAG, "time out");
-                    executeCommand(new TimeoutCommand(125), false);
-
-                    Log.d(LOG_TAG, "protocol auto");
-                    executeCommand(new SelectProtocolCommand(ObdProtocols.AUTO), false);
-                }
-                catch (Exception e)
-                {
-                    Log.e(LOG_TAG, "exception " + e.getMessage());
-                }
+            Log.d(LOG_TAG, "protocol auto");
+            executeCommand(new SelectProtocolCommand(ObdProtocols.AUTO), false);
+        }
+        catch (Exception e)
+        {
+            Log.e(LOG_TAG, "exception in initObd(): " + e.getMessage());
+        }
     }
 
     /**
@@ -88,15 +86,10 @@ public class DataFetcher
     {
         try
         {
-//          TODO when is the socket not connected ?!
             if(socket.isConnected())
             {
                 command.run(socket.getInputStream(), socket.getOutputStream());
-                if (response)
-                {
-                    return command.getFormattedResult();
-                }
-
+                if (response) return command.getFormattedResult();
             }
         }
         catch (IOException e)
