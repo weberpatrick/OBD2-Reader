@@ -19,15 +19,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.github.pires.obd.commands.ObdCommand;
-import com.github.pires.obd.commands.protocol.EchoOffCommand;
-import com.github.pires.obd.commands.protocol.LineFeedOffCommand;
-import com.github.pires.obd.commands.protocol.ObdResetCommand;
-import com.github.pires.obd.commands.protocol.SelectProtocolCommand;
-import com.github.pires.obd.commands.protocol.TimeoutCommand;
-import com.github.pires.obd.enums.ObdProtocols;
-
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Set;
 
@@ -59,6 +50,8 @@ public class MainActivity
     private Button buttonStartStop;
 
     private boolean bluetoothEnabled;
+
+    private Thread dataFetcherThread;
 
 //	***************************************************************************
 //	METHOD AREA
@@ -143,10 +136,10 @@ public class MainActivity
         btAdapter = BluetoothAdapter.getDefaultAdapter();
         if(btAdapter == null)
         {
-            Toast.makeText(getApplicationContext()
-                    , "No bluetooth adapter detected."
-                    , Toast.LENGTH_SHORT
-            );
+            Toast.makeText( getApplicationContext()
+                          , "No bluetooth adapter detected."
+                          , Toast.LENGTH_SHORT
+                          ).show();
             finish();
         }
         else if(!btAdapter.isEnabled())
@@ -161,43 +154,6 @@ public class MainActivity
         {
             bluetoothEnabled = true;
         }
-    }
-
-    private void initOdb()
-    {
-        Log.d(LOG_TAG, "initOdb");
-
-        new Thread(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                try
-                {
-                    Log.d(LOG_TAG, "obd reset");
-                    executeCommand(new ObdResetCommand());
-
-                    Log.d(LOG_TAG, "echo Off");
-                    executeCommand(new EchoOffCommand());
-
-                    Log.d(LOG_TAG, "echo Off");
-                    executeCommand(new EchoOffCommand());
-
-                    Log.d(LOG_TAG, "line feed Off");
-                    executeCommand(new LineFeedOffCommand());
-
-                    Log.d(LOG_TAG, "time out");
-                    executeCommand(new TimeoutCommand(125));
-
-                    Log.d(LOG_TAG, "protocol auto");
-                    executeCommand(new SelectProtocolCommand(ObdProtocols.AUTO));
-                }
-                catch (Exception e)
-                {
-                    Log.e(LOG_TAG, "exception " + e.getMessage());
-                }
-            }
-        }).start();
     }
 
     private void showAdapterSelectionDialog()
@@ -224,7 +180,7 @@ public class MainActivity
                     {
                         if(createConnection(deviceArray.get(which)))
                         {
-//                        start live data bums
+                            startLiveData();
                         }
                     }
                 });
@@ -239,6 +195,35 @@ public class MainActivity
             }
         }
 
+    }
+
+    /**
+     * Create a connection to the delivered bluetooth device.
+     *
+     * @param device bluetooth device
+     *
+     * @return bluetooth socket or null
+     */
+    private boolean createConnection(BluetoothDevice device)
+    {
+        if(device == null)
+        {
+            Log.e(LOG_TAG, "The device should not be null here!");
+            return false;
+        }else
+        {
+            socket = BluetoothConnector.connect(device);
+        }
+
+        if(socket == null)
+        {
+            Toast.makeText( getApplicationContext()
+                    , "Connection failed, try again."
+                    , Toast.LENGTH_SHORT
+            ).show();
+            return false;
+        }
+        return true;
     }
 
     private void database()
@@ -269,52 +254,23 @@ public class MainActivity
 
         Log.d(LOG_TAG, "cursor length: " + cursor.getCount());
 
-//      fetch cursor
+//      start cursor
         for(int i = 0; i < cursor.getCount(); i++)
         {
             if(cursor.moveToPosition(i)) Log.d(LOG_TAG, cursor.getString(0));
         }
     }
 
-    private boolean createConnection(BluetoothDevice device)
+    private void startLiveData()
     {
-        if(device == null)
+        dataFetcherThread = new Thread(new Runnable()
         {
-            Log.e(LOG_TAG, "The device should not be null here!");
-            return false;
-        }else
-        {
-            socket = BluetoothConnector.connect(device);
-        }
-
-        if(socket == null)
-        {
-            Toast.makeText( getApplicationContext()
-                          , "Connection failed, try again."
-                          , Toast.LENGTH_SHORT
-                          ).show();
-            return false;
-        }
-        return true;
-    }
-
-    private void executeCommand(ObdCommand command)
-    {
-        try
-        {
-//          TODO when is the socket not connected ?!
-            if(socket.isConnected())
+            @Override
+            public void run()
             {
-                command.run(socket.getInputStream(), socket.getOutputStream());
+                DataFetcher dataFetcher = new DataFetcher(socket);
+                dataFetcher.start();
             }
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-        }
-        catch (InterruptedException e)
-        {
-            e.printStackTrace();
-        }
+        });
     }
 }
