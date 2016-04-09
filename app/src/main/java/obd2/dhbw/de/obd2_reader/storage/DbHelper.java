@@ -13,7 +13,9 @@ public class DbHelper
         extends SQLiteOpenHelper
 {
 //    http://www.programmierenlernenhq.de/daten-in-sqlite-datenbank-schreiben-und-lesen-in-android/
-//    http://www.sqldocu.com/four/createtab.htm
+
+//    create table stuff
+//    https://www.sqlite.org/lang_createtable.html
 
 //	***************************************************************************
 //	DECLARATION OF CONSTANTS
@@ -24,21 +26,43 @@ public class DbHelper
 //  database
     private static final int DATABASE_VERSION   = 1;
     private static final String DATABASE_NAME   = "obdDB.db";
-    public static final String TABLE_NAME       = "carData";
+    public static final String TABLE_CAR_DATA = "carData";
 
 //  columns
-    public static final String COLUMN_ID   = "id";
-    public static final String COLUMN_NAME = "name";
+    public static final String C_ID                         = "id";
+    public static final String C_TIMESTAMP                  = "timestamp";
+    public static final String C_ENGINE_LOAD                = "engineLoad";
+    public static final String C_INTAKE_MANIFOLD_PRESSURE   = "intakeManifoldPressure";
+    public static final String C_RPM                        = "rpm";
+    public static final String C_SPEED                      = "speed";
+    public static final String C_TIMING_ADVANCE             = "timingAdvance";
+    public static final String C_THROTTLE_POSITION          = "throttlePosition";
+    public static final String C_RUNTIME                    = "runTime";
+    public static final String C_BAROMETRIC_PRESSURE        = "barometricPressure";
+    public static final String C_WIDEBAND_AIR_FUEL_RATIO    = "widebandAirFuelRatio";
+    public static final String C_ABSOLUTE_LOAD              = "absoluteLoad";
+    public static final String C_AIR_FUEL_RATIO             = "airFuelRatio";
 
 //  sql commands
     private static final String TABLE_CREATE =
-            "CREATE TABLE " + TABLE_NAME
+            "CREATE TABLE " + TABLE_CAR_DATA
                     + " ("
-                    + COLUMN_ID   + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-                    + COLUMN_NAME + " TEXT NOT NULL"
+                    + C_ID                      + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                    + C_TIMESTAMP               + " TEXT DEFAULT CURRENT_TIMESTAMP,"
+                    + C_ENGINE_LOAD             + " REAL,"
+                    + C_INTAKE_MANIFOLD_PRESSURE+ " REAL,"
+                    + C_RPM                     + " REAL,"
+                    + C_SPEED                   + " REAL,"
+                    + C_TIMING_ADVANCE          + " REAL,"
+                    + C_THROTTLE_POSITION       + " REAL,"
+                    + C_RUNTIME                 + " INTEGER,"
+                    + C_BAROMETRIC_PRESSURE     + " REAL,"
+                    + C_WIDEBAND_AIR_FUEL_RATIO + " REAL,"
+                    + C_ABSOLUTE_LOAD           + " REAL,"
+                    + C_AIR_FUEL_RATIO          + " REAL"
                     + ");";
 
-    private static final String TABLE_DROP = "DROP TABLE " + TABLE_NAME;
+    private static final String TABLE_DROP = "DROP TABLE " + TABLE_CAR_DATA;
 
 //	***************************************************************************
 //	CONSTRUCTOR

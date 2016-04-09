@@ -1,9 +1,22 @@
 package obd2.dhbw.de.obd2_reader.util;
 
 import android.bluetooth.BluetoothSocket;
+import android.content.ContentValues;
+import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 import com.github.pires.obd.commands.ObdCommand;
+import com.github.pires.obd.commands.SpeedCommand;
+import com.github.pires.obd.commands.control.TimingAdvanceCommand;
+import com.github.pires.obd.commands.engine.AbsoluteLoadCommand;
+import com.github.pires.obd.commands.engine.LoadCommand;
+import com.github.pires.obd.commands.engine.RPMCommand;
+import com.github.pires.obd.commands.engine.RuntimeCommand;
+import com.github.pires.obd.commands.engine.ThrottlePositionCommand;
+import com.github.pires.obd.commands.fuel.AirFuelRatioCommand;
+import com.github.pires.obd.commands.fuel.WidebandAirFuelRatioCommand;
+import com.github.pires.obd.commands.pressure.BarometricPressureCommand;
+import com.github.pires.obd.commands.pressure.IntakeManifoldPressureCommand;
 import com.github.pires.obd.commands.protocol.AvailablePidsCommand_01_20;
 import com.github.pires.obd.commands.protocol.AvailablePidsCommand_21_40;
 import com.github.pires.obd.commands.protocol.AvailablePidsCommand_41_60;
@@ -43,7 +56,7 @@ public class DataFetcher
 //	***************************************************************************
 
     private BluetoothSocket socket;
-    private DbHelper dbHelper;
+    private SQLiteDatabase db;
 
     private ArrayList<ObdCommand> availableCommands;
 
@@ -53,8 +66,9 @@ public class DataFetcher
 
     public DataFetcher(DbHelper dbHelper, BluetoothSocket socket)
     {
-        this.dbHelper = dbHelper;
         this.socket = socket;
+
+        db = dbHelper.getWritableDatabase();
     }
 
 //	***************************************************************************
@@ -146,8 +160,37 @@ public class DataFetcher
                 AvailableCommands.determineCommands(hex_41_60, AvailableCommands.PidArea.PIDS_41_60));
     }
 
-    private boolean putDataToDb()
+    private boolean putDataInDb( double engineLoad
+                               , double intakeManifoldPressure
+                               , double rpm
+                               , double speed
+                               , double timingAdvance
+                               , double throttlePosition
+                               , long runTime
+                               , double barometricPressure
+                               , double widebandAirFuelRatio
+                               , double absoluteLoad
+                               , double airFuelRatio
+                               )
     {
+        ContentValues values = new ContentValues();
+        values.put(DbHelper.C_ENGINE_LOAD               , engineLoad            );
+        values.put(DbHelper.C_INTAKE_MANIFOLD_PRESSURE  , intakeManifoldPressure);
+        values.put(DbHelper.C_RPM                       , rpm                   );
+        values.put(DbHelper.C_SPEED                     , speed                 );
+        values.put(DbHelper.C_TIMING_ADVANCE            , timingAdvance         );
+        values.put(DbHelper.C_THROTTLE_POSITION         , throttlePosition      );
+        values.put(DbHelper.C_RUNTIME                   , runTime               );
+        values.put(DbHelper.C_BAROMETRIC_PRESSURE       , barometricPressure    );
+        values.put(DbHelper.C_WIDEBAND_AIR_FUEL_RATIO   , widebandAirFuelRatio  );
+        values.put(DbHelper.C_ABSOLUTE_LOAD             , absoluteLoad          );
+        values.put(DbHelper.C_AIR_FUEL_RATIO            , airFuelRatio          );
+
+        long insertId = db.insert(DbHelper.TABLE_CAR_DATA, null, values);
+
+        Log.d(LOG_TAG, "insert ID: " + insertId);
+
+        if(insertId == -1) return false;
 
         return true;
     }
@@ -158,19 +201,32 @@ public class DataFetcher
 
         determineAvailablePids();
 
-        for(ObdCommand command : availableCommands)
-            Log.i(LOG_TAG, command.getName() + ": " + executeCommand(command, RESULT_FORMAT.CALCULATED));
+//        for(ObdCommand command : availableCommands)
+//            Log.i(LOG_TAG, command.getName() + ": " + executeCommand(command, RESULT_FORMAT.CALCULATED));
 
-//        while(!Thread.currentThread().isInterrupted())
-//        {
-//            Log.i(LOG_TAG, executeCommand(new RPMCommand(), true));
-//            Log.i(LOG_TAG, executeCommand(new SpeedCommand(), true));
-//            Log.i(LOG_TAG, executeCommand(new RuntimeCommand(), true));
-//            try {
-//                Thread.sleep(500);
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
-//        }
+        while(!Thread.currentThread().isInterrupted())
+        {
+            putDataInDb( Double.parseDouble(executeCommand(new LoadCommand()                    , RESULT_FORMAT.CALCULATED))
+                       , Double.parseDouble(executeCommand(new IntakeManifoldPressureCommand()  , RESULT_FORMAT.CALCULATED))
+                       , Double.parseDouble(executeCommand(new RPMCommand()                     , RESULT_FORMAT.CALCULATED))
+                       , Double.parseDouble(executeCommand(new SpeedCommand()                   , RESULT_FORMAT.CALCULATED))
+                       , Double.parseDouble(executeCommand(new TimingAdvanceCommand()           , RESULT_FORMAT.CALCULATED))
+                       , Double.parseDouble(executeCommand(new ThrottlePositionCommand()        , RESULT_FORMAT.CALCULATED))
+                       , Integer.parseInt(  executeCommand(new RuntimeCommand()                 , RESULT_FORMAT.CALCULATED))
+                       , Double.parseDouble(executeCommand(new BarometricPressureCommand()      , RESULT_FORMAT.CALCULATED))
+                       , Double.parseDouble(executeCommand(new WidebandAirFuelRatioCommand()    , RESULT_FORMAT.CALCULATED))
+                       , Double.parseDouble(executeCommand(new AbsoluteLoadCommand()            , RESULT_FORMAT.CALCULATED))
+                       , Double.parseDouble(executeCommand(new AirFuelRatioCommand()            , RESULT_FORMAT.CALCULATED))
+            );
+
+            try
+            {
+                Thread.sleep(500);
+            }
+            catch (InterruptedException e)
+            {
+                e.printStackTrace();
+            }
+        }
     }
 }

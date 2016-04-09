@@ -41,8 +41,54 @@
                 android:textSize="30sp"/>
         </TableRow>
 
+        <TableRow
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:id="@+id/textViewSpeedValue"
+                android:layout_weight="1"
+                android:textSize="30sp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:id="@+id/textViewRpmValue"
+                android:layout_weight="1"
+                android:gravity="right"
+                android:textSize="30sp"/>
+
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="runtime"
+                android:id="@+id/textVieRuntime"
+                android:layout_weight="1"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:id="@+id/textViewRuntimeValue"
+                android:layout_weight="1"
+                android:gravity="right"
+                android:textSize="20sp"/>
+
+        </TableRow>
+
         <ScrollView
-            android:id="@+id/data_scroll"
+            android:id="@+id/scrollViewData"
             android:layout_width="fill_parent"
             android:layout_height="0dp"
             android:layout_gravity="top"
@@ -55,6 +101,190 @@
                 android:stretchColumns="1">
 
                 <!-- Content -->
+
+                <TableRow
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="engine load"
+                        android:id="@+id/textViewEngineLoad"
+                        android:layout_weight="1"
+                        android:textSize="20sp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0"
+                        android:id="@+id/textViewEngineLoadValue"
+                        android:layout_weight="1"
+                        android:gravity="right"
+                        android:textSize="20sp"/>
+
+                </TableRow>
+
+                <TableRow
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="intake manifold pressure"
+                        android:id="@+id/textViewIntakeManifoldPressure"
+                        android:layout_weight="1"
+                        android:textSize="20sp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0"
+                        android:id="@+id/textViewIntakeManifoldPressureValue"
+                        android:layout_weight="1"
+                        android:gravity="right"
+                        android:textSize="20sp"/>
+
+                </TableRow>
+
+                <TableRow
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="timing advance"
+                        android:id="@+id/textViewTimingAdvance"
+                        android:layout_weight="1"
+                        android:textSize="20sp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0"
+                        android:id="@+id/textViewTimingAdvanceValue"
+                        android:layout_weight="1"
+                        android:gravity="right"
+                        android:textSize="20sp"/>
+
+                </TableRow>
+
+                <TableRow
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="throttle position"
+                        android:id="@+id/textViewThrottlePosition"
+                        android:layout_weight="1"
+                        android:textSize="20sp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0"
+                        android:id="@+id/textViewThrottlePositionValue"
+                        android:layout_weight="1"
+                        android:gravity="right"
+                        android:textSize="20sp"/>
+
+                </TableRow>
+
+                <TableRow
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="barometric pressure"
+                        android:id="@+id/textViewBarometricPressure"
+                        android:layout_weight="1"
+                        android:textSize="20sp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0"
+                        android:id="@+id/textViewBarometricPressureValue"
+                        android:layout_weight="1"
+                        android:gravity="right"
+                        android:textSize="20sp"/>
+
+                </TableRow>
+
+                <TableRow
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="wideband air fuel ratio"
+                        android:id="@+id/textViewWidebandAirFuelRatio"
+                        android:layout_weight="1"
+                        android:textSize="20sp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0"
+                        android:id="@+id/textViewWidebandAirFuelRatioValue"
+                        android:layout_weight="1"
+                        android:gravity="right"
+                        android:textSize="20sp"/>
+
+                </TableRow>
+
+                <TableRow
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="absolute load"
+                        android:id="@+id/textViewAbsoluteLoad"
+                        android:layout_weight="1"
+                        android:textSize="20sp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0"
+                        android:id="@+id/textViewAbsoluteLoadValue"
+                        android:layout_weight="1"
+                        android:gravity="right"
+                        android:textSize="20sp"/>
+
+                </TableRow>
+
+                <TableRow
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="air/fuel ratio"
+                        android:id="@+id/textViewAirFuelRatio"
+                        android:layout_weight="1"
+                        android:textSize="20sp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0"
+                        android:id="@+id/textViewAirFuelRatioValue"
+                        android:layout_weight="1"
+                        android:gravity="right"
+                        android:textSize="20sp"/>
+
+                </TableRow>
 
             </TableLayout>
         </ScrollView>
