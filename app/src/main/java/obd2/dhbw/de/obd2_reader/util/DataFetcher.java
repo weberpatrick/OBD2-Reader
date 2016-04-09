@@ -30,6 +30,14 @@ public class DataFetcher
 
     private final String LOG_TAG = DataFetcher.class.getName();
 
+    private enum RESULT_FORMAT
+    {
+        NO_RESULT
+        , RAW
+        , CALCULATED
+        , FORMATTED
+    }
+
 //	***************************************************************************
 //	DECLARATION OF CONSTANTS
 //	***************************************************************************
@@ -61,19 +69,19 @@ public class DataFetcher
         try
         {
             Log.d(LOG_TAG, "obd reset");
-            executeCommand(new ObdResetCommand(), false);
+            executeCommand(new ObdResetCommand(), RESULT_FORMAT.NO_RESULT);
 
             Log.d(LOG_TAG, "echo Off");
-            executeCommand(new EchoOffCommand(), false);
+            executeCommand(new EchoOffCommand(), RESULT_FORMAT.NO_RESULT);
 
             Log.d(LOG_TAG, "line feed Off");
-            executeCommand(new LineFeedOffCommand(), false);
+            executeCommand(new LineFeedOffCommand(), RESULT_FORMAT.NO_RESULT);
 
             Log.d(LOG_TAG, "time out");
-            executeCommand(new TimeoutCommand(125), false);
+            executeCommand(new TimeoutCommand(125), RESULT_FORMAT.NO_RESULT);
 
             Log.d(LOG_TAG, "protocol auto");
-            executeCommand(new SelectProtocolCommand(ObdProtocols.AUTO), false);
+            executeCommand(new SelectProtocolCommand(ObdProtocols.AUTO), RESULT_FORMAT.NO_RESULT);
         }
         catch (Exception e)
         {
@@ -85,16 +93,23 @@ public class DataFetcher
      * Executes the delivered command.
      *
      * @param command ObdCommand to be executed
-     * @param response boolean true => to get the response
+     * @param format RESULT_FORMAT enumeration for the return format
      */
-    private String executeCommand(ObdCommand command, boolean response)
+    private String executeCommand(ObdCommand command, RESULT_FORMAT format)
     {
         try
         {
             if(socket.isConnected())
             {
                 command.run(socket.getInputStream(), socket.getOutputStream());
-                if(response) return command.getFormattedResult();
+                switch (format)
+                {
+                    case NO_RESULT:     return null;
+
+                    case CALCULATED:    return command.getCalculatedResult();
+                    case FORMATTED:     return command.getFormattedResult();
+                    case RAW:           return command.getResult();
+                }
             }
         }
         catch (IOException e)
@@ -113,9 +128,9 @@ public class DataFetcher
     {
         availableCommands = new ArrayList<>();
 
-        String hex_01_20 = executeCommand(new AvailablePidsCommand_01_20(), true);
-        String hex_21_40 = executeCommand(new AvailablePidsCommand_21_40(), true);
-        String hex_41_60 = executeCommand(new AvailablePidsCommand_41_60(), true);
+        String hex_01_20 = executeCommand(new AvailablePidsCommand_01_20(), RESULT_FORMAT.FORMATTED);
+        String hex_21_40 = executeCommand(new AvailablePidsCommand_21_40(), RESULT_FORMAT.FORMATTED);
+        String hex_41_60 = executeCommand(new AvailablePidsCommand_41_60(), RESULT_FORMAT.FORMATTED);
 
         Log.d(LOG_TAG, hex_01_20);
         Log.d(LOG_TAG, hex_21_40);
@@ -144,7 +159,7 @@ public class DataFetcher
         determineAvailablePids();
 
         for(ObdCommand command : availableCommands)
-            Log.i(LOG_TAG, command.getName() + ": " + executeCommand(command, true));
+            Log.i(LOG_TAG, command.getName() + ": " + executeCommand(command, RESULT_FORMAT.CALCULATED));
 
 //        while(!Thread.currentThread().isInterrupted())
 //        {
