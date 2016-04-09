@@ -4,10 +4,8 @@ import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
-import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -41,7 +39,8 @@ public class MainActivity
 //	DECLARATION OF VARIABLES
 //	***************************************************************************
 
-    public SQLiteDatabase db;
+    private DbHelper dbHelper;
+    private SQLiteDatabase db;
 
     private ArrayList<BluetoothDevice> pairedDevices;
 
@@ -65,6 +64,9 @@ public class MainActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+//      create the database
+        dbHelper = new DbHelper(this);
 
         buttonStartStop = (Button) findViewById(R.id.buttonStartStop);
         buttonStartStop.setOnClickListener(new View.OnClickListener()
@@ -228,39 +230,34 @@ public class MainActivity
         return true;
     }
 
-    private void database()
+    private void initDatabase()
     {
 //      create the database
-        DbHelper dbHelper = new DbHelper(this);
-        db = dbHelper.getWritableDatabase();
+        dbHelper = new DbHelper(this);
+//        db = dbHelper.getReadableDatabase();
 
 //        dbHelper.dropTable(db);
 
 //      put some test stuff in it
-        for (int i=0; i<10; i++)
-        {
-            ContentValues values = new ContentValues();
-            values.put(DbHelper.COLUMN_NAME, "test" + i);
-            db.insert(DbHelper.TABLE_NAME, null, values);
-        }
+
 
 //      declare cursor to read data
-        Cursor cursor = db.query(DbHelper.TABLE_NAME
-                , new String[]{DbHelper.COLUMN_NAME} //columns
-                , null //DbHelper.COLUMN_ID +"=1" //where clause
-                , null
-                , null
-                , null
-                , null
-        );
-
-        Log.d(LOG_TAG, "cursor length: " + cursor.getCount());
+//        Cursor cursor = db.query(DbHelper.TABLE_NAME
+//                , new String[]{DbHelper.COLUMN_NAME} //columns
+//                , null //DbHelper.COLUMN_ID +"=1" //where clause
+//                , null
+//                , null
+//                , null
+//                , null
+//        );
+//
+//        Log.d(LOG_TAG, "cursor length: " + cursor.getCount());
 
 //      start cursor
-        for(int i = 0; i < cursor.getCount(); i++)
-        {
-            if(cursor.moveToPosition(i)) Log.d(LOG_TAG, cursor.getString(0));
-        }
+//        for(int i = 0; i < cursor.getCount(); i++)
+//        {
+//            if(cursor.moveToPosition(i)) Log.d(LOG_TAG, cursor.getString(0));
+//        }
     }
 
     private void startLiveData()
@@ -270,7 +267,7 @@ public class MainActivity
             @Override
             public void run()
             {
-                DataFetcher dataFetcher = new DataFetcher(socket);
+                DataFetcher dataFetcher = new DataFetcher(dbHelper, socket);
                 dataFetcher.start();
             }
         });

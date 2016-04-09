@@ -4,9 +4,6 @@ import android.bluetooth.BluetoothSocket;
 import android.util.Log;
 
 import com.github.pires.obd.commands.ObdCommand;
-import com.github.pires.obd.commands.SpeedCommand;
-import com.github.pires.obd.commands.engine.RPMCommand;
-import com.github.pires.obd.commands.engine.RuntimeCommand;
 import com.github.pires.obd.commands.protocol.AvailablePidsCommand_01_20;
 import com.github.pires.obd.commands.protocol.AvailablePidsCommand_21_40;
 import com.github.pires.obd.commands.protocol.AvailablePidsCommand_41_60;
@@ -18,6 +15,9 @@ import com.github.pires.obd.commands.protocol.TimeoutCommand;
 import com.github.pires.obd.enums.ObdProtocols;
 
 import java.io.IOException;
+import java.util.ArrayList;
+
+import obd2.dhbw.de.obd2_reader.storage.DbHelper;
 
 /**
  * Created by Ricar on 08.04.2016.
@@ -35,13 +35,17 @@ public class DataFetcher
 //	***************************************************************************
 
     private BluetoothSocket socket;
+    private DbHelper dbHelper;
+
+    private ArrayList<ObdCommand> availableCommands;
 
 //	***************************************************************************
 //	CONSTRUCTOR AREA
 //	***************************************************************************
 
-    public DataFetcher(BluetoothSocket socket)
+    public DataFetcher(DbHelper dbHelper, BluetoothSocket socket)
     {
+        this.dbHelper = dbHelper;
         this.socket = socket;
     }
 
@@ -50,7 +54,7 @@ public class DataFetcher
 //	***************************************************************************
 
     /**
-     * Start a new thread to initialize the obd adapter.
+     * Initialize the obd adapter.
      */
     private void initOdb()
     {
@@ -81,6 +85,7 @@ public class DataFetcher
      * Executes the delivered command.
      *
      * @param command ObdCommand to be executed
+     * @param response boolean true => to get the response
      */
     private String executeCommand(ObdCommand command, boolean response)
     {
@@ -89,7 +94,7 @@ public class DataFetcher
             if(socket.isConnected())
             {
                 command.run(socket.getInputStream(), socket.getOutputStream());
-                if (response) return command.getFormattedResult();
+                if(response) return command.getFormattedResult();
             }
         }
         catch (IOException e)
@@ -104,29 +109,53 @@ public class DataFetcher
         return null;
     }
 
-    private void showAvailablePids()
+    private void determineAvailablePids()
     {
-        Log.d(LOG_TAG, executeCommand(new AvailablePidsCommand_01_20(), true));
-        Log.d(LOG_TAG, executeCommand(new AvailablePidsCommand_21_40(), true));
-        Log.d(LOG_TAG, executeCommand(new AvailablePidsCommand_41_60(), true));
+        availableCommands = new ArrayList<>();
+
+        String hex_01_20 = executeCommand(new AvailablePidsCommand_01_20(), true);
+        String hex_21_40 = executeCommand(new AvailablePidsCommand_21_40(), true);
+        String hex_41_60 = executeCommand(new AvailablePidsCommand_41_60(), true);
+
+        Log.d(LOG_TAG, hex_01_20);
+        Log.d(LOG_TAG, hex_21_40);
+        Log.d(LOG_TAG, hex_41_60);
+
+        availableCommands.addAll(
+                AvailableCommands.determineCommands(hex_01_20, AvailableCommands.PidArea.PIDS_01_20));
+
+        availableCommands.addAll(
+                AvailableCommands.determineCommands(hex_21_40, AvailableCommands.PidArea.PIDS_21_40));
+
+        availableCommands.addAll(
+                AvailableCommands.determineCommands(hex_41_60, AvailableCommands.PidArea.PIDS_41_60));
+    }
+
+    private boolean putDataToDb()
+    {
+
+        return true;
     }
 
     public void start()
     {
         initOdb();
 
-        showAvailablePids();
+        determineAvailablePids();
 
-        while(!Thread.currentThread().isInterrupted())
-        {
-            Log.i(LOG_TAG, executeCommand(new RPMCommand(), true));
-            Log.i(LOG_TAG, executeCommand(new SpeedCommand(), true));
-            Log.i(LOG_TAG, executeCommand(new RuntimeCommand(), true));
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
+        for(ObdCommand command : availableCommands)
+            Log.i(LOG_TAG, command.getName() + ": " + executeCommand(command, true));
+
+//        while(!Thread.currentThread().isInterrupted())
+//        {
+//            Log.i(LOG_TAG, executeCommand(new RPMCommand(), true));
+//            Log.i(LOG_TAG, executeCommand(new SpeedCommand(), true));
+//            Log.i(LOG_TAG, executeCommand(new RuntimeCommand(), true));
+//            try {
+//                Thread.sleep(500);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//        }
     }
 }
