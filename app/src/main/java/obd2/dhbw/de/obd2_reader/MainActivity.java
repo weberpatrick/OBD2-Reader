@@ -24,6 +24,7 @@ import java.util.Set;
 
 import obd2.dhbw.de.obd2_reader.connection.BluetoothConnector;
 import obd2.dhbw.de.obd2_reader.storage.DbHelper;
+import obd2.dhbw.de.obd2_reader.util.DataFetcher;
 
 public class MainActivity
         extends AppCompatActivity
@@ -240,11 +241,11 @@ public class MainActivity
         {
             ContentValues values = new ContentValues();
             values.put(DbHelper.COLUMN_NAME, "test" + i);
-            db.insert(DbHelper.DICTIONARY_TABLE_NAME, null, values);
+            db.insert(DbHelper.TABLE_NAME, null, values);
         }
 
 //      declare cursor to read data
-        Cursor cursor = db.query(DbHelper.DICTIONARY_TABLE_NAME
+        Cursor cursor = db.query(DbHelper.TABLE_NAME
                 , new String[]{DbHelper.COLUMN_NAME} //columns
                 , null //DbHelper.COLUMN_ID +"=1" //where clause
                 , null

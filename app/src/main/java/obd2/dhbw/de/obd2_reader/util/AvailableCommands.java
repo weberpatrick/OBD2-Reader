@@ -1,4 +1,4 @@
-package obd2.dhbw.de.obd2_reader;
+package obd2.dhbw.de.obd2_reader.util;
 
 import com.github.pires.obd.commands.ObdCommand;
 import com.github.pires.obd.commands.SpeedCommand;

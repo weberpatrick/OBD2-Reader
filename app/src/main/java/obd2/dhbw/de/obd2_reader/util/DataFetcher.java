@@ -1,4 +1,4 @@
-package obd2.dhbw.de.obd2_reader;
+package obd2.dhbw.de.obd2_reader.util;
 
 import android.bluetooth.BluetoothSocket;
 import android.util.Log;
