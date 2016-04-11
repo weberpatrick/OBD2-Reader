@@ -9,6 +9,8 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -22,6 +24,8 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import obd2.dhbw.de.obd2_reader.connection.BluetoothConnector;
 import obd2.dhbw.de.obd2_reader.storage.DbHelper;
@@ -52,7 +56,7 @@ public class MainActivity
 
     private boolean bluetoothEnabled;
 
-    private Thread dataFetcherThread;
+    private DataFetcher dataFetcher;
 
 //	***************************************************************************
 //	gui components
@@ -275,7 +279,6 @@ public class MainActivity
     private void fetchData()
     {
 //      declare cursor to read data
-//        TODO get data in descading order
         Cursor cursor = db.query(DbHelper.TABLE_CAR_DATA
                 , null //columns
                 , null //DbHelper.C_ID +"=1" //where clause
@@ -293,51 +296,58 @@ public class MainActivity
             Log.d(LOG_TAG, String.valueOf(cursor.getInt(0)));
             Log.d(LOG_TAG, cursor.getString(1));
 
-            textViewEngineLoad.setText(String.valueOf(cursor.getDouble(2)));
+            updateTextView(textViewEngineLoad               , String.valueOf(cursor.getDouble(2)));
 
-            textViewIntakeManifoldPressure.setText(String.valueOf(cursor.getDouble(3)));
-            textViewRpmValue.setText(String.valueOf(cursor.getDouble(4)));
+            updateTextView(textViewIntakeManifoldPressure   , String.valueOf(cursor.getDouble(3)));
+            updateTextView(textViewRpmValue                 , String.valueOf(cursor.getDouble(4)));
 
-            textViewSpeedValue.setText(String.valueOf(cursor.getDouble(5)));
-            textViewTimingAdvanceValue.setText(String.valueOf(cursor.getDouble(6)));
-            textViewThrottlePositionValue.setText(String.valueOf(cursor.getDouble(7)));
-            textViewRuntime.setText(String.valueOf(cursor.getInt(8)));
-            textViewBarometricPressureValue.setText(String.valueOf(cursor.getDouble(9)));
-            textViewWidebandAirFuelRatioValue.setText(String.valueOf(cursor.getDouble(10)));
-            textViewAbsoluteLoadValue.setText(String.valueOf(cursor.getDouble(11)));
-            textViewAirFuelRatioValue.setText(String.valueOf(cursor.getDouble(12)));
-        }
-
-        try
-        {
-            Thread.sleep(1000);
-        }
-        catch (InterruptedException e)
-        {
-            e.printStackTrace();
+            updateTextView(textViewSpeedValue               , String.valueOf(cursor.getDouble(5)));
+            updateTextView( textViewTimingAdvanceValue      , String.valueOf(cursor.getDouble(6)));
+            updateTextView(textViewThrottlePositionValue    , String.valueOf(cursor.getDouble(7)));
+            updateTextView(textViewRuntime                  , String.valueOf(cursor.getInt(8)));
+            updateTextView(textViewBarometricPressureValue  , String.valueOf(cursor.getDouble(9)));
+            updateTextView(textViewWidebandAirFuelRatioValue, String.valueOf(cursor.getDouble(10)));
+            updateTextView(textViewAbsoluteLoadValue        , String.valueOf(cursor.getDouble(11)));
+            updateTextView(textViewAirFuelRatioValue        , String.valueOf(cursor.getDouble(12)));
         }
     }
 
     private void startLiveData()
     {
-        dataFetcherThread = new Thread(new Runnable()
+        dataFetcher = new DataFetcher(dbHelper, socket);
+
+        Timer timeDataFetcher = new Timer();
+        timeDataFetcher.schedule(new TimerTask()
         {
             @Override
             public void run()
             {
-                DataFetcher dataFetcher = new DataFetcher(dbHelper, socket);
+                Log.d(LOG_TAG, "dataFetcher");
                 dataFetcher.start();
             }
-        });
-        dataFetcherThread.start();
+        }, 0, 1000);
 
-        new Thread(new Runnable()
+        Timer fetchTimer = new Timer();
+        fetchTimer.schedule(new TimerTask()
         {
             @Override
             public void run()
             {
+                Log.d(LOG_TAG, "fetch");
                 fetchData();
             }
-        }).start();
+        }, 10000, 1000);
     }
+
+    public void updateTextView(final TextView view, final String txt)
+    {
+        new Handler(Looper.getMainLooper()).post(new Runnable()
+        {
+            public void run()
+            {
+                view.setText(txt);
+            }
+        });
+    }
+
 }

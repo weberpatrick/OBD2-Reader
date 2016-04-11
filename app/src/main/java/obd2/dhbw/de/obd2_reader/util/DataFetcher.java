@@ -69,6 +69,10 @@ public class DataFetcher
         this.socket = socket;
 
         db = dbHelper.getWritableDatabase();
+
+        initOdb();
+
+        determineAvailablePids();
     }
 
 //	***************************************************************************
@@ -197,16 +201,10 @@ public class DataFetcher
 
     public void start()
     {
-        initOdb();
-
-        determineAvailablePids();
-
 //        for(ObdCommand command : availableCommands)
 //            Log.i(LOG_TAG, command.getName() + ": " + executeCommand(command, RESULT_FORMAT.CALCULATED));
 
-        while(!Thread.currentThread().isInterrupted())
-        {
-            putDataInDb( Double.parseDouble(executeCommand(new LoadCommand()                    , RESULT_FORMAT.CALCULATED))
+        putDataInDb( Double.parseDouble(executeCommand(new LoadCommand()                    , RESULT_FORMAT.CALCULATED))
                        , Double.parseDouble(executeCommand(new IntakeManifoldPressureCommand()  , RESULT_FORMAT.CALCULATED))
                        , Double.parseDouble(executeCommand(new RPMCommand()                     , RESULT_FORMAT.CALCULATED))
                        , Double.parseDouble(executeCommand(new SpeedCommand()                   , RESULT_FORMAT.CALCULATED))
@@ -218,15 +216,5 @@ public class DataFetcher
                        , Double.parseDouble(executeCommand(new AbsoluteLoadCommand()            , RESULT_FORMAT.CALCULATED))
                        , Double.parseDouble(executeCommand(new AirFuelRatioCommand()            , RESULT_FORMAT.CALCULATED))
             );
-
-            try
-            {
-                Thread.sleep(500);
-            }
-            catch (InterruptedException e)
-            {
-                e.printStackTrace();
-            }
-        }
     }
 }
