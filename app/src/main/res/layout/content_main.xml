@@ -20,6 +20,18 @@
         android:layout_centerHorizontal="true">
 
         <TableRow
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right">
+
+            <ImageView
+                android:layout_width="@dimen/notification_large_icon_width"
+                android:layout_height="@dimen/notification_large_icon_height"
+                android:id="@+id/imageViewCompass"
+                android:src="@drawable/compass_arrow" />
+        </TableRow>
+
+        <TableRow
             android:layout_width="fill_parent"
             android:layout_height="wrap_content">
 
