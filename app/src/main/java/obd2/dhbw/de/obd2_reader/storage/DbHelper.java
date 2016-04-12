@@ -2,10 +2,13 @@ package obd2.dhbw.de.obd2_reader.storage;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
+
+import obd2.dhbw.de.obd2_reader.container.DataRow;
 
 /**
  * Created by Ricardo on 02.04.2016.
@@ -157,5 +160,48 @@ public class DbHelper
         if(insertId == -1) return false;
 
         return true;
+    }
+
+    public DataRow select()
+    {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+//      declare cursor to read data
+//      select row with highest id
+        Cursor cursor = db.query( TABLE_CAR_DATA
+                                , null //columns
+                                , null //DbHelper.C_ID +"=1" //where clause
+                                , null //selectionArgs
+                                , null //groupBy
+                                , null //having
+                                , C_ID + " DESC" //order by
+                                , "1" //limit
+        );
+
+        Log.d(LOG_TAG, "cursor length: " + cursor.getCount());
+
+        if(cursor.moveToPosition(0))
+        {
+            Log.d(LOG_TAG, String.valueOf(cursor.getInt(0)));
+            Log.d(LOG_TAG, cursor.getString(1));
+
+            String.valueOf(cursor.getDouble(2));
+
+            String.valueOf(cursor.getDouble(3));
+            String.valueOf(cursor.getDouble(4));
+
+            String.valueOf(cursor.getDouble(5));
+            String.valueOf(cursor.getDouble(6));
+            String.valueOf(cursor.getDouble(7));
+            String.valueOf(cursor.getInt(8));
+            String.valueOf(cursor.getDouble(9));
+            String.valueOf(cursor.getDouble(10));
+            String.valueOf(cursor.getDouble(11));
+            String.valueOf(cursor.getDouble(12));
+        }
+
+//        TODO create a data row object with values from cursor
+//        return new DataRow();
+        return null;
     }
 }

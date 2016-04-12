@@ -162,8 +162,6 @@ public class InputDataReader
                 AvailableCommands.determineCommands(hex_41_60, AvailableCommands.PidArea.PIDS_41_60));
     }
 
-
-
     private int formatInt(String value)
     {
         int formatted = 0;
