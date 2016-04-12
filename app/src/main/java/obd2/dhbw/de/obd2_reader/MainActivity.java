@@ -29,7 +29,7 @@ import java.util.TimerTask;
 
 import obd2.dhbw.de.obd2_reader.connection.BluetoothConnector;
 import obd2.dhbw.de.obd2_reader.storage.DbHelper;
-import obd2.dhbw.de.obd2_reader.util.DataFetcher;
+import obd2.dhbw.de.obd2_reader.util.InputDataReader;
 
 public class MainActivity
         extends AppCompatActivity
@@ -40,7 +40,10 @@ public class MainActivity
 
     private final String LOG_TAG = MainActivity.class.getName();
 
-    private final int BLUETOOTH_REQUEST = 1;
+    private final int BLUETOOTH_REQUEST   = 1;
+
+    private final int INPUT_DATA_INTERVAL = 1000;
+    private final int READ_DATA_INTERVAL  = 1000;
 
 //	***************************************************************************
 //	DECLARATION OF VARIABLES
@@ -54,7 +57,7 @@ public class MainActivity
 
     private boolean bluetoothEnabled;
 
-    private DataFetcher dataFetcher;
+    private InputDataReader inputDataReader;
 
 //	***************************************************************************
 //	gui components
@@ -313,29 +316,29 @@ public class MainActivity
 
     private void startLiveData()
     {
-        dataFetcher = new DataFetcher(dbHelper, socket);
+        inputDataReader = new InputDataReader(dbHelper, socket);
 
-        Timer timeDataFetcher = new Timer();
-        timeDataFetcher.schedule(new TimerTask()
+        Timer timerInputDataReader = new Timer();
+        timerInputDataReader.schedule(new TimerTask()
         {
             @Override
             public void run()
             {
-                Log.d(LOG_TAG, "dataFetcher");
-                dataFetcher.start();
+                Log.d(LOG_TAG, "inputDataReader");
+                inputDataReader.start();
             }
-        }, 0, 1000);
+        }, 0, INPUT_DATA_INTERVAL);
 
-        Timer fetchTimer = new Timer();
-        fetchTimer.schedule(new TimerTask()
+        Timer timerReadData = new Timer();
+        timerReadData.schedule(new TimerTask()
         {
             @Override
             public void run()
             {
-                Log.d(LOG_TAG, "fetch");
+                Log.d(LOG_TAG, "read data");
                 fetchData();
             }
-        }, 10000, 1000);
+        }, 10000, READ_DATA_INTERVAL);
     }
 
     public void updateTextView(final TextView view, final String txt)
@@ -348,5 +351,4 @@ public class MainActivity
             }
         });
     }
-
 }
