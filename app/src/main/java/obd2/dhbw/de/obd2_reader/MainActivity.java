@@ -18,7 +18,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -49,8 +48,6 @@ public class MainActivity
     private DbHelper dbHelper;
     private SQLiteDatabase db;
 
-    private ArrayList<BluetoothDevice> pairedDevices;
-
     private BluetoothSocket socket;
     private BluetoothAdapter btAdapter;
 
@@ -63,11 +60,10 @@ public class MainActivity
 //	***************************************************************************
 
     private Button buttonStartStop;
-    private ScrollView scrollViewData;
 
     private TextView textViewSpeedValue;
     private TextView textViewRpmValue;
-    private TextView textViewRuntime;
+    private TextView textViewRuntimeValue;
 
     private TextView textViewEngineLoad;
     private TextView textViewIntakeManifoldPressure;
@@ -106,14 +102,16 @@ public class MainActivity
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_settings)
+        {
             return true;
         }
 
@@ -146,8 +144,6 @@ public class MainActivity
 
     private void initComponents()
     {
-        scrollViewData = (ScrollView) findViewById(R.id.scrollViewData);
-
         buttonStartStop = (Button) findViewById(R.id.buttonStartStop);
         buttonStartStop.setOnClickListener(new View.OnClickListener()
         {
@@ -163,7 +159,7 @@ public class MainActivity
 
         textViewSpeedValue                  = (TextView) findViewById(R.id.textViewSpeedValue);
         textViewRpmValue                    = (TextView) findViewById(R.id.textViewRpmValue);
-        textViewRuntime                     = (TextView) findViewById(R.id.textViewRuntimeValue);
+        textViewRuntimeValue                = (TextView) findViewById(R.id.textViewRuntimeValue);
 
         textViewEngineLoad                  = (TextView) findViewById(R.id.textViewEngineLoadValue);
         textViewIntakeManifoldPressure      = (TextView) findViewById(R.id.textViewIntakeManifoldPressureValue);
@@ -180,8 +176,6 @@ public class MainActivity
      */
     private void initBluetoothAdapter()
     {
-        pairedDevices = new ArrayList<BluetoothDevice>();
-
         btAdapter = BluetoothAdapter.getDefaultAdapter();
         if(btAdapter == null)
         {
@@ -304,7 +298,7 @@ public class MainActivity
             updateTextView(textViewSpeedValue               , String.valueOf(cursor.getDouble(5)));
             updateTextView( textViewTimingAdvanceValue      , String.valueOf(cursor.getDouble(6)));
             updateTextView(textViewThrottlePositionValue    , String.valueOf(cursor.getDouble(7)));
-            updateTextView(textViewRuntime                  , String.valueOf(cursor.getInt(8)));
+            updateTextView(textViewRuntimeValue, String.valueOf(cursor.getInt(8)));
             updateTextView(textViewBarometricPressureValue  , String.valueOf(cursor.getDouble(9)));
             updateTextView(textViewWidebandAirFuelRatioValue, String.valueOf(cursor.getDouble(10)));
             updateTextView(textViewAbsoluteLoadValue        , String.valueOf(cursor.getDouble(11)));
