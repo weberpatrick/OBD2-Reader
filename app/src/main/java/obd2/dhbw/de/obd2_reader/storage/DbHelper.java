@@ -30,33 +30,57 @@ public class DbHelper
 //  database
     private static final int DATABASE_VERSION   = 1;
     private static final String DATABASE_NAME   = "obdDB.db";
-    public static final String TABLE_CAR_DATA = "carData";
+    public static final String TABLE_CAR_DATA   = "carData";
+    public static final String TABLE_TRIP       = "trip";
 
 //  columns
-    public static final String C_ID                         = "id";
-    public static final String C_TIMESTAMP                  = "timestamp";
-    public static final String C_ENGINE_LOAD                = "engineLoad";
-    public static final String C_INTAKE_MANIFOLD_PRESSURE   = "intakeManifoldPressure";
-    public static final String C_RPM                        = "rpm";
-    public static final String C_SPEED                      = "speed";
-    public static final String C_TIMING_ADVANCE             = "timingAdvance";
-    public static final String C_THROTTLE_POSITION          = "throttlePosition";
-    public static final String C_RUNTIME                    = "runTime";
-    public static final String C_BAROMETRIC_PRESSURE        = "barometricPressure";
-    public static final String C_WIDEBAND_AIR_FUEL_RATIO    = "widebandAirFuelRatio";
-    public static final String C_ABSOLUTE_LOAD              = "absoluteLoad";
-    public static final String C_AIR_FUEL_RATIO             = "airFuelRatio";
+    public static final String C_ID                         = TABLE_CAR_DATA + "." + "id";
+    public static final String C_TIMESTAMP                  = TABLE_CAR_DATA + "." + "timestamp";
+    public static final String C_ENGINE_LOAD                = TABLE_CAR_DATA + "." + "engineLoad";
+    public static final String C_INTAKE_MANIFOLD_PRESSURE   = TABLE_CAR_DATA + "." + "intakeManifoldPressure";
+    public static final String C_RPM                        = TABLE_CAR_DATA + "." + "rpm";
+    public static final String C_SPEED                      = TABLE_CAR_DATA + "." + "speed";
+    public static final String C_TIMING_ADVANCE             = TABLE_CAR_DATA + "." + "timingAdvance";
+    public static final String C_THROTTLE_POSITION          = TABLE_CAR_DATA + "." + "throttlePosition";
+    public static final String C_RUNTIME                    = TABLE_CAR_DATA + "." + "runTime";
+    public static final String C_BAROMETRIC_PRESSURE        = TABLE_CAR_DATA + "." + "barometricPressure";
+    public static final String C_WIDEBAND_AIR_FUEL_RATIO    = TABLE_CAR_DATA + "." + "widebandAirFuelRatio";
+    public static final String C_ABSOLUTE_LOAD              = TABLE_CAR_DATA + "." + "absoluteLoad";
+    public static final String C_AIR_FUEL_RATIO             = TABLE_CAR_DATA + "." + "airFuelRatio";
 
 //  TODO check whether a foreign key connection is necessary
-    public static final String C_TRIP_ID                    = "tripId";
-    public static final String C_GPS_SPEED                  = "gpsSpeed";
-    public static final String C_LATITUDE                   = "latitude";
-    public static final String C_LONGITUDE                  = "longitude";
-    public static final String C_ALTITUDE                   = "altitude";
+    public static final String C_TRIP_ID                    = TABLE_CAR_DATA + "." + "tripId";
+    public static final String C_GPS_SPEED                  = TABLE_CAR_DATA + "." + "gpsSpeed";
+    public static final String C_LATITUDE                   = TABLE_CAR_DATA + "." + "latitude";
+    public static final String C_LONGITUDE                  = TABLE_CAR_DATA + "." + "longitude";
+    public static final String C_ALTITUDE                   = TABLE_CAR_DATA + "." + "altitude";
 
 //  sql commands
     private static final String TABLE_CAR_DATA_CREATE =
             "CREATE TABLE " + TABLE_CAR_DATA
+                    + " ("
+                    + C_ID                      + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                    + C_TIMESTAMP               + " TEXT DEFAULT CURRENT_TIMESTAMP,"
+                    + C_ENGINE_LOAD             + " REAL,"
+                    + C_INTAKE_MANIFOLD_PRESSURE+ " REAL,"
+                    + C_RPM                     + " INTEGER,"
+                    + C_SPEED                   + " INTEGER,"
+                    + C_TIMING_ADVANCE          + " REAL,"
+                    + C_THROTTLE_POSITION       + " REAL,"
+                    + C_RUNTIME                 + " INTEGER,"
+                    + C_BAROMETRIC_PRESSURE     + " REAL,"
+                    + C_WIDEBAND_AIR_FUEL_RATIO + " REAL,"
+                    + C_ABSOLUTE_LOAD           + " REAL,"
+                    + C_AIR_FUEL_RATIO          + " REAL"
+                    + C_TRIP_ID                 + " INTEGER,"
+                    + C_GPS_SPEED               + " REAL,"
+                    + C_LATITUDE                + " REAL,"
+                    + C_LONGITUDE               + " REAL,"
+                    + C_ALTITUDE                + " REAL"
+                    + ");";
+
+    private static final String TABLE_TRIP_CREATE =
+            "CREATE TABLE " + TABLE_TRIP
                     + " ("
                     + C_ID                      + " INTEGER PRIMARY KEY AUTOINCREMENT,"
                     + C_TIMESTAMP               + " TEXT DEFAULT CURRENT_TIMESTAMP,"
