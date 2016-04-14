@@ -1,6 +1,7 @@
 package obd2.dhbw.de.obd2_reader.util;
 
 import android.bluetooth.BluetoothSocket;
+import android.content.Context;
 import android.util.Log;
 
 import com.github.pires.obd.commands.ObdCommand;
@@ -59,14 +60,21 @@ public class InputDataReader
 
     private ArrayList<ObdCommand> availableCommands;
 
+    private LocationFinder locationFinder;
+
 //	***************************************************************************
 //	CONSTRUCTOR AREA
 //	***************************************************************************
 
-    public InputDataReader(DbHelper dbHelper, BluetoothSocket socket)
+    public InputDataReader(DbHelper dbHelper, BluetoothSocket socket, Context context)
     {
         this.socket = socket;
         this.dbHelper = dbHelper;
+
+        locationFinder = new LocationFinder(context);
+        if (!locationFinder.canGetLocation()){
+            locationFinder.showGPSAlert();
+        }
 
         initOdb();
 
@@ -211,10 +219,10 @@ public class InputDataReader
                        , formatDouble(executeCommand(new AbsoluteLoadCommand()          , RESULT_FORMAT.CALCULATED))
                        , formatDouble(executeCommand(new AirFuelRatioCommand()          , RESULT_FORMAT.CALCULATED))
                        , 1 //TODO determine trip id
-                       , 0 //TODO determine gps speed
-                       , 0 //TODO determine latitude
-                       , 0 //TODO determine longitude
-                       , 0 //TODO determine altitude
+                       , locationFinder.getSpeed() //TODO determine gps speed
+                       , locationFinder.getLatitude() //TODO determine latitude
+                       , locationFinder.getLongitude() //TODO determine longitude
+                       , locationFinder.getAltitude() //TODO determine altitude
                        );
     }
 }

@@ -289,7 +289,7 @@ public class MainActivity
         updateTextView(textViewIntakeManifoldPressure   , dataRow.getIntakeManifoldPressure());
         updateTextView(textViewRpmValue                 , dataRow.getRpm());
         updateTextView(textViewSpeedValue               , dataRow.getSpeed());
-        updateTextView( textViewTimingAdvanceValue      , dataRow.getTimingAdvance());
+        updateTextView(textViewTimingAdvanceValue       , dataRow.getTimingAdvance());
         updateTextView(textViewThrottlePositionValue    , dataRow.getThrottlePosition());
         updateTextView(textViewRuntimeValue             , dataRow.getRunTime());
         updateTextView(textViewBarometricPressureValue  , dataRow.getBarometricPressure());
@@ -303,7 +303,7 @@ public class MainActivity
 //        TODO check opportunity of variable delay
 //        http://stackoverflow.com/questions/8386545/java-timer-with-not-fixed-delay
 
-        inputDataReader = new InputDataReader(dbHelper, socket);
+        inputDataReader = new InputDataReader(dbHelper, socket, this);
 
         Timer timerInputDataReader = new Timer();
         timerInputDataReader.schedule(new TimerTask()
