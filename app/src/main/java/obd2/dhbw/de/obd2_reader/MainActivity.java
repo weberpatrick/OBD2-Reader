@@ -6,7 +6,6 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.Handler;
@@ -28,6 +27,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import obd2.dhbw.de.obd2_reader.connection.BluetoothConnector;
+import obd2.dhbw.de.obd2_reader.container.DataRow;
 import obd2.dhbw.de.obd2_reader.storage.DbHelper;
 import obd2.dhbw.de.obd2_reader.util.InputDataReader;
 
@@ -42,8 +42,8 @@ public class MainActivity
 
     private final int BLUETOOTH_REQUEST   = 1;
 
-    private final int INPUT_DATA_INTERVAL = 1000;
-    private final int READ_DATA_INTERVAL  = 1000;
+    private final int INPUT_DATA_INTERVAL = 100;
+    private final int READ_DATA_INTERVAL  = 100;
 
 //	***************************************************************************
 //	DECLARATION OF VARIABLES
@@ -280,42 +280,29 @@ public class MainActivity
 
     private void fetchData()
     {
-//      declare cursor to read data
-        Cursor cursor = db.query(DbHelper.TABLE_CAR_DATA
-                , null //columns
-                , null //DbHelper.C_ID +"=1" //where clause
-                , null //selectionArgs
-                , null //groupBy
-                , null //having
-                , DbHelper.C_ID + " DESC" //order by
-                , "1" //limit
-        );
+        DataRow dataRow = dbHelper.selectCarData();
 
-        Log.d(LOG_TAG, "cursor length: " + cursor.getCount());
+//        Log.d(LOG_TAG, dataRow.getTimestamp());
 
-        if(cursor.moveToPosition(0))
-        {
-            Log.d(LOG_TAG, String.valueOf(cursor.getInt(0)));
-            Log.d(LOG_TAG, cursor.getString(1));
+        updateTextView(textViewEngineLoad               , dataRow.getEngineLoad());
 
-            updateTextView(textViewEngineLoad               , String.valueOf(cursor.getDouble(2)));
-
-            updateTextView(textViewIntakeManifoldPressure   , String.valueOf(cursor.getDouble(3)));
-            updateTextView(textViewRpmValue                 , String.valueOf(cursor.getDouble(4)));
-
-            updateTextView(textViewSpeedValue               , String.valueOf(cursor.getDouble(5)));
-            updateTextView( textViewTimingAdvanceValue      , String.valueOf(cursor.getDouble(6)));
-            updateTextView(textViewThrottlePositionValue    , String.valueOf(cursor.getDouble(7)));
-            updateTextView(textViewRuntimeValue, String.valueOf(cursor.getInt(8)));
-            updateTextView(textViewBarometricPressureValue  , String.valueOf(cursor.getDouble(9)));
-            updateTextView(textViewWidebandAirFuelRatioValue, String.valueOf(cursor.getDouble(10)));
-            updateTextView(textViewAbsoluteLoadValue        , String.valueOf(cursor.getDouble(11)));
-            updateTextView(textViewAirFuelRatioValue        , String.valueOf(cursor.getDouble(12)));
-        }
+        updateTextView(textViewIntakeManifoldPressure   , dataRow.getIntakeManifoldPressure());
+        updateTextView(textViewRpmValue                 , dataRow.getRpm());
+        updateTextView(textViewSpeedValue               , dataRow.getSpeed());
+        updateTextView( textViewTimingAdvanceValue      , dataRow.getTimingAdvance());
+        updateTextView(textViewThrottlePositionValue    , dataRow.getThrottlePosition());
+        updateTextView(textViewRuntimeValue             , dataRow.getRunTime());
+        updateTextView(textViewBarometricPressureValue  , dataRow.getBarometricPressure());
+        updateTextView(textViewWidebandAirFuelRatioValue, dataRow.getWidebandAirFuelRatio());
+        updateTextView(textViewAbsoluteLoadValue        , dataRow.getAbsoluteLoad());
+        updateTextView(textViewAirFuelRatioValue        , dataRow.getAirFuelRatio());
     }
 
     private void startLiveData()
     {
+//        TODO check opportunity of variable delay
+//        http://stackoverflow.com/questions/8386545/java-timer-with-not-fixed-delay
+
         inputDataReader = new InputDataReader(dbHelper, socket);
 
         Timer timerInputDataReader = new Timer();
@@ -324,7 +311,6 @@ public class MainActivity
             @Override
             public void run()
             {
-                Log.d(LOG_TAG, "inputDataReader");
                 inputDataReader.start();
             }
         }, 0, INPUT_DATA_INTERVAL);
@@ -335,10 +321,9 @@ public class MainActivity
             @Override
             public void run()
             {
-                Log.d(LOG_TAG, "read data");
                 fetchData();
             }
-        }, 10000, READ_DATA_INTERVAL);
+        }, 5000, READ_DATA_INTERVAL);
     }
 
     public void updateTextView(final TextView view, final String txt)

@@ -14,7 +14,7 @@ import obd2.dhbw.de.obd2_reader.container.DataRow;
  * Created by Ricardo on 02.04.2016.
  */
 public class DbHelper
-        extends SQLiteOpenHelper
+       extends SQLiteOpenHelper
 {
 //    http://www.programmierenlernenhq.de/daten-in-sqlite-datenbank-schreiben-und-lesen-in-android/
 
@@ -33,27 +33,39 @@ public class DbHelper
     public static final String TABLE_CAR_DATA   = "carData";
     public static final String TABLE_TRIP       = "trip";
 
-//  columns
-    public static final String C_ID                         = TABLE_CAR_DATA + "." + "id";
-    public static final String C_TIMESTAMP                  = TABLE_CAR_DATA + "." + "timestamp";
-    public static final String C_ENGINE_LOAD                = TABLE_CAR_DATA + "." + "engineLoad";
-    public static final String C_INTAKE_MANIFOLD_PRESSURE   = TABLE_CAR_DATA + "." + "intakeManifoldPressure";
-    public static final String C_RPM                        = TABLE_CAR_DATA + "." + "rpm";
-    public static final String C_SPEED                      = TABLE_CAR_DATA + "." + "speed";
-    public static final String C_TIMING_ADVANCE             = TABLE_CAR_DATA + "." + "timingAdvance";
-    public static final String C_THROTTLE_POSITION          = TABLE_CAR_DATA + "." + "throttlePosition";
-    public static final String C_RUNTIME                    = TABLE_CAR_DATA + "." + "runTime";
-    public static final String C_BAROMETRIC_PRESSURE        = TABLE_CAR_DATA + "." + "barometricPressure";
-    public static final String C_WIDEBAND_AIR_FUEL_RATIO    = TABLE_CAR_DATA + "." + "widebandAirFuelRatio";
-    public static final String C_ABSOLUTE_LOAD              = TABLE_CAR_DATA + "." + "absoluteLoad";
-    public static final String C_AIR_FUEL_RATIO             = TABLE_CAR_DATA + "." + "airFuelRatio";
+//	***************************************************************************
+//	columns
+//	***************************************************************************
+
+//  car data columns
+    private static final String C_ID                         = TABLE_CAR_DATA + "_" + "id";
+    private static final String C_TIMESTAMP                  = TABLE_CAR_DATA + "_" + "timestamp";
+    private static final String C_ENGINE_LOAD                = TABLE_CAR_DATA + "_" + "engineLoad";
+    private static final String C_INTAKE_MANIFOLD_PRESSURE   = TABLE_CAR_DATA + "_" + "intakeManifoldPressure";
+    private static final String C_RPM                        = TABLE_CAR_DATA + "_" + "rpm";
+    private static final String C_SPEED                      = TABLE_CAR_DATA + "_" + "speed";
+    private static final String C_TIMING_ADVANCE             = TABLE_CAR_DATA + "_" + "timingAdvance";
+    private static final String C_THROTTLE_POSITION          = TABLE_CAR_DATA + "_" + "throttlePosition";
+    private static final String C_RUNTIME                    = TABLE_CAR_DATA + "_" + "runTime";
+    private static final String C_BAROMETRIC_PRESSURE        = TABLE_CAR_DATA + "_" + "barometricPressure";
+    private static final String C_WIDEBAND_AIR_FUEL_RATIO    = TABLE_CAR_DATA + "_" + "widebandAirFuelRatio";
+    private static final String C_ABSOLUTE_LOAD              = TABLE_CAR_DATA + "_" + "absoluteLoad";
+    private static final String C_AIR_FUEL_RATIO             = TABLE_CAR_DATA + "_" + "airFuelRatio";
 
 //  TODO check whether a foreign key connection is necessary
-    public static final String C_TRIP_ID                    = TABLE_CAR_DATA + "." + "tripId";
-    public static final String C_GPS_SPEED                  = TABLE_CAR_DATA + "." + "gpsSpeed";
-    public static final String C_LATITUDE                   = TABLE_CAR_DATA + "." + "latitude";
-    public static final String C_LONGITUDE                  = TABLE_CAR_DATA + "." + "longitude";
-    public static final String C_ALTITUDE                   = TABLE_CAR_DATA + "." + "altitude";
+    private static final String C_TRIP_ID                    = TABLE_CAR_DATA + "_" + "tripId";
+    private static final String C_GPS_SPEED                  = TABLE_CAR_DATA + "_" + "gpsSpeed";
+    private static final String C_LATITUDE                   = TABLE_CAR_DATA + "_" + "latitude";
+    private static final String C_LONGITUDE                  = TABLE_CAR_DATA + "_" + "longitude";
+    private static final String C_ALTITUDE                   = TABLE_CAR_DATA + "_" + "altitude";
+
+//  trip columns
+    private static final String T_ID                        = TABLE_TRIP + "_" + "id";
+    private static final String T_TRACK_LENGTH              = TABLE_TRIP + "_" + "trackLength";
+    private static final String T_DRIVING_TIME = TABLE_TRIP + "_" + "id";
+    private static final String T_STAND_TIME = TABLE_TRIP + "_" + "id";
+    private static final String T_MAX_SPEED                 = TABLE_TRIP + "_" + "maxSpeed";
+    private static final String T_AVG_SPEED                 = TABLE_TRIP + "_" + "avgSpeed";
 
 //  sql commands
     private static final String TABLE_CAR_DATA_CREATE =
@@ -71,7 +83,7 @@ public class DbHelper
                     + C_BAROMETRIC_PRESSURE     + " REAL,"
                     + C_WIDEBAND_AIR_FUEL_RATIO + " REAL,"
                     + C_ABSOLUTE_LOAD           + " REAL,"
-                    + C_AIR_FUEL_RATIO          + " REAL"
+                    + C_AIR_FUEL_RATIO          + " REAL,"
                     + C_TRIP_ID                 + " INTEGER,"
                     + C_GPS_SPEED               + " REAL,"
                     + C_LATITUDE                + " REAL,"
@@ -82,24 +94,12 @@ public class DbHelper
     private static final String TABLE_TRIP_CREATE =
             "CREATE TABLE " + TABLE_TRIP
                     + " ("
-                    + C_ID                      + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-                    + C_TIMESTAMP               + " TEXT DEFAULT CURRENT_TIMESTAMP,"
-                    + C_ENGINE_LOAD             + " REAL,"
-                    + C_INTAKE_MANIFOLD_PRESSURE+ " REAL,"
-                    + C_RPM                     + " INTEGER,"
-                    + C_SPEED                   + " INTEGER,"
-                    + C_TIMING_ADVANCE          + " REAL,"
-                    + C_THROTTLE_POSITION       + " REAL,"
-                    + C_RUNTIME                 + " INTEGER,"
-                    + C_BAROMETRIC_PRESSURE     + " REAL,"
-                    + C_WIDEBAND_AIR_FUEL_RATIO + " REAL,"
-                    + C_ABSOLUTE_LOAD           + " REAL,"
-                    + C_AIR_FUEL_RATIO          + " REAL"
-                    + C_TRIP_ID                 + " INTEGER,"
-                    + C_GPS_SPEED               + " REAL,"
-                    + C_LATITUDE                + " REAL,"
-                    + C_LONGITUDE               + " REAL,"
-                    + C_ALTITUDE                + " REAL"
+                    + T_ID                      + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                    + T_TRACK_LENGTH            + " REAL,"
+                    + T_DRIVING_TIME            + " INTEGER,"
+                    + T_STAND_TIME              + " INTEGER,"
+                    + T_MAX_SPEED               + " INTEGER,"
+                    + T_AVG_SPEED               + " REAL"
                     + ");";
 
 //	***************************************************************************
@@ -120,9 +120,11 @@ public class DbHelper
     {
         try
         {
-            Log.d(LOG_TAG, "Create the table with the SQL command: " + TABLE_CAR_DATA_CREATE);
-
+            Log.d(LOG_TAG, "Create the car data table with: " + TABLE_CAR_DATA_CREATE);
             db.execSQL(TABLE_CAR_DATA_CREATE);
+
+            Log.d(LOG_TAG, "Create the trip table with: " + TABLE_TRIP_CREATE);
+            db.execSQL(TABLE_TRIP_CREATE);
         }
         catch (SQLException e)
         {
@@ -137,23 +139,23 @@ public class DbHelper
 //	METHOD AREA
 //	***************************************************************************
 
-    public boolean insert( double engineLoad
-                         , double intakeManifoldPressure
-                         , int rpm
-                         , int speed
-                         , double timingAdvance
-                         , double throttlePosition
-                         , int runTime
-                         , double barometricPressure
-                         , double widebandAirFuelRatio
-                         , double absoluteLoad
-                         , double airFuelRatio
-                         , int tripId
-                         , double gpsSpeed
-                         , double latitude
-                         , double longitude
-                         , double altitude
-    )
+    public boolean insertCarData( double engineLoad
+                                , double intakeManifoldPressure
+                                , int rpm
+                                , int speed
+                                , double timingAdvance
+                                , double throttlePosition
+                                , int runTime
+                                , double barometricPressure
+                                , double widebandAirFuelRatio
+                                , double absoluteLoad
+                                , double airFuelRatio
+                                , int tripId
+                                , double gpsSpeed
+                                , double latitude
+                                , double longitude
+                                , double altitude
+                                )
     {
         ContentValues values = new ContentValues();
         values.put(C_ENGINE_LOAD, engineLoad);
@@ -167,9 +169,7 @@ public class DbHelper
         values.put(C_WIDEBAND_AIR_FUEL_RATIO, widebandAirFuelRatio);
         values.put(C_ABSOLUTE_LOAD, absoluteLoad);
         values.put(C_AIR_FUEL_RATIO, airFuelRatio);
-
         values.put(C_TRIP_ID, tripId);
-//        TODO integrate gps speed and position stuff
         values.put(C_GPS_SPEED, gpsSpeed);
         values.put(C_LATITUDE, latitude);
         values.put(C_LONGITUDE, longitude);
@@ -178,20 +178,20 @@ public class DbHelper
         SQLiteDatabase db = this.getWritableDatabase();
         long insertId = db.insert(TABLE_CAR_DATA, null, values);
 
-        Log.d(LOG_TAG, "insert ID: " + insertId);
+        Log.d(LOG_TAG, "insertCarData ID: " + insertId);
 
-//      insertID = -1 means the insert failed
+//      insertID = -1 means the insertCarData failed
         if(insertId == -1) return false;
 
         return true;
     }
 
-    public DataRow select()
+    public DataRow selectCarData()
     {
         SQLiteDatabase db = this.getReadableDatabase();
 
 //      declare cursor to read data
-//      select row with highest id
+//      selectCarData row with highest id
         Cursor cursor = db.query( TABLE_CAR_DATA
                                 , null //columns
                                 , null //DbHelper.C_ID +"=1" //where clause
@@ -200,32 +200,33 @@ public class DbHelper
                                 , null //having
                                 , C_ID + " DESC" //order by
                                 , "1" //limit
-        );
+                                );
 
         Log.d(LOG_TAG, "cursor length: " + cursor.getCount());
 
         if(cursor.moveToPosition(0))
         {
-            Log.d(LOG_TAG, String.valueOf(cursor.getInt(0)));
-            Log.d(LOG_TAG, cursor.getString(1));
-
-            String.valueOf(cursor.getDouble(2));
-
-            String.valueOf(cursor.getDouble(3));
-            String.valueOf(cursor.getDouble(4));
-
-            String.valueOf(cursor.getDouble(5));
-            String.valueOf(cursor.getDouble(6));
-            String.valueOf(cursor.getDouble(7));
-            String.valueOf(cursor.getInt(8));
-            String.valueOf(cursor.getDouble(9));
-            String.valueOf(cursor.getDouble(10));
-            String.valueOf(cursor.getDouble(11));
-            String.valueOf(cursor.getDouble(12));
+            return new DataRow( cursor.getInt(0)
+                              , cursor.getString(1)
+                              , cursor.getDouble(2)
+                              , cursor.getDouble(3)
+                              , cursor.getInt(4)
+                              , cursor.getInt(5)
+                              , cursor.getDouble(6)
+                              , cursor.getDouble(7)
+                              , cursor.getInt(8)
+                              , cursor.getDouble(9)
+                              , cursor.getDouble(10)
+                              , cursor.getDouble(11)
+                              , cursor.getDouble(12)
+                              , cursor.getInt(13)
+                              , cursor.getDouble(14)
+                              , cursor.getDouble(15)
+                              , cursor.getDouble(16)
+                              , cursor.getDouble(17)
+                              );
         }
 
-//        TODO create a data row object with values from cursor
-//        return new DataRow();
         return null;
     }
 }

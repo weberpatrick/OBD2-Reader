@@ -24,6 +24,7 @@ import com.github.pires.obd.commands.protocol.ObdResetCommand;
 import com.github.pires.obd.commands.protocol.SelectProtocolCommand;
 import com.github.pires.obd.commands.protocol.TimeoutCommand;
 import com.github.pires.obd.enums.ObdProtocols;
+import com.github.pires.obd.exceptions.NoDataException;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -129,6 +130,11 @@ public class InputDataReader
         {
             e.printStackTrace();
         }
+        catch(NoDataException nde)
+        {
+//          occurs after turing the engine off
+            Log.d(LOG_TAG, "no data exception");
+        }
 
         return null;
     }
@@ -181,7 +187,7 @@ public class InputDataReader
         {
             formatted = Double.parseDouble(value);
             formatted *= 100;
-            formatted = (Math.round(formatted)) / (double)100;
+            formatted = (Math.round(formatted)) / (double) 100;
         }
         catch(NumberFormatException nfe){}
 
@@ -193,22 +199,22 @@ public class InputDataReader
 //        for(ObdCommand command : availableCommands)
 //            Log.i(LOG_TAG, command.getName() + ": " + executeCommand(command, RESULT_FORMAT.CALCULATED));
 
-        dbHelper.insert( formatDouble(executeCommand(new LoadCommand()              , RESULT_FORMAT.CALCULATED))
-                   , formatDouble(executeCommand(new IntakeManifoldPressureCommand(), RESULT_FORMAT.CALCULATED))
-                   , formatInt(executeCommand(new RPMCommand()                      , RESULT_FORMAT.CALCULATED))
-                   , formatInt(executeCommand(new SpeedCommand()                    , RESULT_FORMAT.CALCULATED))
-                   , formatDouble(executeCommand(new TimingAdvanceCommand()         , RESULT_FORMAT.CALCULATED))
-                   , formatDouble(executeCommand(new ThrottlePositionCommand()      , RESULT_FORMAT.CALCULATED))
-                   , formatInt(executeCommand(new RuntimeCommand()                  , RESULT_FORMAT.CALCULATED))
-                   , formatDouble(executeCommand(new BarometricPressureCommand()    , RESULT_FORMAT.CALCULATED))
-                   , formatDouble(executeCommand(new WidebandAirFuelRatioCommand()  , RESULT_FORMAT.CALCULATED))
-                   , formatDouble(executeCommand(new AbsoluteLoadCommand()          , RESULT_FORMAT.CALCULATED))
-                   , formatDouble(executeCommand(new AirFuelRatioCommand()          , RESULT_FORMAT.CALCULATED))
-                   , 1 //TODO determine trip id
-                   , 0 //TODO determine gps speed
-                   , 0 //TODO determine latitude
-                   , 0 //TODO determine longitude
-                   , 0 //TODO determine altitude
-                   );
+        dbHelper.insertCarData( formatDouble(executeCommand(new LoadCommand()              , RESULT_FORMAT.CALCULATED))
+                       , formatDouble(executeCommand(new IntakeManifoldPressureCommand(), RESULT_FORMAT.CALCULATED))
+                       , formatInt(executeCommand(new RPMCommand()                      , RESULT_FORMAT.CALCULATED))
+                       , formatInt(executeCommand(new SpeedCommand()                    , RESULT_FORMAT.CALCULATED))
+                       , formatDouble(executeCommand(new TimingAdvanceCommand()         , RESULT_FORMAT.CALCULATED))
+                       , formatDouble(executeCommand(new ThrottlePositionCommand()      , RESULT_FORMAT.CALCULATED))
+                       , formatInt(executeCommand(new RuntimeCommand()                  , RESULT_FORMAT.CALCULATED))
+                       , formatDouble(executeCommand(new BarometricPressureCommand()    , RESULT_FORMAT.CALCULATED))
+                       , formatDouble(executeCommand(new WidebandAirFuelRatioCommand()  , RESULT_FORMAT.CALCULATED))
+                       , formatDouble(executeCommand(new AbsoluteLoadCommand()          , RESULT_FORMAT.CALCULATED))
+                       , formatDouble(executeCommand(new AirFuelRatioCommand()          , RESULT_FORMAT.CALCULATED))
+                       , 1 //TODO determine trip id
+                       , 0 //TODO determine gps speed
+                       , 0 //TODO determine latitude
+                       , 0 //TODO determine longitude
+                       , 0 //TODO determine altitude
+                       );
     }
 }

@@ -64,93 +64,97 @@ public class DataRow
         this.altitude = altitude;
     }
 
-    public int getId()
-    {
-        return id;
-    }
+//    TODO add the units inside the getter methods ?!
+
+//    TODO check whether we need the id or not
+//    public int getId()
+//    {
+//        return id;
+//    }
 
     public String getTimestamp()
     {
         return timestamp;
     }
 
-    public double getEngineLoad()
+    public String getEngineLoad()
     {
-        return engineLoad;
+        return engineLoad + " %";
     }
 
-    public double getIntakeManifoldPressure()
+    public String getIntakeManifoldPressure()
     {
-        return intakeManifoldPressure;
+        return intakeManifoldPressure + " kPa";
     }
 
-    public int getRpm()
+    public String getRpm()
     {
-        return rpm;
+        return String.valueOf(rpm);
     }
 
-    public int getSpeed()
+    public String getSpeed()
     {
-        return speed;
+        return speed + " km/h";
     }
 
-    public double getTimingAdvance()
+    public String getTimingAdvance()
     {
-        return timingAdvance;
+        return timingAdvance + " %";
     }
 
-    public double getThrottlePosition()
+    public String getThrottlePosition()
     {
-        return throttlePosition;
+        return throttlePosition + " %";
     }
 
-    public int getRunTime()
+    public String getRunTime()
     {
-        return runTime;
+        return runTime / 60 + " min " + runTime % 60 + " sek";
     }
 
-    public double getBarometricPressure()
+    public String getBarometricPressure()
     {
-        return barometricPressure;
+        return barometricPressure + " kPa";
     }
 
-    public double getWidebandAirFuelRatio()
+    public String getWidebandAirFuelRatio()
     {
-        return widebandAirFuelRatio;
+        return widebandAirFuelRatio + " LBV";
     }
 
-    public double getAbsoluteLoad()
+    public String getAbsoluteLoad()
     {
-        return absoluteLoad;
+        return absoluteLoad + " %";
     }
 
-    public double getAirFuelRatio()
+    public String getAirFuelRatio()
     {
-        return airFuelRatio;
+        return airFuelRatio + " LBV";
     }
 
-    public int getTripId()
+//    TODO uncomment when we need it
+//    public String getTripId()
+//    {
+//        return tripId;
+//    }
+
+    public String getGpsSpeed()
     {
-        return tripId;
+        return gpsSpeed + " km/h";
     }
 
-    public double getGpsSpeed()
+    public String getLatitude()
     {
-        return gpsSpeed;
+        return latitude + " Grad";
     }
 
-    public double getLatitude()
+    public String getLongitude()
     {
-        return latitude;
+        return longitude + " Grad";
     }
 
-    public double getLongitude()
+    public String getAltitude()
     {
-        return longitude;
-    }
-
-    public double getAltitude()
-    {
-        return altitude;
+        return altitude + " m";
     }
 }
