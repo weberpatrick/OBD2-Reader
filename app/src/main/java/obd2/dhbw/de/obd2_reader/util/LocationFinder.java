@@ -104,7 +104,7 @@ public class LocationFinder extends Service implements LocationListener {
             return true;
         }
         //return true if Accuracy is less than 100
-        return (newLocation.getAccuracy() > 100);
+        return (newLocation.getAccuracy() < 100);
     }
 
     public void showGPSAlert(){
