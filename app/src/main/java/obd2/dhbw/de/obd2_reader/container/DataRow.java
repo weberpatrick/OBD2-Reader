@@ -64,8 +64,6 @@ public class DataRow
         this.altitude = altitude;
     }
 
-//    TODO add the units inside the getter methods ?!
-
 //    TODO check whether we need the id or not
 //    public int getId()
 //    {
@@ -77,57 +75,125 @@ public class DataRow
         return timestamp;
     }
 
-    public String getEngineLoad()
+    public String getEngineLoadString()
     {
         return engineLoad + " %";
     }
 
-    public String getIntakeManifoldPressure()
+    public int getId() {
+        return id;
+    }
+
+    public double getEngineLoad() {
+        return engineLoad;
+    }
+
+    public double getIntakeManifoldPressure() {
+        return intakeManifoldPressure;
+    }
+
+    public int getRpm() {
+        return rpm;
+    }
+
+    public int getSpeed() {
+        return speed;
+    }
+
+    public double getTimingAdvance() {
+        return timingAdvance;
+    }
+
+    public double getThrottlePosition() {
+        return throttlePosition;
+    }
+
+    public int getRunTime() {
+        return runTime;
+    }
+
+    public double getBarometricPressure() {
+        return barometricPressure;
+    }
+
+    public double getWidebandAirFuelRatio() {
+        return widebandAirFuelRatio;
+    }
+
+    public double getAbsoluteLoad() {
+        return absoluteLoad;
+    }
+
+    public double getAirFuelRatio() {
+        return airFuelRatio;
+    }
+
+    public int getTripId() {
+        return tripId;
+    }
+
+    public double getGpsSpeed() {
+        return gpsSpeed;
+    }
+
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public double getLongitude() {
+        return longitude;
+    }
+
+    public double getAltitude() {
+        return altitude;
+    }
+
+    public String getIntakeManifoldPressureString()
     {
         return intakeManifoldPressure + " kPa";
     }
 
-    public String getRpm()
+    public String getRpmString()
     {
         return String.valueOf(rpm);
     }
 
-    public String getSpeed()
+    public String getSpeedString()
     {
         return speed + " km/h";
     }
 
-    public String getTimingAdvance()
+    public String getTimingAdvanceString()
     {
         return timingAdvance + " %";
     }
 
-    public String getThrottlePosition()
+    public String getThrottlePositionString()
     {
         return throttlePosition + " %";
     }
 
-    public String getRunTime()
+    public String getRunTimeString()
     {
         return runTime / 60 + " min " + runTime % 60 + " sek";
     }
 
-    public String getBarometricPressure()
+    public String getBarometricPressureString()
     {
         return barometricPressure + " kPa";
     }
 
-    public String getWidebandAirFuelRatio()
+    public String getWidebandAirFuelRatioString()
     {
         return widebandAirFuelRatio + " LBV";
     }
 
-    public String getAbsoluteLoad()
+    public String getAbsoluteLoadString()
     {
         return absoluteLoad + " %";
     }
 
-    public String getAirFuelRatio()
+    public String getAirFuelRatioString()
     {
         return airFuelRatio + " LBV";
     }
@@ -138,22 +204,22 @@ public class DataRow
 //        return tripId;
 //    }
 
-    public String getGpsSpeed()
+    public String getGpsSpeedString()
     {
         return gpsSpeed + " km/h";
     }
 
-    public String getLatitude()
+    public String getLatitudeString()
     {
         return latitude + " Grad";
     }
 
-    public String getLongitude()
+    public String getLongitudeString()
     {
         return longitude + " Grad";
     }
 
-    public String getAltitude()
+    public String getAltitudeString()
     {
         return altitude + " m";
     }

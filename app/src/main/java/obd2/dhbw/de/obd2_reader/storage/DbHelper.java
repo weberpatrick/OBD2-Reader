@@ -8,6 +8,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import java.util.ArrayList;
+
 import obd2.dhbw.de.obd2_reader.container.DataRow;
 
 /**
@@ -62,8 +64,8 @@ public class DbHelper
 //  trip columns
     private static final String T_ID                        = TABLE_TRIP + "_" + "id";
     private static final String T_TRACK_LENGTH              = TABLE_TRIP + "_" + "trackLength";
-    private static final String T_DRIVING_TIME = TABLE_TRIP + "_" + "id";
-    private static final String T_STAND_TIME = TABLE_TRIP + "_" + "id";
+    private static final String T_DRIVING_TIME              = TABLE_TRIP + "_" + "drivingTime";
+    private static final String T_STAND_TIME                = TABLE_TRIP + "_" + "standTime";
     private static final String T_MAX_SPEED                 = TABLE_TRIP + "_" + "maxSpeed";
     private static final String T_AVG_SPEED                 = TABLE_TRIP + "_" + "avgSpeed";
 
@@ -228,5 +230,104 @@ public class DbHelper
         }
 
         return null;
+    }
+
+    public int getLatestTripId()
+    {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+//      declare cursor to read data
+//      selectCarData row with highest id
+        Cursor cursor = db.query( TABLE_TRIP
+                , new String[]{T_ID} //columns
+                , null //C_ID +"=1" //where clause
+                , null //selectionArgs
+                , null //groupBy
+                , null //having
+                , T_ID + " DESC" //order by
+                , "1" //limit
+        );
+
+        Log.d(LOG_TAG, "cursor length: " + cursor.getCount());
+
+        if(cursor.moveToPosition(0)) return cursor.getInt(0);
+
+        return 1;
+    }
+
+    public boolean insertTripData( int tripId
+                                 , double trackLength
+                                 , int drivingTime
+                                 , double standTime
+                                 , double maxSpeed
+                                 , double avgSpeed
+                                 )
+    {
+        ContentValues values = new ContentValues();
+        values.put(T_ID, tripId);
+        values.put(T_TRACK_LENGTH, trackLength);
+        values.put(T_DRIVING_TIME, drivingTime);
+        values.put(T_STAND_TIME, standTime);
+        values.put(T_MAX_SPEED, maxSpeed);
+        values.put(T_AVG_SPEED, avgSpeed);
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        long insertId = db.insert(TABLE_TRIP, null, values);
+
+        Log.d(LOG_TAG, "insertTripId: " + insertId);
+
+//      insertID = -1 means the insertCarData failed
+        if(insertId == -1) return false;
+
+        return true;
+    }
+
+    public ArrayList<DataRow> selectTripData(int tripId)
+    {
+        ArrayList<DataRow> rows = new ArrayList<>();
+
+        SQLiteDatabase db = this.getReadableDatabase();
+
+//      declare cursor to read data
+//      selectCarData row with highest id
+        Cursor cursor = db.query( TABLE_TRIP
+                , null //columns
+                , T_ID + "=" + tripId //DbHelper.C_ID +"=1" //where clause
+                , null //selectionArgs
+                , null //groupBy
+                , null //having
+                , null //order by
+                , null //limit
+        );
+
+        Log.d(LOG_TAG, "cursor length: " + cursor.getCount());
+
+        for (int i = 0; i < cursor.getCount(); i++)
+        {
+            if(cursor.moveToPosition(i))
+            {
+                rows.add(new DataRow( cursor.getInt(0)
+                        , cursor.getString(1)
+                        , cursor.getDouble(2)
+                        , cursor.getDouble(3)
+                        , cursor.getInt(4)
+                        , cursor.getInt(5)
+                        , cursor.getDouble(6)
+                        , cursor.getDouble(7)
+                        , cursor.getInt(8)
+                        , cursor.getDouble(9)
+                        , cursor.getDouble(10)
+                        , cursor.getDouble(11)
+                        , cursor.getDouble(12)
+                        , cursor.getInt(13)
+                        , cursor.getDouble(14)
+                        , cursor.getDouble(15)
+                        , cursor.getDouble(16)
+                        , cursor.getDouble(17)
+                ));
+            }
+        }
+
+        return rows;
     }
 }

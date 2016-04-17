@@ -30,6 +30,7 @@ import obd2.dhbw.de.obd2_reader.connection.BluetoothConnector;
 import obd2.dhbw.de.obd2_reader.container.DataRow;
 import obd2.dhbw.de.obd2_reader.storage.DbHelper;
 import obd2.dhbw.de.obd2_reader.util.InputDataReader;
+import obd2.dhbw.de.obd2_reader.util.TripCalculator;
 
 public class MainActivity
         extends AppCompatActivity
@@ -79,6 +80,8 @@ public class MainActivity
     private TextView textViewWidebandAirFuelRatioValue;
     private TextView textViewAbsoluteLoadValue;
     private TextView textViewAirFuelRatioValue;
+
+    private int tripId;
 
 //	***************************************************************************
 //	METHOD AREA
@@ -262,7 +265,8 @@ public class MainActivity
         {
             Log.e(LOG_TAG, "The device should not be null here!");
             return false;
-        }else
+        }
+        else
         {
             socket = BluetoothConnector.connect(device);
         }
@@ -284,19 +288,21 @@ public class MainActivity
 
 //        Log.d(LOG_TAG, dataRow.getTimestamp());
 
-        updateTextView(textViewEngineLoad               , dataRow.getEngineLoad());
+        updateTextView(textViewEngineLoad               , dataRow.getEngineLoadString());
 
-        updateTextView(textViewIntakeManifoldPressure   , dataRow.getIntakeManifoldPressure());
-        updateTextView(textViewRpmValue                 , dataRow.getRpm());
-        updateTextView(textViewSpeedValue               , dataRow.getSpeed());
-        updateTextView(textViewTimingAdvanceValue       , dataRow.getTimingAdvance());
-        updateTextView(textViewThrottlePositionValue    , dataRow.getThrottlePosition());
-        updateTextView(textViewRuntimeValue             , dataRow.getRunTime());
-        updateTextView(textViewBarometricPressureValue  , dataRow.getBarometricPressure());
-        updateTextView(textViewWidebandAirFuelRatioValue, dataRow.getWidebandAirFuelRatio());
-        updateTextView(textViewAbsoluteLoadValue        , dataRow.getAbsoluteLoad());
-        updateTextView(textViewAirFuelRatioValue        , dataRow.getAirFuelRatio());
+        updateTextView(textViewIntakeManifoldPressure   , dataRow.getIntakeManifoldPressureString());
+        updateTextView(textViewRpmValue                 , dataRow.getRpmString());
+        updateTextView(textViewSpeedValue               , dataRow.getSpeedString());
+        updateTextView(textViewTimingAdvanceValue       , dataRow.getTimingAdvanceString());
+        updateTextView(textViewThrottlePositionValue    , dataRow.getThrottlePositionString());
+        updateTextView(textViewRuntimeValue             , dataRow.getRunTimeString());
+        updateTextView(textViewBarometricPressureValue  , dataRow.getBarometricPressureString());
+        updateTextView(textViewWidebandAirFuelRatioValue, dataRow.getWidebandAirFuelRatioString());
+        updateTextView(textViewAbsoluteLoadValue        , dataRow.getAbsoluteLoadString());
+        updateTextView(textViewAirFuelRatioValue        , dataRow.getAirFuelRatioString());
     }
+
+    Timer timerInputDataReader;
 
     private void startLiveData()
     {
@@ -305,25 +311,34 @@ public class MainActivity
 
         inputDataReader = new InputDataReader(dbHelper, socket, this);
 
-        Timer timerInputDataReader = new Timer();
-        timerInputDataReader.schedule(new TimerTask()
-        {
-            @Override
-            public void run()
-            {
-                inputDataReader.start();
-            }
-        }, 0, INPUT_DATA_INTERVAL);
+        tripId = dbHelper.getLatestTripId();
 
-        Timer timerReadData = new Timer();
-        timerReadData.schedule(new TimerTask()
+        timerInputDataReader = new Timer();
+        timerInputDataReader.schedule(new TaskInputDataReader(), 0);
+
+//        Timer timerReadData = new Timer();
+//        timerReadData.schedule(new TimerTask()
+//        {
+//            @Override
+//            public void run()
+//            {
+//                fetchData();
+//            }
+//        }, 5000, READ_DATA_INTERVAL);
+    }
+
+    private class TaskInputDataReader
+            extends TimerTask
+    {
+        @Override
+        public void run()
         {
-            @Override
-            public void run()
-            {
-                fetchData();
-            }
-        }, 5000, READ_DATA_INTERVAL);
+            Log.d(LOG_TAG, "TaskInputDataReader");
+            if(inputDataReader.start(tripId))
+                timerInputDataReader.schedule( new TaskInputDataReader()
+                                             , INPUT_DATA_INTERVAL);
+            else TripCalculator.calculate(dbHelper, tripId);
+        }
     }
 
     public void updateTextView(final TextView view, final String txt)
