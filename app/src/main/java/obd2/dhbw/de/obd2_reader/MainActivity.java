@@ -15,6 +15,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.RotateAnimation;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -28,6 +30,7 @@ import java.util.TimerTask;
 import obd2.dhbw.de.obd2_reader.connection.BluetoothConnector;
 import obd2.dhbw.de.obd2_reader.container.DataRow;
 import obd2.dhbw.de.obd2_reader.storage.DbHelper;
+import obd2.dhbw.de.obd2_reader.util.Compass;
 import obd2.dhbw.de.obd2_reader.util.InputDataReader;
 import obd2.dhbw.de.obd2_reader.util.TripCalculator;
 
@@ -58,6 +61,8 @@ public class MainActivity
     private boolean isRunning;
 
     private InputDataReader inputDataReader;
+
+    private Compass compass;
 
     private Timer timerInputDataReader;
 
@@ -98,6 +103,8 @@ public class MainActivity
 
 //      create the database if necessary
         dbHelper = new DbHelper(this);
+
+        compass = new Compass(this);
 
         initComponents();
     }
@@ -355,6 +362,7 @@ public class MainActivity
             updateTextView(textViewAbsoluteLoadValue        , dataRow.getAbsoluteLoadString());
             updateTextView(textViewAirFuelRatioValue        , dataRow.getAirFuelRatioString());
         }
+        updateImageView(imageViewCompass, compass.getLastRotation(), compass.getRotation());
     }
 
     private void startLiveData()
@@ -412,6 +420,34 @@ public class MainActivity
             public void run()
             {
                 view.setText(txt);
+            }
+        });
+    }
+
+    public void updateImageView(final ImageView image, final float lastRotation, final float rotation)
+    {
+        new Handler(Looper.getMainLooper()).post(new Runnable()
+        {
+            public void run()
+            {
+                float newRotation = rotation;
+                float newLastRotation = lastRotation;
+
+                if ((rotation>0 && rotation<90) && (lastRotation>270 && lastRotation<360)){
+                    newRotation = rotation + 360;
+                }else if ((lastRotation>0 && lastRotation<90) && (rotation>270 && rotation<360)){
+                    newLastRotation = lastRotation + 360;
+                }
+
+                Animation an = new RotateAnimation(-newLastRotation, -newRotation,
+                        Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF,
+                        0.5f);
+
+                an.setDuration(READ_DATA_INTERVAL);
+                an.setRepeatCount(0);
+                an.setFillAfter(true);
+
+                image.startAnimation(an);
             }
         });
     }
