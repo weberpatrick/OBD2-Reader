@@ -5,16 +5,13 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.util.Log;
-
-import java.security.acl.LastOwnerException;
 
 /**
  * Created by Patrick on 18.04.2016.
  */
-public class Compass {
-
-    private final String LOG_TAG = InputDataReader.class.getName();
+public class Compass
+{
+    private final String LOG_TAG = Compass.class.getName();
 
     private SensorManager sensorManager;
 
@@ -74,6 +71,11 @@ public class Compass {
         public void onAccuracyChanged(Sensor sensor, int accuracy) {
         }
     };
+
+    public void stop()
+    {
+        sensorManager.unregisterListener(orientationListener);
+    }
 
     public float getRotation() {
         lastAzimuth = azimuth;

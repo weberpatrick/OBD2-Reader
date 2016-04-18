@@ -216,6 +216,8 @@ public class MainActivity
                 {
                     buttonStartStop.setText(R.string.buttonStart);
 
+                    isRunning = true;
+
 //                  initialize bluetooth adapter and turn it on
                     initBluetoothAdapter();
 
@@ -411,6 +413,8 @@ public class MainActivity
 
 //      stop gps stuff
         inputDataReader.stop();
+
+        compass.stop();
     }
 
     public void updateTextView(final TextView view, final String txt)
