@@ -20,6 +20,7 @@ public class TripCalculator
 
     public static boolean calculate(DbHelper dbHelper, int tripId)
     {
+        Log.d(LOG_TAG, "calculate trip stuff");
 
         ArrayList<DataRow> rows = dbHelper.selectTripData(tripId);
 
@@ -30,9 +31,9 @@ public class TripCalculator
 //            TODO calculate trip length
 //            TODO calculate stand time
             int speed = row.getSpeed();
-            if(speed > maxSpeed) maxSpeed = speed;
+            maxSpeed = Math.max(speed, maxSpeed);
             avgSpeed += speed;
-            if(row.getRunTime() >runTime) runTime = row.getRunTime();
+            runTime = Math.max(row.getRunTime(), runTime);
         }
 
         avgSpeed /= rows.size();

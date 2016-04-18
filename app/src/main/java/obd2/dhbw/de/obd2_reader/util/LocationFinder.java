@@ -86,12 +86,14 @@ public class LocationFinder extends Service implements LocationListener {
         }
     }
 
-    public void stopGPS() {
-        if (locationManager != null) {
-            if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)
-                    == PackageManager.PERMISSION_GRANTED) {
-                locationManager.removeUpdates(this);
-            }
+    public void stopGPS()
+    {
+        if ( locationManager != null
+          && ActivityCompat.checkSelfPermission( context
+                , Manifest.permission.ACCESS_FINE_LOCATION)
+           == PackageManager.PERMISSION_GRANTED)
+        {
+            locationManager.removeUpdates(this);
         }
     }
 

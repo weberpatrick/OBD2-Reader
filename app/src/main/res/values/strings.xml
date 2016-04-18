@@ -4,5 +4,6 @@
     <string name="pairedDevicesCaption">Wählen Sie ein Adapter aus:</string>
     <string name="overview_title">Livedaten</string>
     <string name="buttonStart">Start</string>
+    <string name="buttonStop">Stop</string>
     <string name="adapterSelectionDialogCaption">Wähle den Bluetooth Adapter aus!</string>
 </resources>

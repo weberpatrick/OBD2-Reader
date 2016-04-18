@@ -207,7 +207,8 @@ public class InputDataReader
 //        for(ObdCommand command : availableCommands)
 //            Log.i(LOG_TAG, command.getName() + ": " + executeCommand(command, RESULT_FORMAT.CALCULATED));
 
-        try {
+        try
+        {
             dbHelper.insertCarData(formatDouble(executeCommand(new LoadCommand(), RESULT_FORMAT.CALCULATED))
                     , formatDouble(executeCommand(new IntakeManifoldPressureCommand(), RESULT_FORMAT.CALCULATED))
                     , formatInt(executeCommand(new RPMCommand(), RESULT_FORMAT.CALCULATED))
@@ -233,5 +234,10 @@ public class InputDataReader
             Log.d(LOG_TAG, "no data exception");
         }
         return false;
+    }
+
+    public void stop()
+    {
+        locationFinder.stopGPS();
     }
 }

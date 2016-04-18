@@ -188,7 +188,7 @@ public class DbHelper
         return true;
     }
 
-    public DataRow selectCarData()
+    public DataRow selectCarData(int tripId)
     {
         SQLiteDatabase db = this.getReadableDatabase();
 
@@ -196,8 +196,8 @@ public class DbHelper
 //      selectCarData row with highest id
         Cursor cursor = db.query( TABLE_CAR_DATA
                                 , null //columns
-                                , null //DbHelper.C_ID +"=1" //where clause
-                                , null //selectionArgs
+                                , C_TRIP_ID + "=?" //where clause
+                                , new String[] {String.valueOf(tripId)} //selectionArgs
                                 , null //groupBy
                                 , null //having
                                 , C_ID + " DESC" //order by
@@ -252,7 +252,7 @@ public class DbHelper
 
         if(cursor.moveToPosition(0)) return cursor.getInt(0);
 
-        return 1;
+        return 0;
     }
 
     public boolean insertTripData( int tripId

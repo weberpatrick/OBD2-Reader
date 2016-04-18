@@ -6,7 +6,6 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -43,22 +42,26 @@ public class MainActivity
 
     private final int BLUETOOTH_REQUEST   = 1;
 
-    private final int INPUT_DATA_INTERVAL = 100;
-    private final int READ_DATA_INTERVAL  = 100;
+    private final int INPUT_DATA_INTERVAL = 1000;
+    private final int READ_DATA_INTERVAL  = 1000;
 
 //	***************************************************************************
 //	DECLARATION OF VARIABLES
 //	***************************************************************************
 
     private DbHelper dbHelper;
-    private SQLiteDatabase db;
 
     private BluetoothSocket socket;
     private BluetoothAdapter btAdapter;
 
     private boolean bluetoothEnabled;
+    private boolean isRunning;
 
     private InputDataReader inputDataReader;
+
+    private Timer timerInputDataReader;
+
+    private int tripId;
 
 //	***************************************************************************
 //	gui components
@@ -81,8 +84,6 @@ public class MainActivity
     private TextView textViewAbsoluteLoadValue;
     private TextView textViewAirFuelRatioValue;
 
-    private int tripId;
-
 //	***************************************************************************
 //	METHOD AREA
 //	***************************************************************************
@@ -97,7 +98,6 @@ public class MainActivity
 
 //      create the database if necessary
         dbHelper = new DbHelper(this);
-        db = dbHelper.getReadableDatabase();
 
         initComponents();
     }
@@ -147,6 +147,44 @@ public class MainActivity
         }
     }
 
+    @Override
+    protected void onStart()
+    {
+        super.onStart();
+        Log.d(LOG_TAG, "start");
+    }
+
+    protected void onRestart()
+    {
+        super.onRestart();
+        Log.d(LOG_TAG, "restart");
+    }
+
+    protected void onResume()
+    {
+        super.onResume();
+        Log.d(LOG_TAG, "resume");
+    }
+
+    protected void onPause()
+    {
+        super.onPause();
+        Log.d(LOG_TAG, "pause");
+    }
+
+    protected void onStop()
+    {
+        super.onStop();
+        Log.d(LOG_TAG, "stop");
+    }
+
+    protected void onDestroy()
+    {
+        super.onDestroy();
+
+        endTrip();
+    }
+
 //	***************************************************************************
 //	private methods
 //	***************************************************************************
@@ -159,10 +197,24 @@ public class MainActivity
             @Override
             public void onClick(View v)
             {
-//              initialize bluetooth adapter and turn it on
-                initBluetoothAdapter();
+//              recording data is running
+                if(isRunning)
+                {
+                    buttonStartStop.setText(R.string.buttonStop);
 
-                showAdapterSelectionDialog();
+                    isRunning = false;
+                }
+//              start of a new trip
+                else
+                {
+                    buttonStartStop.setText(R.string.buttonStart);
+
+//                  initialize bluetooth adapter and turn it on
+                    initBluetoothAdapter();
+
+                    showAdapterSelectionDialog();
+                }
+
             }
         });
 
@@ -284,47 +336,38 @@ public class MainActivity
 
     private void fetchData()
     {
-        DataRow dataRow = dbHelper.selectCarData();
+        DataRow dataRow = dbHelper.selectCarData(tripId);
 
 //        Log.d(LOG_TAG, dataRow.getTimestamp());
 
-        updateTextView(textViewEngineLoad               , dataRow.getEngineLoadString());
+        if(dataRow != null)
+        {
+            updateTextView(textViewEngineLoad               , dataRow.getEngineLoadString());
 
-        updateTextView(textViewIntakeManifoldPressure   , dataRow.getIntakeManifoldPressureString());
-        updateTextView(textViewRpmValue                 , dataRow.getRpmString());
-        updateTextView(textViewSpeedValue               , dataRow.getSpeedString());
-        updateTextView(textViewTimingAdvanceValue       , dataRow.getTimingAdvanceString());
-        updateTextView(textViewThrottlePositionValue    , dataRow.getThrottlePositionString());
-        updateTextView(textViewRuntimeValue             , dataRow.getRunTimeString());
-        updateTextView(textViewBarometricPressureValue  , dataRow.getBarometricPressureString());
-        updateTextView(textViewWidebandAirFuelRatioValue, dataRow.getWidebandAirFuelRatioString());
-        updateTextView(textViewAbsoluteLoadValue        , dataRow.getAbsoluteLoadString());
-        updateTextView(textViewAirFuelRatioValue        , dataRow.getAirFuelRatioString());
+            updateTextView(textViewIntakeManifoldPressure   , dataRow.getIntakeManifoldPressureString());
+            updateTextView(textViewRpmValue                 , dataRow.getRpmString());
+            updateTextView(textViewSpeedValue               , dataRow.getSpeedString());
+            updateTextView(textViewTimingAdvanceValue       , dataRow.getTimingAdvanceString());
+            updateTextView(textViewThrottlePositionValue    , dataRow.getThrottlePositionString());
+            updateTextView(textViewRuntimeValue             , dataRow.getRunTimeString());
+            updateTextView(textViewBarometricPressureValue  , dataRow.getBarometricPressureString());
+            updateTextView(textViewWidebandAirFuelRatioValue, dataRow.getWidebandAirFuelRatioString());
+            updateTextView(textViewAbsoluteLoadValue        , dataRow.getAbsoluteLoadString());
+            updateTextView(textViewAirFuelRatioValue        , dataRow.getAirFuelRatioString());
+        }
     }
-
-    Timer timerInputDataReader;
 
     private void startLiveData()
     {
-//        TODO check opportunity of variable delay
-//        http://stackoverflow.com/questions/8386545/java-timer-with-not-fixed-delay
-
         inputDataReader = new InputDataReader(dbHelper, socket, this);
 
-        tripId = dbHelper.getLatestTripId();
+        tripId = dbHelper.getLatestTripId() + 1;
 
         timerInputDataReader = new Timer();
         timerInputDataReader.schedule(new TaskInputDataReader(), 0);
 
-//        Timer timerReadData = new Timer();
-//        timerReadData.schedule(new TimerTask()
-//        {
-//            @Override
-//            public void run()
-//            {
-//                fetchData();
-//            }
-//        }, 5000, READ_DATA_INTERVAL);
+        Timer timerReadData = new Timer();
+        timerReadData.schedule(new TaskReadData(), 5000);
     }
 
     private class TaskInputDataReader
@@ -334,11 +377,32 @@ public class MainActivity
         public void run()
         {
             Log.d(LOG_TAG, "TaskInputDataReader");
-            if(inputDataReader.start(tripId))
+            if(inputDataReader.start(tripId) && isRunning)
                 timerInputDataReader.schedule( new TaskInputDataReader()
                                              , INPUT_DATA_INTERVAL);
-            else TripCalculator.calculate(dbHelper, tripId);
+            else endTrip();
         }
+    }
+
+    private class TaskReadData
+            extends TimerTask
+    {
+        @Override
+        public void run()
+        {
+            Log.d(LOG_TAG, "TaskReadData");
+            fetchData();
+            if(isRunning) timerInputDataReader.schedule( new TaskReadData()
+                        , READ_DATA_INTERVAL);
+        }
+    }
+
+    private void endTrip()
+    {
+        TripCalculator.calculate(dbHelper, tripId);
+
+//      stop gps stuff
+        inputDataReader.stop();
     }
 
     public void updateTextView(final TextView view, final String txt)
