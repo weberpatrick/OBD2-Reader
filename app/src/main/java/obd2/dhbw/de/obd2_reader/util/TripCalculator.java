@@ -1,5 +1,6 @@
 package obd2.dhbw.de.obd2_reader.util;
 
+import android.location.Location;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -18,6 +19,11 @@ public class TripCalculator
     private static int avgSpeed = 0;
     private static int runTime = 0;
 
+    private static Location locOld = new Location("");
+    private static Location locNew = new Location("");
+    private static float distance = 0;
+    private static boolean oldSet = false;
+
     public static boolean calculate(DbHelper dbHelper, int tripId)
     {
         Log.d(LOG_TAG, "calculate trip stuff");
@@ -28,7 +34,20 @@ public class TripCalculator
 
         for(DataRow row : rows)
         {
-//            TODO calculate trip length
+            //calculate trip length
+            locNew.setLatitude(row.getLatitude());
+            locNew.setLongitude(row.getLongitude());
+
+            //just compute distance if both locations are set
+            //in the first iteration: just locNew is set
+            if (oldSet){
+                float newDistance = locOld.distanceTo(locNew);
+                distance = distance + newDistance;
+            }
+            //the new location gets the old location. So the old is set
+            locOld = locNew;
+            oldSet = true;
+
 //            TODO calculate stand time
             int speed = row.getSpeed();
             maxSpeed = Math.max(speed, maxSpeed);
@@ -38,8 +57,11 @@ public class TripCalculator
 
         avgSpeed /= rows.size();
 
-        Log.d(LOG_TAG, runTime + " : " + maxSpeed + " : " + avgSpeed);
+        Log.d(LOG_TAG,  "runtime:  " + runTime + "\n" +
+                        "maxSpeed: " + maxSpeed + "\n" +
+                        "avgSpeed: " + avgSpeed + "\n" +
+                        "distance: " + distance);
 
-        return dbHelper.insertTripData( tripId, 0.0, runTime, 0, maxSpeed, avgSpeed);
+        return dbHelper.insertTripData( tripId, distance, runTime, 0, maxSpeed, avgSpeed);
     }
 }
