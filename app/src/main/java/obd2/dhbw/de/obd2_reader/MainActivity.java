@@ -158,31 +158,26 @@ public class MainActivity
     protected void onStart()
     {
         super.onStart();
-        Log.d(LOG_TAG, "start");
     }
 
     protected void onRestart()
     {
         super.onRestart();
-        Log.d(LOG_TAG, "restart");
     }
 
     protected void onResume()
     {
         super.onResume();
-        Log.d(LOG_TAG, "resume");
     }
 
     protected void onPause()
     {
         super.onPause();
-        Log.d(LOG_TAG, "pause");
     }
 
     protected void onStop()
     {
         super.onStop();
-        Log.d(LOG_TAG, "stop");
     }
 
     protected void onDestroy()
@@ -207,14 +202,14 @@ public class MainActivity
 //              recording data is running
                 if(isRunning)
                 {
-                    buttonStartStop.setText(R.string.buttonStop);
+                    buttonStartStop.setText(R.string.buttonStart);
 
                     isRunning = false;
                 }
 //              start of a new trip
                 else
                 {
-                    buttonStartStop.setText(R.string.buttonStart);
+                    buttonStartStop.setText(R.string.buttonStop);
 
                     isRunning = true;
 
@@ -377,7 +372,7 @@ public class MainActivity
         timerInputDataReader.schedule(new TaskInputDataReader(), 0);
 
         Timer timerReadData = new Timer();
-        timerReadData.schedule(new TaskReadData(), 5000);
+        timerReadData.schedule(new TaskReadData(), 0);
     }
 
     private class TaskInputDataReader
