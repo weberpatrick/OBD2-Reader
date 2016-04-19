@@ -105,6 +105,9 @@ public class LocationFinder extends Service implements LocationListener {
             // A new location is always better than no location
             return true;
         }
+        if (newLocation == null){
+            return false;
+        }
         //return true if Accuracy is less than 100
         return (newLocation.getAccuracy() < 100);
     }
