@@ -22,6 +22,7 @@ import com.github.pires.obd.commands.protocol.SelectProtocolCommand;
 import com.github.pires.obd.commands.protocol.TimeoutCommand;
 import com.github.pires.obd.enums.ObdProtocols;
 import com.github.pires.obd.exceptions.NoDataException;
+import com.github.pires.obd.exceptions.UnableToConnectException;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -135,6 +136,10 @@ public class AdapterAgent
         catch (InterruptedException e)
         {
             e.printStackTrace();
+        }
+        catch (UnableToConnectException e)
+        {
+//          TODO catch the unable to connect exception
         }
 //        catch(NoDataException nde)
 //        {

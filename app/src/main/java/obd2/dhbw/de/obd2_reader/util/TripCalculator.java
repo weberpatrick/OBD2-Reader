@@ -30,8 +30,11 @@ public class TripCalculator
 
         ArrayList<DataRow> rows = dbHelper.selectTripData(tripId);
 
+        Log.d(LOG_TAG, "tripId " + tripId);
+        Log.d(LOG_TAG, "rows: " + rows.size());
         if (rows == null || rows.size() == 0) return false;
 
+        Log.d(LOG_TAG, "calculate trip stuff");
         for(DataRow row : rows)
         {
             //calculate trip length

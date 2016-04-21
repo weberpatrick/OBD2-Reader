@@ -180,7 +180,7 @@ public class DbHelper
                                 , "1" //limit
                                 );
 
-        Log.d(LOG_TAG, "cursor length: " + cursor.getCount());
+//        Log.d(LOG_TAG, "cursor length: " + cursor.getCount());
 
         if(cursor.moveToPosition(0))
         {
@@ -210,7 +210,7 @@ public class DbHelper
 //      selectCarData row with highest id
         Cursor cursor = db.query( TABLE_TRIP
                 , new String[]{T_ID} //columns
-                , null //C_ID +"=1" //where clause
+                , null //T_ID +"=1" //where clause
                 , null //selectionArgs
                 , null //groupBy
                 , null //having
@@ -218,7 +218,7 @@ public class DbHelper
                 , "1" //limit
         );
 
-        Log.d(LOG_TAG, "cursor length: " + cursor.getCount());
+        Log.d(LOG_TAG, "latest trip id - cursor length: " + cursor.getCount());
 
         if(cursor.moveToPosition(0)) return cursor.getInt(0);
 
@@ -233,6 +233,8 @@ public class DbHelper
                                  , double avgSpeed
                                  )
     {
+        Log.d(LOG_TAG, "insert trip id: " + tripId);
+
         ContentValues values = new ContentValues();
         values.put(T_ID, tripId);
         values.put(T_TRACK_LENGTH, trackLength);
@@ -260,9 +262,9 @@ public class DbHelper
 
 //      declare cursor to read data
 //      selectCarData row with highest id
-        Cursor cursor = db.query( TABLE_TRIP
+        Cursor cursor = db.query( TABLE_CAR_DATA
                 , null //columns
-                , T_ID + "=?" //DbHelper.C_ID +"=1" //where clause
+                , C_TRIP_ID + "=?" //DbHelper.C_ID +"=1" //where clause
                 , new String[]{String.valueOf(tripId)} //selectionArgs
                 , null //groupBy
                 , null //having

@@ -19,13 +19,14 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ScrollView;
 import android.widget.TableLayout;
-import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.Timer;
@@ -90,6 +91,8 @@ public class MainActivity
     private TextView textViewEngineLoadValue;
     private TextView textViewThrottlePositionValue;
 
+    private EditText editTextLiveData;
+
 //	***************************************************************************
 //	METHOD AREA
 //	***************************************************************************
@@ -108,6 +111,12 @@ public class MainActivity
         compass = new Compass(this);
 
         initComponents();
+
+//        TableRow tableRow = new TableRow(getApplicationContext());
+//        TextView textView = new TextView(getApplicationContext());
+//        textView.setText("test");
+//        tableRow.addView(textView);
+//        tableLayoutData.addView(tableRow);
     }
 
     @Override
@@ -207,7 +216,6 @@ public class MainActivity
 
                     isRunning = false;
                 }
-//              getStatisticalData of a new trip
                 else
                 {
                     buttonStartStop.setText(R.string.buttonStop);
@@ -233,6 +241,8 @@ public class MainActivity
 
         textViewEngineLoadValue         = (TextView) findViewById(R.id.textViewEngineLoadValue);
         textViewThrottlePositionValue   = (TextView) findViewById(R.id.textViewThrottlePositionValue);
+
+        editTextLiveData = (EditText) findViewById(R.id.editTextLiveData);
     }
 
     /**
@@ -335,6 +345,7 @@ public class MainActivity
         adapterAgent = new AdapterAgent(dbHelper, socket, this);
 
         tripId = dbHelper.getLatestTripId() + 1;
+        Log.d(LOG_TAG, "tripId: " + tripId);
 
         timerAdapterAgent = new Timer();
         timerAdapterAgent.schedule(new TaskAdapterAgent(), 0);
@@ -361,17 +372,29 @@ public class MainActivity
 
 //      live data
 //        scrollViewData.removeAllViews();
-        tableLayoutData.removeAllViews();
+            new Handler(Looper.getMainLooper()).post(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+//                    tableLayoutData.removeAllViews();
+                    editTextLiveData.setText("");
 
-        for(Pair<String, String> pair : adapterAgent.getLiveData())
-        {
-            TableRow tableRow = new TableRow(this);
-            TextView textView = new TextView(this);
-            textView.setText(pair.first + ":    " + pair.second);
-            tableRow.addView(textView);
-//            scrollViewData.addView(tableRow);
-            tableLayoutData.addView(tableRow);
-        }
+                    for(Pair<String, String> pair : new ArrayList<>(adapterAgent.getLiveData()))
+                    {
+//                        TableRow tableRow = new TableRow(getApplicationContext());
+//                        TextView textView = new TextView(getApplicationContext());
+//                        textView.setText(pair.first + ":    " + pair.second);
+//                        tableRow.addView(textView);
+//                        tableLayoutData.addView(tableRow);
+
+                        editTextLiveData.append(pair.first + ": " + pair.second + "\n");
+                    }
+
+                }
+            });
+
+
 
         updateImageView(imageViewCompass, compass.getLastRotation(), compass.getRotation());
     }
@@ -421,7 +444,6 @@ public class MainActivity
         @Override
         public void run()
         {
-            Log.d(LOG_TAG, "TaskAdapterAgent");
             if(adapterAgent.getStatisticalData(tripId)
                     && adapterAgent.determineLiveData()
                     && isRunning)
@@ -437,7 +459,6 @@ public class MainActivity
         @Override
         public void run()
         {
-            Log.d(LOG_TAG, "TaskPresenter");
             presentData();
             if(isRunning) timerPresenter.schedule(new TaskPresenter(), PRESENTER_INTERVAL);
         }
@@ -451,5 +472,11 @@ public class MainActivity
         adapterAgent.stop();
 
         compass.stop();
+
+        try {
+            socket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

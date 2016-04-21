@@ -156,6 +156,18 @@
                 android:stretchColumns="1">
 
                 <!-- Content -->
+                <TableRow
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <EditText
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="throttle position\nsdf"
+                        android:id="@+id/editTextLiveData"
+                        android:layout_weight="1"
+                        android:textSize="20sp"/>
+                </TableRow>
 
             </TableLayout>
         </ScrollView>
