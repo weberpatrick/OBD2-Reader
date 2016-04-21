@@ -19,10 +19,9 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.ScrollView;
 import android.widget.TableLayout;
+import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -78,7 +77,6 @@ public class MainActivity
 //	gui components
 //	***************************************************************************
 
-    private ScrollView scrollViewData;
     private TableLayout tableLayoutData;
     private Button buttonStartStop;
 
@@ -90,8 +88,6 @@ public class MainActivity
 
     private TextView textViewEngineLoadValue;
     private TextView textViewThrottlePositionValue;
-
-    private EditText editTextLiveData;
 
 //	***************************************************************************
 //	METHOD AREA
@@ -111,12 +107,6 @@ public class MainActivity
         compass = new Compass(this);
 
         initComponents();
-
-//        TableRow tableRow = new TableRow(getApplicationContext());
-//        TextView textView = new TextView(getApplicationContext());
-//        textView.setText("test");
-//        tableRow.addView(textView);
-//        tableLayoutData.addView(tableRow);
     }
 
     @Override
@@ -231,7 +221,6 @@ public class MainActivity
             }
         });
 
-        scrollViewData                  = (ScrollView) findViewById(R.id.scrollViewData);
         tableLayoutData                 = (TableLayout) findViewById(R.id.tableLayoutData);
         imageViewCompass                = (ImageView) findViewById(R.id.imageViewCompass);
 
@@ -241,8 +230,6 @@ public class MainActivity
 
         textViewEngineLoadValue         = (TextView) findViewById(R.id.textViewEngineLoadValue);
         textViewThrottlePositionValue   = (TextView) findViewById(R.id.textViewThrottlePositionValue);
-
-        editTextLiveData = (EditText) findViewById(R.id.editTextLiveData);
     }
 
     /**
@@ -371,30 +358,23 @@ public class MainActivity
         }
 
 //      live data
-//        scrollViewData.removeAllViews();
-            new Handler(Looper.getMainLooper()).post(new Runnable()
+        new Handler(Looper.getMainLooper()).post(new Runnable()
+        {
+            @Override
+            public void run()
             {
-                @Override
-                public void run()
+                tableLayoutData.removeAllViews();
+
+                for(Pair<String, String> pair : new ArrayList<>(adapterAgent.getLiveData()))
                 {
-//                    tableLayoutData.removeAllViews();
-                    editTextLiveData.setText("");
-
-                    for(Pair<String, String> pair : new ArrayList<>(adapterAgent.getLiveData()))
-                    {
-//                        TableRow tableRow = new TableRow(getApplicationContext());
-//                        TextView textView = new TextView(getApplicationContext());
-//                        textView.setText(pair.first + ":    " + pair.second);
-//                        tableRow.addView(textView);
-//                        tableLayoutData.addView(tableRow);
-
-                        editTextLiveData.append(pair.first + ": " + pair.second + "\n");
-                    }
-
+                   TableRow tableRow = new TableRow(getApplicationContext());
+                   TextView textView = new TextView(getApplicationContext());
+                   textView.setText(pair.first + ":    " + pair.second);
+                   tableRow.addView(textView);
+                   tableLayoutData.addView(tableRow);
                 }
-            });
-
-
+            }
+        });
 
         updateImageView(imageViewCompass, compass.getLastRotation(), compass.getRotation());
     }
