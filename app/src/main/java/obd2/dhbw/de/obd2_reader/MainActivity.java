@@ -12,6 +12,7 @@ import android.os.Looper;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -19,6 +20,9 @@ import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ScrollView;
+import android.widget.TableLayout;
+import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,12 +34,12 @@ import java.util.TimerTask;
 import obd2.dhbw.de.obd2_reader.connection.BluetoothConnector;
 import obd2.dhbw.de.obd2_reader.container.DataRow;
 import obd2.dhbw.de.obd2_reader.storage.DbHelper;
+import obd2.dhbw.de.obd2_reader.util.AdapterAgent;
 import obd2.dhbw.de.obd2_reader.util.Compass;
-import obd2.dhbw.de.obd2_reader.util.InputDataReader;
 import obd2.dhbw.de.obd2_reader.util.TripCalculator;
 
 public class MainActivity
-        extends AppCompatActivity
+       extends AppCompatActivity
 {
 //	***************************************************************************
 //	DECLARATION OF CONSTANTS
@@ -46,7 +50,7 @@ public class MainActivity
     private final int BLUETOOTH_REQUEST   = 1;
 
     private final int INPUT_DATA_INTERVAL = 1000;
-    private final int READ_DATA_INTERVAL  = 1000;
+    private final int PRESENTER_INTERVAL = 1000;
 
 //	***************************************************************************
 //	DECLARATION OF VARIABLES
@@ -60,11 +64,12 @@ public class MainActivity
     private boolean bluetoothEnabled;
     private boolean isRunning;
 
-    private InputDataReader inputDataReader;
+    private AdapterAgent adapterAgent;
 
     private Compass compass;
 
-    private Timer timerInputDataReader;
+    private Timer timerAdapterAgent;
+    private Timer timerPresenter;
 
     private int tripId;
 
@@ -72,6 +77,8 @@ public class MainActivity
 //	gui components
 //	***************************************************************************
 
+    private ScrollView scrollViewData;
+    private TableLayout tableLayoutData;
     private Button buttonStartStop;
 
     private ImageView imageViewCompass;
@@ -80,14 +87,8 @@ public class MainActivity
     private TextView textViewRpmValue;
     private TextView textViewRuntimeValue;
 
-    private TextView textViewEngineLoad;
-    private TextView textViewIntakeManifoldPressure;
-    private TextView textViewTimingAdvanceValue;
+    private TextView textViewEngineLoadValue;
     private TextView textViewThrottlePositionValue;
-    private TextView textViewBarometricPressureValue;
-    private TextView textViewWidebandAirFuelRatioValue;
-    private TextView textViewAbsoluteLoadValue;
-    private TextView textViewAirFuelRatioValue;
 
 //	***************************************************************************
 //	METHOD AREA
@@ -135,7 +136,7 @@ public class MainActivity
     }
 
     /**
-     * Is called after the start bluetooth intent.
+     * Is called after the getStatisticalData bluetooth intent.
      *
      */
     @Override
@@ -206,7 +207,7 @@ public class MainActivity
 
                     isRunning = false;
                 }
-//              start of a new trip
+//              getStatisticalData of a new trip
                 else
                 {
                     buttonStartStop.setText(R.string.buttonStop);
@@ -222,20 +223,16 @@ public class MainActivity
             }
         });
 
-        imageViewCompass                    = (ImageView) findViewById(R.id.imageViewCompass);
+        scrollViewData                  = (ScrollView) findViewById(R.id.scrollViewData);
+        tableLayoutData                 = (TableLayout) findViewById(R.id.tableLayoutData);
+        imageViewCompass                = (ImageView) findViewById(R.id.imageViewCompass);
 
-        textViewSpeedValue                  = (TextView) findViewById(R.id.textViewSpeedValue);
-        textViewRpmValue                    = (TextView) findViewById(R.id.textViewRpmValue);
-        textViewRuntimeValue                = (TextView) findViewById(R.id.textViewRuntimeValue);
+        textViewSpeedValue              = (TextView) findViewById(R.id.textViewSpeedValue);
+        textViewRpmValue                = (TextView) findViewById(R.id.textViewRpmValue);
+        textViewRuntimeValue            = (TextView) findViewById(R.id.textViewRuntimeValue);
 
-        textViewEngineLoad                  = (TextView) findViewById(R.id.textViewEngineLoadValue);
-        textViewIntakeManifoldPressure      = (TextView) findViewById(R.id.textViewIntakeManifoldPressureValue);
-        textViewTimingAdvanceValue          = (TextView) findViewById(R.id.textViewTimingAdvanceValue);
-        textViewThrottlePositionValue       = (TextView) findViewById(R.id.textViewThrottlePositionValue);
-        textViewBarometricPressureValue     = (TextView) findViewById(R.id.textViewBarometricPressureValue);
-        textViewWidebandAirFuelRatioValue   = (TextView) findViewById(R.id.textViewWidebandAirFuelRatioValue);
-        textViewAbsoluteLoadValue           = (TextView) findViewById(R.id.textViewAbsoluteLoadValue);
-        textViewAirFuelRatioValue           = (TextView) findViewById(R.id.textViewAirFuelRatioValue);
+        textViewEngineLoadValue         = (TextView) findViewById(R.id.textViewEngineLoadValue);
+        textViewThrottlePositionValue   = (TextView) findViewById(R.id.textViewThrottlePositionValue);
     }
 
     /**
@@ -278,7 +275,6 @@ public class MainActivity
             for(int i=0; i<deviceArray.size(); i++)
                 deviceNames[i] = deviceArray.get(i).getName();
 
-
             if(devicesSet.size() > 0)
             {
                 Log.d(LOG_TAG, "showAdapterSelectionDialog");
@@ -305,7 +301,6 @@ public class MainActivity
                 ).show();
             }
         }
-
     }
 
     /**
@@ -322,10 +317,7 @@ public class MainActivity
             Log.e(LOG_TAG, "The device should not be null here!");
             return false;
         }
-        else
-        {
-            socket = BluetoothConnector.connect(device);
-        }
+        else socket = BluetoothConnector.connect(device);
 
         if(socket == null)
         {
@@ -338,81 +330,53 @@ public class MainActivity
         return true;
     }
 
-    private void fetchData()
+    private void startLiveData()
     {
+        adapterAgent = new AdapterAgent(dbHelper, socket, this);
+
+        tripId = dbHelper.getLatestTripId() + 1;
+
+        timerAdapterAgent = new Timer();
+        timerAdapterAgent.schedule(new TaskAdapterAgent(), 0);
+
+        timerPresenter = new Timer();
+        timerPresenter.schedule(new TaskPresenter(), 0);
+    }
+
+    private void presentData()
+    {
+//      statistical important data
         DataRow dataRow = dbHelper.selectCarData(tripId);
 
 //        Log.d(LOG_TAG, dataRow.getTimestamp());
 
         if(dataRow != null)
         {
-            updateTextView(textViewEngineLoad               , dataRow.getEngineLoadString());
-
-            updateTextView(textViewIntakeManifoldPressure   , dataRow.getIntakeManifoldPressureString());
+            updateTextView(textViewEngineLoadValue          , dataRow.getEngineLoadString());
             updateTextView(textViewRpmValue                 , dataRow.getRpmString());
             updateTextView(textViewSpeedValue               , dataRow.getSpeedString());
-            updateTextView(textViewTimingAdvanceValue       , dataRow.getTimingAdvanceString());
             updateTextView(textViewThrottlePositionValue    , dataRow.getThrottlePositionString());
             updateTextView(textViewRuntimeValue             , dataRow.getRunTimeString());
-            updateTextView(textViewBarometricPressureValue  , dataRow.getBarometricPressureString());
-            updateTextView(textViewWidebandAirFuelRatioValue, dataRow.getWidebandAirFuelRatioString());
-            updateTextView(textViewAbsoluteLoadValue        , dataRow.getAbsoluteLoadString());
-            updateTextView(textViewAirFuelRatioValue        , dataRow.getAirFuelRatioString());
         }
+
+//      live data
+//        scrollViewData.removeAllViews();
+        tableLayoutData.removeAllViews();
+
+        for(Pair<String, String> pair : adapterAgent.getLiveData())
+        {
+            TableRow tableRow = new TableRow(this);
+            TextView textView = new TextView(this);
+            textView.setText(pair.first + ":    " + pair.second);
+            tableRow.addView(textView);
+//            scrollViewData.addView(tableRow);
+            tableLayoutData.addView(tableRow);
+        }
+
         updateImageView(imageViewCompass, compass.getLastRotation(), compass.getRotation());
     }
 
-    private void startLiveData()
-    {
-        inputDataReader = new InputDataReader(dbHelper, socket, this);
-
-        tripId = dbHelper.getLatestTripId() + 1;
-
-        timerInputDataReader = new Timer();
-        timerInputDataReader.schedule(new TaskInputDataReader(), 0);
-
-        Timer timerReadData = new Timer();
-        timerReadData.schedule(new TaskReadData(), 0);
-    }
-
-    private class TaskInputDataReader
-            extends TimerTask
-    {
-        @Override
-        public void run()
-        {
-            Log.d(LOG_TAG, "TaskInputDataReader");
-            if(inputDataReader.start(tripId) && isRunning)
-                timerInputDataReader.schedule( new TaskInputDataReader()
-                                             , INPUT_DATA_INTERVAL);
-            else endTrip();
-        }
-    }
-
-    private class TaskReadData
-            extends TimerTask
-    {
-        @Override
-        public void run()
-        {
-            Log.d(LOG_TAG, "TaskReadData");
-            fetchData();
-            if(isRunning) timerInputDataReader.schedule( new TaskReadData()
-                        , READ_DATA_INTERVAL);
-        }
-    }
-
-    private void endTrip()
-    {
-        TripCalculator.calculate(dbHelper, tripId);
-
-//      stop gps stuff
-        inputDataReader.stop();
-
-        compass.stop();
-    }
-
-    public void updateTextView(final TextView view, final String txt)
+    private void updateTextView(final TextView view, final String txt)
     {
         new Handler(Looper.getMainLooper()).post(new Runnable()
         {
@@ -423,7 +387,7 @@ public class MainActivity
         });
     }
 
-    public void updateImageView(final ImageView image, final float lastRotation, final float rotation)
+    private void updateImageView(final ImageView image, final float lastRotation, final float rotation)
     {
         new Handler(Looper.getMainLooper()).post(new Runnable()
         {
@@ -442,12 +406,50 @@ public class MainActivity
                         Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF,
                         0.5f);
 
-                an.setDuration(READ_DATA_INTERVAL);
+                an.setDuration(PRESENTER_INTERVAL);
                 an.setRepeatCount(0);
                 an.setFillAfter(true);
 
                 image.startAnimation(an);
             }
         });
+    }
+
+    private class TaskAdapterAgent
+            extends TimerTask
+    {
+        @Override
+        public void run()
+        {
+            Log.d(LOG_TAG, "TaskAdapterAgent");
+            if(adapterAgent.getStatisticalData(tripId)
+                    && adapterAgent.determineLiveData()
+                    && isRunning)
+                timerAdapterAgent.schedule( new TaskAdapterAgent()
+                                          , INPUT_DATA_INTERVAL);
+            else endTrip();
+        }
+    }
+
+    private class TaskPresenter
+            extends TimerTask
+    {
+        @Override
+        public void run()
+        {
+            Log.d(LOG_TAG, "TaskPresenter");
+            presentData();
+            if(isRunning) timerPresenter.schedule(new TaskPresenter(), PRESENTER_INTERVAL);
+        }
+    }
+
+    private void endTrip()
+    {
+        TripCalculator.calculate(dbHelper, tripId);
+
+//      stop gps stuff
+        adapterAgent.stop();
+
+        compass.stop();
     }
 }

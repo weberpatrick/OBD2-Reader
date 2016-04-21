@@ -2,20 +2,16 @@ package obd2.dhbw.de.obd2_reader.util;
 
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
+import android.support.annotation.Nullable;
 import android.util.Log;
+import android.util.Pair;
 
 import com.github.pires.obd.commands.ObdCommand;
 import com.github.pires.obd.commands.SpeedCommand;
-import com.github.pires.obd.commands.control.TimingAdvanceCommand;
-import com.github.pires.obd.commands.engine.AbsoluteLoadCommand;
 import com.github.pires.obd.commands.engine.LoadCommand;
 import com.github.pires.obd.commands.engine.RPMCommand;
 import com.github.pires.obd.commands.engine.RuntimeCommand;
 import com.github.pires.obd.commands.engine.ThrottlePositionCommand;
-import com.github.pires.obd.commands.fuel.AirFuelRatioCommand;
-import com.github.pires.obd.commands.fuel.WidebandAirFuelRatioCommand;
-import com.github.pires.obd.commands.pressure.BarometricPressureCommand;
-import com.github.pires.obd.commands.pressure.IntakeManifoldPressureCommand;
 import com.github.pires.obd.commands.protocol.AvailablePidsCommand_01_20;
 import com.github.pires.obd.commands.protocol.AvailablePidsCommand_21_40;
 import com.github.pires.obd.commands.protocol.AvailablePidsCommand_41_60;
@@ -33,19 +29,19 @@ import java.util.ArrayList;
 import obd2.dhbw.de.obd2_reader.storage.DbHelper;
 
 /**
- * Created by Ricar on 08.04.2016.
+ * Created by Ricardo on 08.04.2016.
  */
-public class InputDataReader
+public class AdapterAgent
 {
 //	***************************************************************************
 //	DECLARATION OF CONSTANTS
 //	***************************************************************************
 
-    private final String LOG_TAG = InputDataReader.class.getName();
+    private final String LOG_TAG = AdapterAgent.class.getName();
 
     private enum RESULT_FORMAT
     {
-        NO_RESULT
+          NO_RESULT
         , RAW
         , CALCULATED
         , FORMATTED
@@ -59,6 +55,7 @@ public class InputDataReader
     private DbHelper dbHelper;
 
     private ArrayList<ObdCommand> availableCommands;
+    private ArrayList<Pair<String, String>> liveDataArray;
 
     private LocationFinder locationFinder;
 
@@ -66,15 +63,15 @@ public class InputDataReader
 //	CONSTRUCTOR AREA
 //	***************************************************************************
 
-    public InputDataReader(DbHelper dbHelper, BluetoothSocket socket, Context context)
+    public AdapterAgent(DbHelper dbHelper, BluetoothSocket socket, Context context)
     {
         this.socket = socket;
         this.dbHelper = dbHelper;
 
         locationFinder = new LocationFinder(context);
-        if (!locationFinder.canGetLocation()){
-            locationFinder.showGPSAlert();
-        }
+        if (!locationFinder.canGetLocation()) locationFinder.showGPSAlert();
+
+        liveDataArray = new ArrayList<>();
 
         initOdb();
 
@@ -113,7 +110,8 @@ public class InputDataReader
      *
      * @return string result of the executed command
      */
-    private String executeCommand(ObdCommand command, RESULT_FORMAT format)
+    @Nullable
+    private synchronized String executeCommand(ObdCommand command, RESULT_FORMAT format)
     {
         try
         {
@@ -176,56 +174,37 @@ public class InputDataReader
                 AvailableCommands.determineCommands(hex_41_60, AvailableCommands.PidArea.PIDS_41_60));
     }
 
-    private int formatInt(String value)
-    {
-        int formatted = 0;
-        try
-        {
-            formatted = Integer.parseInt(value);
-        }
-        catch(NumberFormatException nfe){}
-
-        return formatted;
-    }
-
-    private double formatDouble(String value)
-    {
-        double formatted = 0;
-        try
-        {
-            formatted = Double.parseDouble(value);
-            formatted *= 100;
-            formatted = (Math.round(formatted)) / (double) 100;
-        }
-        catch(NumberFormatException nfe){}
-
-        return formatted;
-    }
-
-    public boolean start(int tripId)
+    public boolean getStatisticalData(int tripId)
     {
 //        for(ObdCommand command : availableCommands)
 //            Log.i(LOG_TAG, command.getName() + ": " + executeCommand(command, RESULT_FORMAT.CALCULATED));
 
         try
         {
-            dbHelper.insertCarData(formatDouble(executeCommand(new LoadCommand(), RESULT_FORMAT.CALCULATED))
-                    , formatDouble(executeCommand(new IntakeManifoldPressureCommand(), RESULT_FORMAT.CALCULATED))
-                    , formatInt(executeCommand(new RPMCommand(), RESULT_FORMAT.CALCULATED))
-                    , formatInt(executeCommand(new SpeedCommand(), RESULT_FORMAT.CALCULATED))
-                    , formatDouble(executeCommand(new TimingAdvanceCommand(), RESULT_FORMAT.CALCULATED))
-                    , formatDouble(executeCommand(new ThrottlePositionCommand(), RESULT_FORMAT.CALCULATED))
-                    , formatInt(executeCommand(new RuntimeCommand(), RESULT_FORMAT.CALCULATED))
-                    , formatDouble(executeCommand(new BarometricPressureCommand(), RESULT_FORMAT.CALCULATED))
-                    , formatDouble(executeCommand(new WidebandAirFuelRatioCommand(), RESULT_FORMAT.CALCULATED))
-                    , formatDouble(executeCommand(new AbsoluteLoadCommand(), RESULT_FORMAT.CALCULATED))
-                    , formatDouble(executeCommand(new AirFuelRatioCommand(), RESULT_FORMAT.CALCULATED))
-                    , tripId
-                    , locationFinder.getSpeed()
-                    , locationFinder.getLatitude()
-                    , locationFinder.getLongitude()
-                    , locationFinder.getAltitude()
-            );
+//          get statistical important data
+            double load = Formatter.formatDouble(
+                    executeCommand(new LoadCommand(), RESULT_FORMAT.CALCULATED));
+            int rpm     = Formatter.formatInt(
+                    executeCommand(new RPMCommand(), RESULT_FORMAT.CALCULATED));
+            int speed   = Formatter.formatInt(
+                    executeCommand(new SpeedCommand(), RESULT_FORMAT.CALCULATED));
+            double throttlePosition = Formatter.formatDouble(
+                    executeCommand(new ThrottlePositionCommand(), RESULT_FORMAT.CALCULATED));
+            int runtime = Formatter.formatInt(
+                    executeCommand(new RuntimeCommand(), RESULT_FORMAT.CALCULATED));
+
+            dbHelper.insertCarData( load
+                                  , rpm
+                                  , speed
+                                  , throttlePosition
+                                  , runtime
+                                  , tripId
+                                  , locationFinder.getSpeed()
+                                  , locationFinder.getLatitude()
+                                  , locationFinder.getLongitude()
+                                  , locationFinder.getAltitude()
+                                  );
+
             return true;
         }
         catch(NoDataException nde)
@@ -236,8 +215,34 @@ public class InputDataReader
         return false;
     }
 
+    public boolean determineLiveData()
+    {
+        try
+        {
+            liveDataArray.clear();
+
+            for(ObdCommand command : availableCommands)
+                liveDataArray.add(new Pair<>( command.getName()
+                                            , executeCommand(command, RESULT_FORMAT.FORMATTED)));
+
+            return true;
+        }
+        catch(NoDataException nde)
+        {
+//          occurs after turing the engine off
+            Log.d(LOG_TAG, "no data exception");
+        }
+        return false;
+    }
+
+
     public void stop()
     {
         locationFinder.stopGPS();
+    }
+
+    public ArrayList<Pair<String, String>> getLiveData()
+    {
+        return liveDataArray;
     }
 }

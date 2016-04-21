@@ -43,16 +43,10 @@ public class DbHelper
     private static final String C_ID                         = TABLE_CAR_DATA + "_" + "id";
     private static final String C_TIMESTAMP                  = TABLE_CAR_DATA + "_" + "timestamp";
     private static final String C_ENGINE_LOAD                = TABLE_CAR_DATA + "_" + "engineLoad";
-    private static final String C_INTAKE_MANIFOLD_PRESSURE   = TABLE_CAR_DATA + "_" + "intakeManifoldPressure";
     private static final String C_RPM                        = TABLE_CAR_DATA + "_" + "rpm";
     private static final String C_SPEED                      = TABLE_CAR_DATA + "_" + "speed";
-    private static final String C_TIMING_ADVANCE             = TABLE_CAR_DATA + "_" + "timingAdvance";
     private static final String C_THROTTLE_POSITION          = TABLE_CAR_DATA + "_" + "throttlePosition";
     private static final String C_RUNTIME                    = TABLE_CAR_DATA + "_" + "runTime";
-    private static final String C_BAROMETRIC_PRESSURE        = TABLE_CAR_DATA + "_" + "barometricPressure";
-    private static final String C_WIDEBAND_AIR_FUEL_RATIO    = TABLE_CAR_DATA + "_" + "widebandAirFuelRatio";
-    private static final String C_ABSOLUTE_LOAD              = TABLE_CAR_DATA + "_" + "absoluteLoad";
-    private static final String C_AIR_FUEL_RATIO             = TABLE_CAR_DATA + "_" + "airFuelRatio";
 
 //  TODO check whether a foreign key connection is necessary
     private static final String C_TRIP_ID                    = TABLE_CAR_DATA + "_" + "tripId";
@@ -76,16 +70,10 @@ public class DbHelper
                     + C_ID                      + " INTEGER PRIMARY KEY AUTOINCREMENT,"
                     + C_TIMESTAMP               + " TEXT DEFAULT CURRENT_TIMESTAMP,"
                     + C_ENGINE_LOAD             + " REAL,"
-                    + C_INTAKE_MANIFOLD_PRESSURE+ " REAL,"
                     + C_RPM                     + " INTEGER,"
                     + C_SPEED                   + " INTEGER,"
-                    + C_TIMING_ADVANCE          + " REAL,"
                     + C_THROTTLE_POSITION       + " REAL,"
                     + C_RUNTIME                 + " INTEGER,"
-                    + C_BAROMETRIC_PRESSURE     + " REAL,"
-                    + C_WIDEBAND_AIR_FUEL_RATIO + " REAL,"
-                    + C_ABSOLUTE_LOAD           + " REAL,"
-                    + C_AIR_FUEL_RATIO          + " REAL,"
                     + C_TRIP_ID                 + " INTEGER,"
                     + C_GPS_SPEED               + " REAL,"
                     + C_LATITUDE                + " REAL,"
@@ -142,16 +130,10 @@ public class DbHelper
 //	***************************************************************************
 
     public boolean insertCarData( double engineLoad
-                                , double intakeManifoldPressure
                                 , int rpm
                                 , int speed
-                                , double timingAdvance
                                 , double throttlePosition
                                 , int runTime
-                                , double barometricPressure
-                                , double widebandAirFuelRatio
-                                , double absoluteLoad
-                                , double airFuelRatio
                                 , int tripId
                                 , double gpsSpeed
                                 , double latitude
@@ -161,16 +143,10 @@ public class DbHelper
     {
         ContentValues values = new ContentValues();
         values.put(C_ENGINE_LOAD, engineLoad);
-        values.put(C_INTAKE_MANIFOLD_PRESSURE, intakeManifoldPressure);
         values.put(C_RPM, rpm);
         values.put(C_SPEED, speed);
-        values.put(C_TIMING_ADVANCE, timingAdvance);
         values.put(C_THROTTLE_POSITION, throttlePosition);
         values.put(C_RUNTIME, runTime);
-        values.put(C_BAROMETRIC_PRESSURE, barometricPressure);
-        values.put(C_WIDEBAND_AIR_FUEL_RATIO, widebandAirFuelRatio);
-        values.put(C_ABSOLUTE_LOAD, absoluteLoad);
-        values.put(C_AIR_FUEL_RATIO, airFuelRatio);
         values.put(C_TRIP_ID, tripId);
         values.put(C_GPS_SPEED, gpsSpeed);
         values.put(C_LATITUDE, latitude);
@@ -211,21 +187,15 @@ public class DbHelper
             return new DataRow( cursor.getInt(0)
                               , cursor.getString(1)
                               , cursor.getDouble(2)
-                              , cursor.getDouble(3)
+                              , cursor.getInt(3)
                               , cursor.getInt(4)
-                              , cursor.getInt(5)
-                              , cursor.getDouble(6)
-                              , cursor.getDouble(7)
-                              , cursor.getInt(8)
+                              , cursor.getDouble(5)
+                              , cursor.getInt(6)
+                              , cursor.getInt(7)
+                              , cursor.getDouble(8)
                               , cursor.getDouble(9)
                               , cursor.getDouble(10)
                               , cursor.getDouble(11)
-                              , cursor.getDouble(12)
-                              , cursor.getInt(13)
-                              , cursor.getDouble(14)
-                              , cursor.getDouble(15)
-                              , cursor.getDouble(16)
-                              , cursor.getDouble(17)
                               );
         }
 
@@ -292,8 +262,8 @@ public class DbHelper
 //      selectCarData row with highest id
         Cursor cursor = db.query( TABLE_TRIP
                 , null //columns
-                , T_ID + "=" + tripId //DbHelper.C_ID +"=1" //where clause
-                , null //selectionArgs
+                , T_ID + "=?" //DbHelper.C_ID +"=1" //where clause
+                , new String[]{String.valueOf(tripId)} //selectionArgs
                 , null //groupBy
                 , null //having
                 , null //order by
@@ -309,21 +279,15 @@ public class DbHelper
                 rows.add(new DataRow( cursor.getInt(0)
                         , cursor.getString(1)
                         , cursor.getDouble(2)
-                        , cursor.getDouble(3)
+                        , cursor.getInt(3)
                         , cursor.getInt(4)
-                        , cursor.getInt(5)
-                        , cursor.getDouble(6)
-                        , cursor.getDouble(7)
-                        , cursor.getInt(8)
+                        , cursor.getDouble(5)
+                        , cursor.getInt(6)
+                        , cursor.getInt(7)
+                        , cursor.getDouble(8)
                         , cursor.getDouble(9)
                         , cursor.getDouble(10)
                         , cursor.getDouble(11)
-                        , cursor.getDouble(12)
-                        , cursor.getInt(13)
-                        , cursor.getDouble(14)
-                        , cursor.getDouble(15)
-                        , cursor.getDouble(16)
-                        , cursor.getDouble(17)
                 ));
             }
         }
