@@ -49,8 +49,8 @@ public class MainActivity
 
     private final int BLUETOOTH_REQUEST   = 1;
 
-    private final int INPUT_DATA_INTERVAL = 1000;
-    private final int PRESENTER_INTERVAL = 1000;
+    private final int INPUT_DATA_INTERVAL = 100;
+    private final int PRESENTER_INTERVAL  = 100;
 
 //	***************************************************************************
 //	DECLARATION OF VARIABLES
@@ -286,6 +286,11 @@ public class MainActivity
                             Log.d(LOG_TAG, "Befor starting live data");
                             startLiveData();
                         }
+                        else
+                        {
+                            buttonStartStop.setText(R.string.buttonStart);
+                            isRunning = false;
+                        }
                     }
                 });
                 builder.create().show();
@@ -446,16 +451,19 @@ public class MainActivity
 
     private void endTrip()
     {
-        TripCalculator.calculate(dbHelper, tripId);
+        if(dbHelper != null) TripCalculator.calculate(dbHelper, tripId);
 
 //      stop gps stuff
-        adapterAgent.stop();
+        if(adapterAgent != null) adapterAgent.stop();
 
-        compass.stop();
+        if(compass != null) compass.stop();
 
-        try {
-            socket.close();
-        } catch (IOException e) {
+        try
+        {
+            if(socket != null) socket.close();
+        }
+        catch (IOException e)
+        {
             e.printStackTrace();
         }
     }
