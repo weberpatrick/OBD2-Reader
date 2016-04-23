@@ -112,6 +112,8 @@ public class MainActivity
 
         compass = new Compass(this);
 
+        mapLiveTextViews = new HashMap<>();
+
         initComponents();
     }
 
@@ -289,7 +291,7 @@ public class MainActivity
                     {
                         if(createConnection(deviceArray.get(which)))
                         {
-                            Log.d(LOG_TAG, "Befor starting live data");
+                            Log.d(LOG_TAG, "Before starting live data");
                             startLiveData();
                         }
                         else
@@ -341,7 +343,6 @@ public class MainActivity
     private void startLiveData()
     {
         adapterAgent = new AdapterAgent(dbHelper, socket, this);
-        mapLiveTextViews = new HashMap<>();
 
         tripId = dbHelper.getLatestTripId() + 1;
         Log.d(LOG_TAG, "tripId: " + tripId);
@@ -380,11 +381,7 @@ public class MainActivity
     {
         TextView textView = mapLiveTextViews.get(name);
 
-        if(textView != null)
-        {
-            Log.d(LOG_TAG, "if");
-            updateTextView(textView, value);
-        }
+        if(textView != null)  updateTextView(textView, value);
         else
         {
             new Handler(Looper.getMainLooper()).post(new Runnable()
