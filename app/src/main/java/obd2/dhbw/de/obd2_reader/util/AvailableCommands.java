@@ -1,19 +1,14 @@
 package obd2.dhbw.de.obd2_reader.util;
 
 import com.github.pires.obd.commands.ObdCommand;
-import com.github.pires.obd.commands.SpeedCommand;
 import com.github.pires.obd.commands.control.DistanceMILOnCommand;
 import com.github.pires.obd.commands.control.DistanceSinceCCCommand;
 import com.github.pires.obd.commands.control.DtcNumberCommand;
 import com.github.pires.obd.commands.control.ModuleVoltageCommand;
 import com.github.pires.obd.commands.control.TimingAdvanceCommand;
 import com.github.pires.obd.commands.engine.AbsoluteLoadCommand;
-import com.github.pires.obd.commands.engine.LoadCommand;
 import com.github.pires.obd.commands.engine.MassAirFlowCommand;
 import com.github.pires.obd.commands.engine.OilTempCommand;
-import com.github.pires.obd.commands.engine.RPMCommand;
-import com.github.pires.obd.commands.engine.RuntimeCommand;
-import com.github.pires.obd.commands.engine.ThrottlePositionCommand;
 import com.github.pires.obd.commands.fuel.AirFuelRatioCommand;
 import com.github.pires.obd.commands.fuel.ConsumptionRateCommand;
 import com.github.pires.obd.commands.fuel.FindFuelTypeCommand;
@@ -22,8 +17,6 @@ import com.github.pires.obd.commands.fuel.WidebandAirFuelRatioCommand;
 import com.github.pires.obd.commands.pressure.BarometricPressureCommand;
 import com.github.pires.obd.commands.pressure.FuelPressureCommand;
 import com.github.pires.obd.commands.pressure.IntakeManifoldPressureCommand;
-import com.github.pires.obd.commands.protocol.AvailablePidsCommand_21_40;
-import com.github.pires.obd.commands.protocol.AvailablePidsCommand_41_60;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -61,22 +54,22 @@ public class AvailableCommands
     {
 //        mapPidCommand.put("0", new AvailablePidsCommand_01_20()); // is never asked
         mapPidCommand.put("1", new DtcNumberCommand());
-        mapPidCommand.put("4", new LoadCommand());
+//        mapPidCommand.put("4", new LoadCommand());
         mapPidCommand.put("a", new FuelPressureCommand());
         mapPidCommand.put("b", new IntakeManifoldPressureCommand());
-        mapPidCommand.put("c", new RPMCommand());
-        mapPidCommand.put("d", new SpeedCommand());
+//        mapPidCommand.put("c", new RPMCommand());
+//        mapPidCommand.put("d", new SpeedCommand());
         mapPidCommand.put("e", new TimingAdvanceCommand());
         mapPidCommand.put("10", new MassAirFlowCommand());
-        mapPidCommand.put("11", new ThrottlePositionCommand());
-        mapPidCommand.put("1f", new RuntimeCommand());
-        mapPidCommand.put("20", new AvailablePidsCommand_21_40());
+//        mapPidCommand.put("11", new ThrottlePositionCommand());
+//        mapPidCommand.put("1f", new RuntimeCommand());
+//        mapPidCommand.put("20", new AvailablePidsCommand_21_40());
         mapPidCommand.put("21", new DistanceMILOnCommand());
         mapPidCommand.put("2f", new FuelLevelCommand());
         mapPidCommand.put("31", new DistanceSinceCCCommand());
         mapPidCommand.put("33", new BarometricPressureCommand());
         mapPidCommand.put("34", new WidebandAirFuelRatioCommand());
-        mapPidCommand.put("40", new AvailablePidsCommand_41_60());
+//        mapPidCommand.put("40", new AvailablePidsCommand_41_60());
         mapPidCommand.put("42", new ModuleVoltageCommand());
         mapPidCommand.put("43", new AbsoluteLoadCommand());
         mapPidCommand.put("44", new AirFuelRatioCommand());

@@ -6,6 +6,7 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -13,6 +14,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.util.Pair;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -27,6 +29,8 @@ import android.widget.Toast;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -72,6 +76,8 @@ public class MainActivity
     private Timer timerPresenter;
 
     private int tripId;
+
+    private Map<String, TextView> mapLiveTextViews;
 
 //	***************************************************************************
 //	gui components
@@ -335,6 +341,7 @@ public class MainActivity
     private void startLiveData()
     {
         adapterAgent = new AdapterAgent(dbHelper, socket, this);
+        mapLiveTextViews = new HashMap<>();
 
         tripId = dbHelper.getLatestTripId() + 1;
         Log.d(LOG_TAG, "tripId: " + tripId);
@@ -363,25 +370,46 @@ public class MainActivity
         }
 
 //      live data
-        new Handler(Looper.getMainLooper()).post(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                tableLayoutData.removeAllViews();
-
-                for(Pair<String, String> pair : new ArrayList<>(adapterAgent.getLiveData()))
-                {
-                   TableRow tableRow = new TableRow(getApplicationContext());
-                   TextView textView = new TextView(getApplicationContext());
-                   textView.setText(pair.first + ":    " + pair.second);
-                   tableRow.addView(textView);
-                   tableLayoutData.addView(tableRow);
-                }
-            }
-        });
+        for(Pair<String, String> pair : new ArrayList<>(adapterAgent.getLiveData()))
+                refreshTextView(pair.first, pair.second);
 
         updateImageView(imageViewCompass, compass.getLastRotation(), compass.getRotation());
+    }
+
+    private void refreshTextView(final String name, final String value)
+    {
+        TextView textView = mapLiveTextViews.get(name);
+
+        if(textView != null)
+        {
+            Log.d(LOG_TAG, "if");
+            updateTextView(textView, value);
+        }
+        else
+        {
+            new Handler(Looper.getMainLooper()).post(new Runnable()
+            {
+                public void run()
+                {
+                    TableRow tableRow       = new TableRow(getApplicationContext());
+                    TextView textViewName   = new TextView(getApplicationContext());
+                    TextView textViewValue  = new TextView(getApplicationContext());
+
+                    textViewName.setTextColor(Color.BLACK);
+                    textViewName.setText(name);
+                    textViewValue.setTextColor(Color.BLACK);
+                    textViewValue.setText(value);
+                    textViewValue.setGravity(Gravity.RIGHT);
+
+                    tableRow.addView(textViewName);
+                    tableRow.addView(textViewValue);
+
+                    mapLiveTextViews.put(name, textViewValue);
+                    tableLayoutData.addView(tableRow);
+                }
+            });
+
+        }
     }
 
     private void updateTextView(final TextView view, final String txt)
