@@ -12,7 +12,7 @@ public class Formatter
         {
             formatted = Integer.parseInt(value);
         }
-        catch(NumberFormatException nfe){}
+        catch(Exception e){}
 
         return formatted;
     }
@@ -26,7 +26,7 @@ public class Formatter
             formatted *= 100;
             formatted = (Math.round(formatted)) / (double) 100;
         }
-        catch(NumberFormatException nfe){}
+        catch(Exception e){}
 
         return formatted;
     }
