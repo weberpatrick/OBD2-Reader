@@ -26,15 +26,10 @@ public class TripCalculator
 
     public static boolean calculate(DbHelper dbHelper, int tripId)
     {
-        Log.d(LOG_TAG, "calculate trip stuff");
-
         ArrayList<DataRow> rows = dbHelper.selectTripData(tripId);
 
-        Log.d(LOG_TAG, "tripId " + tripId);
-        Log.d(LOG_TAG, "rows: " + rows.size());
         if (rows == null || rows.size() == 0) return false;
 
-        Log.d(LOG_TAG, "calculate trip stuff");
         for(DataRow row : rows)
         {
             //calculate trip length
@@ -43,9 +38,10 @@ public class TripCalculator
 
             //just compute distance if both locations are set
             //in the first iteration: just locNew is set
-            if (oldSet){
+            if (oldSet)
+            {
                 float newDistance = locOld.distanceTo(locNew);
-                distance = distance + newDistance;
+                distance += newDistance;
             }
             //the new location gets the old location. So the old is set
             locOld = locNew;

@@ -7,7 +7,7 @@ import android.util.Log;
 import java.util.UUID;
 
 /**
- * Created by Ricar on 06.04.2016.
+ * Created by Ricardo on 06.04.2016.
  */
 public class BluetoothConnector
 {

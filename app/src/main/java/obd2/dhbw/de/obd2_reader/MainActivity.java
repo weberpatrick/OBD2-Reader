@@ -45,6 +45,8 @@ import obd2.dhbw.de.obd2_reader.util.TripCalculator;
 public class MainActivity
        extends AppCompatActivity
 {
+//  TODO http://mindtherobot.com/blog/272/android-custom-ui-making-a-vintage-thermometer/
+
 //	***************************************************************************
 //	DECLARATION OF CONSTANTS
 //	***************************************************************************
@@ -282,18 +284,13 @@ public class MainActivity
 
             if(devicesSet.size() > 0)
             {
-                Log.d(LOG_TAG, "showAdapterSelectionDialog");
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setTitle(R.string.adapterSelectionDialogCaption);
                 builder.setItems(deviceNames, new DialogInterface.OnClickListener()
                 {
                     public void onClick(DialogInterface dialog, int which)
                     {
-                        if(createConnection(deviceArray.get(which)))
-                        {
-                            Log.d(LOG_TAG, "Before starting live data");
-                            startLiveData();
-                        }
+                        if(createConnection(deviceArray.get(which))) startLiveData();
                         else
                         {
                             buttonStartStop.setText(R.string.buttonStart);
@@ -303,13 +300,10 @@ public class MainActivity
                 });
                 builder.create().show();
             }
-            else
-            {
-                Toast.makeText( getApplicationContext()
-                        , "No paired device detected"
-                        , Toast.LENGTH_SHORT
-                ).show();
-            }
+            else Toast.makeText( getApplicationContext()
+                               , "No paired device detected"
+                               , Toast.LENGTH_SHORT
+                               ).show();
         }
     }
 
@@ -345,7 +339,6 @@ public class MainActivity
         adapterAgent = new AdapterAgent(dbHelper, socket, this);
 
         tripId = dbHelper.getLatestTripId() + 1;
-        Log.d(LOG_TAG, "tripId: " + tripId);
 
         timerAdapterAgent = new Timer();
         timerAdapterAgent.schedule(new TaskAdapterAgent(), 0);
@@ -405,7 +398,6 @@ public class MainActivity
                     tableLayoutData.addView(tableRow);
                 }
             });
-
         }
     }
 

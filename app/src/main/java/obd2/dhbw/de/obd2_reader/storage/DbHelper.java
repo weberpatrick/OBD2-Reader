@@ -156,8 +156,6 @@ public class DbHelper
         SQLiteDatabase db = this.getWritableDatabase();
         long insertId = db.insert(TABLE_CAR_DATA, null, values);
 
-        Log.d(LOG_TAG, "insertCarData ID: " + insertId);
-
 //      insertID = -1 means the insertCarData failed
         if(insertId == -1) return false;
 
@@ -179,8 +177,6 @@ public class DbHelper
                                 , C_ID + " DESC" //order by
                                 , "1" //limit
                                 );
-
-//        Log.d(LOG_TAG, "cursor length: " + cursor.getCount());
 
         if(cursor.moveToPosition(0))
         {
@@ -218,8 +214,6 @@ public class DbHelper
                 , "1" //limit
         );
 
-        Log.d(LOG_TAG, "latest trip id - cursor length: " + cursor.getCount());
-
         if(cursor.moveToPosition(0)) return cursor.getInt(0);
 
         return 0;
@@ -233,8 +227,6 @@ public class DbHelper
                                  , double avgSpeed
                                  )
     {
-        Log.d(LOG_TAG, "insert trip id: " + tripId);
-
         ContentValues values = new ContentValues();
         values.put(T_ID, tripId);
         values.put(T_TRACK_LENGTH, trackLength);
@@ -245,8 +237,6 @@ public class DbHelper
 
         SQLiteDatabase db = this.getWritableDatabase();
         long insertId = db.insert(TABLE_TRIP, null, values);
-
-        Log.d(LOG_TAG, "insertTripId: " + insertId);
 
 //      insertID = -1 means the insertCarData failed
         if(insertId == -1) return false;
@@ -271,8 +261,6 @@ public class DbHelper
                 , null //order by
                 , null //limit
         );
-
-        Log.d(LOG_TAG, "cursor length: " + cursor.getCount());
 
         for (int i = 0; i < cursor.getCount(); i++)
         {

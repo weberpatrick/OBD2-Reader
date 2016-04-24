@@ -88,7 +88,6 @@ public class AdapterAgent
      */
     private void initOdb()
     {
-        Log.d(LOG_TAG, "initialize obd");
         try
         {
             executeCommand(new ObdResetCommand()   , RESULT_FORMAT.NO_RESULT);
@@ -141,11 +140,6 @@ public class AdapterAgent
         {
 //          TODO catch the unable to connect exception
         }
-//        catch(NoDataException nde)
-//        {
-////          occurs after turing the engine off
-//            Log.d(LOG_TAG, "no data exception");
-//        }
 
         return null;
     }
