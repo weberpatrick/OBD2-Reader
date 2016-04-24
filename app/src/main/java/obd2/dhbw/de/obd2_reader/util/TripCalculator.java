@@ -48,7 +48,9 @@ public class TripCalculator
                 distance = distance + newDistance;
             }
             //the new location gets the old location. So the old is set
-            locOld = locNew;
+            locOld.setLatitude(locNew.getLatitude());
+            locOld.setLongitude(locNew.getLongitude());
+
             oldSet = true;
 
 //            TODO calculate stand time
