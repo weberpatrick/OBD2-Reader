@@ -139,6 +139,7 @@ public class AdapterAgent
         catch (UnableToConnectException e)
         {
 //          TODO catch the unable to connect exception
+            Log.d(LOG_TAG, "unable to connect to adapter");
         }
 
         return null;

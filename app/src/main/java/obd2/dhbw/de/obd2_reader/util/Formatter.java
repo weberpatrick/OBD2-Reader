@@ -20,6 +20,8 @@ public class Formatter
     public static double formatDouble(String value)
     {
         double formatted = 0;
+        if(value == null) return 0;
+
         try
         {
             formatted = Double.parseDouble(value);

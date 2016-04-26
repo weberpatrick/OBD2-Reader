@@ -45,8 +45,6 @@ import obd2.dhbw.de.obd2_reader.util.TripCalculator;
 public class MainActivity
        extends AppCompatActivity
 {
-//  TODO http://mindtherobot.com/blog/272/android-custom-ui-making-a-vintage-thermometer/
-
 //	***************************************************************************
 //	DECLARATION OF CONSTANTS
 //	***************************************************************************
