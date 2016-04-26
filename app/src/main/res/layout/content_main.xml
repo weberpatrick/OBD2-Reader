@@ -23,7 +23,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <obd2.dhbw.de.obd2_reader.view.TachometerView
+            <obd2.dhbw.de.obd2_reader.view.Thermometer
                 android:id="@+id/thermometer"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content" />
