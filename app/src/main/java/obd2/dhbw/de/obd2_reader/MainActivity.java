@@ -344,6 +344,16 @@ public class MainActivity
 
         timerPresenter = new Timer();
         timerPresenter.schedule(new TaskPresenter(), 0);
+
+        Timer timerCompass = new Timer();
+        timerCompass.schedule(new TimerTask()
+        {
+            @Override
+            public void run()
+            {
+                updateImageView(imageViewCompass, compass.getLastRotation(), compass.getRotation());
+            }
+        }, 0, 1000);
     }
 
     private void presentData()
@@ -365,8 +375,6 @@ public class MainActivity
 //      live data
         for(Pair<String, String> pair : new ArrayList<>(adapterAgent.getLiveData()))
                 refreshTextView(pair.first, pair.second);
-
-        updateImageView(imageViewCompass, compass.getLastRotation(), compass.getRotation());
     }
 
     private void refreshTextView(final String name, final String value)
