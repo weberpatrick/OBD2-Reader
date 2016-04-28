@@ -6,4 +6,5 @@
     <string name="buttonStart">Start</string>
     <string name="buttonStop">Stop</string>
     <string name="adapterSelectionDialogCaption">Wähle den Bluetooth Adapter aus!</string>
+    <string name="tripAlertCaption">Trip Daten</string>
 </resources>

@@ -37,6 +37,7 @@ import java.util.TimerTask;
 
 import obd2.dhbw.de.obd2_reader.connection.BluetoothConnector;
 import obd2.dhbw.de.obd2_reader.container.DataRow;
+import obd2.dhbw.de.obd2_reader.container.TripRow;
 import obd2.dhbw.de.obd2_reader.storage.DbHelper;
 import obd2.dhbw.de.obd2_reader.util.AdapterAgent;
 import obd2.dhbw.de.obd2_reader.util.Compass;
@@ -480,6 +481,24 @@ public class MainActivity
         catch (IOException e)
         {
             e.printStackTrace();
+        }
+
+        TripRow tripRow = dbHelper.selectTrip(tripId);
+
+        if(tripRow != null)
+        {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle(R.string.tripAlertCaption);
+            builder.setMessage(
+                    "Distanz: " + tripRow.getDistance() + "\n"
+                            + "Maximalgeschwindigkeit: " + tripRow.getMaxSpeed() + "\n"
+                            + "Durchschnittsgeschwindigkeit: " + tripRow.getAvgSpeed() + "\n"
+                            + "Fahrzeit: " + tripRow.getRunTime() / 60 + " Minuten " + tripRow.getRunTime() % 60 + " Sekunden" + "\n"
+                            + "Stehzeit: " + tripRow.getStandTime()
+            );
+            builder.setPositiveButton("Ok", null);
+
+            builder.create().show();
         }
     }
 }

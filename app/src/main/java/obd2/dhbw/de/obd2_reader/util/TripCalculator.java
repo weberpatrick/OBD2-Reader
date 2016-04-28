@@ -17,7 +17,7 @@ public class TripCalculator
 
     private static int maxSpeed = 0;
     private static int avgSpeed = 0;
-    private static int runTime = 0;
+    private static int runTime  = 0;
 
     private static Location locOld = new Location("");
     private static Location locNew = new Location("");
@@ -33,18 +33,15 @@ public class TripCalculator
         for(DataRow row : rows)
         {
             //calculate trip length
-            locNew.setLatitude(row.getLatitude());
+            locNew.setLatitude( row.getLatitude());
             locNew.setLongitude(row.getLongitude());
 
             //just compute distance if both locations are set
             //in the first iteration: just locNew is set
-            if (oldSet)
-            {
-                float newDistance = locOld.distanceTo(locNew);
-                distance += newDistance;
-            }
+            if (oldSet) distance += locOld.distanceTo(locNew);
+
             //the new location gets the old location. So the old is set
-            locOld.setLatitude(locNew.getLatitude());
+            locOld.setLatitude( locNew.getLatitude());
             locOld.setLongitude(locNew.getLongitude());
 
             oldSet = true;
@@ -63,6 +60,8 @@ public class TripCalculator
                         "avgSpeed: " + avgSpeed + "\n" +
                         "distance: " + distance);
 
-        return dbHelper.insertTripData( tripId, distance, runTime, 0, maxSpeed, avgSpeed);
+
+
+        return dbHelper.insertTripData(tripId, distance, runTime, 0, maxSpeed, avgSpeed);
     }
 }
