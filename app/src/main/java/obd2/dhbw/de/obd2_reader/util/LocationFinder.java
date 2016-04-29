@@ -20,11 +20,14 @@ import android.util.Log;
 /**
  * Created by Patrick on 12.04.2016.
  */
-public class LocationFinder extends Service implements LocationListener {
+public class LocationFinder
+       extends Service
+       implements LocationListener
+{
 
     private final String LOG_TAG = LocationFinder.class.getName();
 
-    //Mimumim Distance between updates
+    //minimum Distance between updates
     //is 0, because of high battery consumption.
     private final long UPDATE_DISTANCE = 0;
     //Minimum Time between updates
@@ -39,7 +42,6 @@ public class LocationFinder extends Service implements LocationListener {
     private boolean canGetLocation = false;
 
     private Location lastLocation;
-
 
     /**
      *  Constructor
@@ -112,7 +114,8 @@ public class LocationFinder extends Service implements LocationListener {
         return (newLocation.getAccuracy() < 100);
     }
 
-    public void showGPSAlert(){
+    public void showGPSAlert()
+    {
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(context);
 
         alertDialog.setTitle("GPS settings");
@@ -144,30 +147,24 @@ public class LocationFinder extends Service implements LocationListener {
     }
 
     @Override
-    public void onLocationChanged(Location newLocation) {
-        Log.d(LOG_TAG, "New Location found");
-
-        if (isGood(newLocation)){
-            lastLocation = newLocation;
-        }
+    public void onLocationChanged(Location newLocation)
+    {
+        if (isGood(newLocation)) lastLocation = newLocation;
     }
 
     @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) {
-
-    }
+    public void onStatusChanged(String provider, int status, Bundle extras) {}
 
     @Override
     public void onProviderEnabled(String provider) {
-        Log.d(LOG_TAG, provider + "provider enabled");
+        Log.d(LOG_TAG, provider + " provider enabled");
     }
 
     @Override
-    public void onProviderDisabled(String provider) {
-        Log.d(LOG_TAG, provider + "provider diabled");
-        if (provider == LocationManager.GPS_PROVIDER){
-            showGPSAlert();
-        }
+    public void onProviderDisabled(String provider)
+    {
+        Log.d(LOG_TAG, provider + " provider diabled");
+        if (provider == LocationManager.GPS_PROVIDER) showGPSAlert();
     }
 
 
@@ -175,36 +172,30 @@ public class LocationFinder extends Service implements LocationListener {
         return canGetLocation;
     }
 
-    public double getLatitude() {
-        if (lastLocation != null){
-            return lastLocation.getLatitude();
-        }else{
-            return 0;
-        }
+    public double getLatitude()
+    {
+        if (lastLocation != null) return lastLocation.getLatitude();
+        else return 0;
     }
 
-    public double getLongitude() {
-        if (lastLocation != null){
-            return lastLocation.getLongitude();
-        }else{
-            return 0;
-        }
+    public double getLongitude()
+    {
+        if (lastLocation != null) return lastLocation.getLongitude();
+        else return 0;
     }
 
-    public double getAltitude() {
-        if (lastLocation != null){
-            return lastLocation.getAltitude();
-        }else{
-            return 0;
-        }
+    public double getAltitude()
+    {
+        if (lastLocation != null) return lastLocation.getAltitude();
+        else return 0;
     }
 
     public double getSpeed() {
-        if (lastLocation != null && lastLocation.hasSpeed()){
+        if (lastLocation != null && lastLocation.hasSpeed())
+        {
             // speed in m/s to km/h
             return lastLocation.getSpeed()*3.6;
-        }else{
-            return 0;
         }
+        else return 0;
     }
 }
