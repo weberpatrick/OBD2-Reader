@@ -11,6 +11,7 @@ import android.util.Log;
 import java.util.ArrayList;
 
 import obd2.dhbw.de.obd2_reader.container.DataRow;
+import obd2.dhbw.de.obd2_reader.container.TripRow;
 
 /**
  * Created by Ricardo on 02.04.2016.
@@ -242,6 +243,33 @@ public class DbHelper
         if(insertId == -1) return false;
 
         return true;
+    }
+
+    public TripRow selectTrip(int tripId)
+    {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursor = db.query( TABLE_TRIP
+                , null //columns
+                , T_ID + "=?" //DbHelper.C_ID +"=1" //where clause
+                , new String[]{String.valueOf(tripId)} //selectionArgs
+                , null //groupBy
+                , null //having
+                , null //order by
+                , null //limit
+        );
+
+        if(cursor.moveToFirst())
+        {
+            return new TripRow( cursor.getInt(0)
+                    , cursor.getDouble(1)
+                    , cursor.getInt(2)
+                    , cursor.getInt(3)
+                    , cursor.getInt(4)
+                    , cursor.getDouble(5)
+            );
+        }
+        return null;
     }
 
     public ArrayList<DataRow> selectTripData(int tripId)
