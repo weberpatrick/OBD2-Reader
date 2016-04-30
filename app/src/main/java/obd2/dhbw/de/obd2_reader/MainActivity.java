@@ -491,22 +491,30 @@ public class MainActivity
             e.printStackTrace();
         }
 
-        TripRow tripRow = dbHelper.selectTrip(tripId);
 
-        if(tripRow != null)
+        new Handler(Looper.getMainLooper()).post(new Runnable()
         {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle(R.string.tripAlertCaption);
-            builder.setMessage(
-                    "Distanz: " + tripRow.getDistance() + "\n"
-                            + "Maximalgeschwindigkeit: " + tripRow.getMaxSpeed() + "\n"
-                            + "Durchschnittsgeschwindigkeit: " + tripRow.getAvgSpeed() + "\n"
-                            + "Fahrzeit: " + tripRow.getRunTime() / 60 + " Minuten " + tripRow.getRunTime() % 60 + " Sekunden" + "\n"
-                            + "Stehzeit: " + tripRow.getStandTime()
-            );
-            builder.setPositiveButton("Ok", null);
+            @Override
+            public void run()
+            {
+                TripRow tripRow = dbHelper.selectTrip(tripId);
 
-            builder.create().show();
-        }
+                if(tripRow != null)
+                {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                    builder.setTitle(R.string.tripAlertCaption);
+                    builder.setMessage(
+                            "Distanz: " + tripRow.getDistance() + "\n"
+                                      + "Maximalgeschwindigkeit: " + tripRow.getMaxSpeed() + "\n"
+                                        + "Durchschnittsgeschwindigkeit: " + tripRow.getAvgSpeed() + "\n"
+                                        + "Fahrzeit: " + tripRow.getRunTime() / 60 + " Minuten " + tripRow.getRunTime() % 60 + " Sekunden" + "\n"
+                                        + "Stehzeit: " + tripRow.getStandTime()
+                    );
+                    builder.setPositiveButton("Ok", null);
+
+                    builder.create().show();
+                }
+            }
+        });
     }
 }
