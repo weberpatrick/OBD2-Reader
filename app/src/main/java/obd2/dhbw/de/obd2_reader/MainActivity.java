@@ -6,10 +6,13 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -20,8 +23,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -96,6 +102,12 @@ public class MainActivity
     private TextView textViewEngineLoadValue;
     private TextView textViewThrottlePositionValue;
 
+    private ListView drawerList;
+    private ArrayAdapter<String> drawerAdapter;
+    private ActionBarDrawerToggle drawerToggle;
+    private DrawerLayout drawerLayout;
+    private String title;
+
 //	***************************************************************************
 //	METHOD AREA
 //	***************************************************************************
@@ -129,6 +141,10 @@ public class MainActivity
     @Override
     public boolean onOptionsItemSelected(MenuItem item)
     {
+        //close the drawer
+        if (drawerToggle.onOptionsItemSelected(item)) {
+            return true;
+        }
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
@@ -239,6 +255,72 @@ public class MainActivity
 
         textViewEngineLoadValue         = (TextView) findViewById(R.id.textViewEngineLoadValue);
         textViewThrottlePositionValue   = (TextView) findViewById(R.id.textViewThrottlePositionValue);
+
+        drawerList = (ListView)findViewById(R.id.drawerList);
+        drawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
+        title = getTitle().toString();
+        addDrawerItems();
+    }
+
+    /**
+     * Init the left drawer with trips
+     */
+    private void addDrawerItems() {
+        //TODO get trips
+        String[] tripArray = { "Trip 1", "Trip 2", "Trip 3", "Trip 4", "Trip 5" , "Trip 2", "Trip 3", "Trip 4", "Trip 5" , "Trip 2", "Trip 3", "Trip 4", "Trip 5" };
+        drawerAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, tripArray);
+        drawerList.setAdapter(drawerAdapter);
+        drawerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                //TODO build AlertDialog like in endTrip
+                Toast.makeText(MainActivity.this, "Trip "+(position+1), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        //Icon in the ActionBar
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
+
+        setupDrawer();
+    }
+
+    /**
+     * init behavior of drawer
+     */
+    private void setupDrawer() {
+        drawerToggle = new ActionBarDrawerToggle(this, drawerLayout,
+                R.string.open_drawer, R.string.close_drawer) {
+
+            /** Called when a drawer is completely opened. */
+            public void onDrawerOpened(View drawerView) {
+                super.onDrawerOpened(drawerView);
+                getSupportActionBar().setTitle("Trips");
+                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+            }
+
+            /** Called when a drawer is completely closed. */
+            public void onDrawerClosed(View view) {
+                super.onDrawerClosed(view);
+                getSupportActionBar().setTitle(title);
+                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+            }
+        };
+
+        drawerToggle.setDrawerIndicatorEnabled(true);
+        drawerLayout.addDrawerListener(drawerToggle);
+    }
+
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        drawerToggle.syncState();
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        drawerToggle.onConfigurationChanged(newConfig);
     }
 
     /**
