@@ -266,6 +266,12 @@ public class MainActivity
      * Init the left drawer with trips
      */
     private void addDrawerItems() {
+        dbHelper.insertTripData(1,234.4, 60, 5.0, 120.0, 75.0);
+        dbHelper.insertTripData(2,3453.6, 3600, 75.0, 220.0, 115.0);
+        dbHelper.insertTripData(3,14.4, 2345, 43.0, 20.0, 75.0);
+        dbHelper.insertTripData(6,2464.7, 12, 1.0, 100.0, 45.0);
+        dbHelper.insertTripData(8,265.0, 345, 12.0, 750.0, 25.0);
+
         int[] tripIdArray = dbHelper.getTripIds();
         String[]  tripArray;
 
