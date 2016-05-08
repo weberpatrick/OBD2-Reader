@@ -14,9 +14,9 @@ public class TripRow
 
     public TripRow( int tripId
                   , double distance
-                  , int maxSpeed
                   , int runTime
                   , int standTime
+                  , int maxSpeed
                   , double avgSpeed
                   )
     {
