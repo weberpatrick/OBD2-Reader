@@ -36,6 +36,7 @@ import android.widget.Toast;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
@@ -83,6 +84,8 @@ public class MainActivity
     private Timer timerPresenter;
 
     private int currentTripId;
+
+    private List<String> tripStringArray = new ArrayList<String>();
 
     private Map<String, TextView> mapLiveTextViews;
 
@@ -273,20 +276,17 @@ public class MainActivity
         dbHelper.insertTripData(8,265.0, 345, 12.0, 750.0, 25.0);
 
         int[] tripIdArray = dbHelper.getTripIds();
-        String[]  tripArray;
 
         if (tripIdArray.length>0){
-            tripArray = new String[tripIdArray.length];
             for (int i = 0; i < tripIdArray.length; i++){
-                tripArray[i] = "Trip " + tripIdArray[i];
+                tripStringArray.add("Trip " + tripIdArray[i]);
             }
         }else{
             // No trips found
-            tripArray = new String[1];
-            tripArray[0] = getString(R.string.noTripsFound);
+            tripStringArray.add(getString(R.string.noTripsFound));
         }
 
-        drawerAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, tripArray);
+        drawerAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, tripStringArray);
         drawerList.setAdapter(drawerAdapter);
         drawerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -332,6 +332,15 @@ public class MainActivity
 
         drawerToggle.setDrawerIndicatorEnabled(true);
         drawerLayout.addDrawerListener(drawerToggle);
+    }
+
+    /*
+    * in case a new Trip was made, the list in the Drawer is refreshed
+    */
+    private void refreshDrawer() {
+        //add "Trip XX" to the front of the List and update the listAdapter
+        tripStringArray.add(0, "Trip " + currentTripId);
+        drawerAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -581,6 +590,8 @@ public class MainActivity
     private void endTrip()
     {
         if(dbHelper != null) TripCalculator.calculate(dbHelper, currentTripId);
+
+        refreshDrawer();
 
 //      stop gps stuff
         if(adapterAgent != null) adapterAgent.stop();
