@@ -220,6 +220,33 @@ public class DbHelper
         return 0;
     }
 
+    public int[] getTripIds()
+    {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+//      declare cursor to read data
+//      selectCarData row with highest id
+        Cursor cursor = db.query( TABLE_TRIP
+                , new String[]{T_ID} //columns
+                , null //T_ID +"=1" //where clause
+                , null //selectionArgs
+                , null //groupBy
+                , null //having
+                , T_ID + " DESC" //order by
+                , null //limit
+        );
+
+        int[] tripIds = new int[cursor.getCount()];
+
+        for (int i = 0; i < cursor.getCount(); i++){
+            if(cursor.moveToPosition(i)){
+                tripIds[i] = cursor.getInt(0);
+            }
+        }
+
+        return tripIds;
+    }
+
     public boolean insertTripData( int tripId
                                  , double trackLength
                                  , int drivingTime

@@ -82,7 +82,7 @@ public class MainActivity
     private Timer timerAdapterAgent;
     private Timer timerPresenter;
 
-    private int tripId;
+    private int currentTripId;
 
     private Map<String, TextView> mapLiveTextViews;
 
@@ -266,15 +266,32 @@ public class MainActivity
      * Init the left drawer with trips
      */
     private void addDrawerItems() {
-        //TODO get trips
-        String[] tripArray = { "Trip 1", "Trip 2", "Trip 3", "Trip 4", "Trip 5" , "Trip 2", "Trip 3", "Trip 4", "Trip 5" , "Trip 2", "Trip 3", "Trip 4", "Trip 5" };
+        int[] tripIdArray = dbHelper.getTripIds();
+        String[]  tripArray;
+
+        if (tripIdArray.length>0){
+            tripArray = new String[tripIdArray.length];
+            for (int i = 0; i < tripIdArray.length; i++){
+                tripArray[i] = "Trip " + tripIdArray[i];
+            }
+        }else{
+            // No trips found
+            tripArray = new String[1];
+            tripArray[0] = getString(R.string.noTripsFound);
+        }
+
         drawerAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, tripArray);
         drawerList.setAdapter(drawerAdapter);
         drawerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                //TODO build AlertDialog like in endTrip
-                Toast.makeText(MainActivity.this, "Trip "+(position+1), Toast.LENGTH_SHORT).show();
+                // String that was clicked
+                String clickedItem = (String)parent.getItemAtPosition(position);
+                if (!clickedItem.equals(getString(R.string.noTripsFound))){
+                    // Cuts off "Trip " it remains just the id of the trip
+                    showTripMessage(Integer.parseInt(clickedItem.replace("Trip ","")));
+                }
+
             }
         });
 
@@ -290,7 +307,7 @@ public class MainActivity
      */
     private void setupDrawer() {
         drawerToggle = new ActionBarDrawerToggle(this, drawerLayout,
-                R.string.open_drawer, R.string.close_drawer) {
+                R.string.openDrawer, R.string.closeDrawer) {
 
             /** Called when a drawer is completely opened. */
             public void onDrawerOpened(View drawerView) {
@@ -419,7 +436,7 @@ public class MainActivity
     {
         adapterAgent = new AdapterAgent(dbHelper, socket, this);
 
-        tripId = dbHelper.getLatestTripId() + 1;
+        currentTripId = dbHelper.getLatestTripId() + 1;
 
         timerAdapterAgent = new Timer();
         timerAdapterAgent.schedule(new TaskAdapterAgent(), 0);
@@ -431,7 +448,7 @@ public class MainActivity
     private void presentData()
     {
 //      statistical important data
-        DataRow dataRow = dbHelper.selectCarData(tripId);
+        DataRow dataRow = dbHelper.selectCarData(currentTripId);
 
 //        Log.d(LOG_TAG, dataRow.getTimestamp());
 
@@ -527,7 +544,7 @@ public class MainActivity
         @Override
         public void run()
         {
-            if(adapterAgent.getStatisticalData(tripId)
+            if(adapterAgent.getStatisticalData(currentTripId)
                     && adapterAgent.determineLiveData()
                     && isRunning)
                 timerAdapterAgent.schedule( new TaskAdapterAgent()
@@ -549,7 +566,7 @@ public class MainActivity
 
     private void endTrip()
     {
-        if(dbHelper != null) TripCalculator.calculate(dbHelper, tripId);
+        if(dbHelper != null) TripCalculator.calculate(dbHelper, currentTripId);
 
 //      stop gps stuff
         if(adapterAgent != null) adapterAgent.stop();
@@ -565,7 +582,13 @@ public class MainActivity
             e.printStackTrace();
         }
 
+        showTripMessage(currentTripId);
+    }
 
+    /**
+     * Show the AlertDialog for a given trip
+     */
+    private void showTripMessage(final int tripId) {
         new Handler(Looper.getMainLooper()).post(new Runnable()
         {
             @Override
@@ -579,10 +602,10 @@ public class MainActivity
                     builder.setTitle(R.string.tripAlertCaption);
                     builder.setMessage(
                             "Distanz: " + tripRow.getDistance() + "\n"
-                                      + "Maximalgeschwindigkeit: " + tripRow.getMaxSpeed() + "\n"
-                                        + "Durchschnittsgeschwindigkeit: " + tripRow.getAvgSpeed() + "\n"
-                                        + "Fahrzeit: " + tripRow.getRunTime() / 60 + " Minuten " + tripRow.getRunTime() % 60 + " Sekunden" + "\n"
-                                        + "Stehzeit: " + tripRow.getStandTime()
+                                    + "Maximalgeschwindigkeit: " + tripRow.getMaxSpeed() + "\n"
+                                    + "Durchschnittsgeschwindigkeit: " + tripRow.getAvgSpeed() + "\n"
+                                    + "Fahrzeit: " + tripRow.getRunTime() / 60 + " Minuten " + tripRow.getRunTime() % 60 + " Sekunden" + "\n"
+                                    + "Stehzeit: " + tripRow.getStandTime()
                     );
                     builder.setPositiveButton("Ok", null);
 
