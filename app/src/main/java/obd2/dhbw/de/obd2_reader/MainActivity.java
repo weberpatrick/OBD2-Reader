@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -18,9 +19,11 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.util.Pair;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
 import android.widget.AdapterView;
@@ -32,6 +35,8 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import org.w3c.dom.Text;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -85,7 +90,7 @@ public class MainActivity
 
     private int currentTripId;
 
-    private List<String> tripStringArray = new ArrayList<>();
+    private List<String[]> tripStringArray = new ArrayList<>();
 
     private Map<String, TextView> mapLiveTextViews;
 
@@ -106,7 +111,7 @@ public class MainActivity
     private TextView textViewThrottlePositionValue;
 
     private ListView drawerList;
-    private ArrayAdapter<String> drawerAdapter;
+    private ArrayAdapter<String[]> drawerAdapter;
     private ActionBarDrawerToggle drawerToggle;
     private DrawerLayout drawerLayout;
     private String title;
@@ -126,11 +131,11 @@ public class MainActivity
 //      create the database if necessary
         dbHelper = new DbHelper(this);
 
-//        dbHelper.insertTripData(1, "01.01.2015", 234.4, 60, 5.0, 120.0, 75.0);
-//        dbHelper.insertTripData(2, "01.01.2015", 3453.6, 3600, 75.0, 220.0, 115.0);
-//        dbHelper.insertTripData(3, "01.01.2015", 14.4, 2345, 43.0, 20.0, 75.0);
-//        dbHelper.insertTripData(6, "01.01.2015", 2464.7, 12, 1.0, 100.0, 45.0);
-//        dbHelper.insertTripData(8, "01.01.2015", 265.0, 345, 12.0, 750.0, 25.0);
+        dbHelper.insertTripData(1, "01.01.2015", 234.4, 60, 5.0, 120.0, 75.0);
+        dbHelper.insertTripData(2, "01.01.2015", 3453.6, 3600, 75.0, 220.0, 115.0);
+        dbHelper.insertTripData(3, "01.01.2015", 14.4, 2345, 43.0, 20.0, 75.0);
+        dbHelper.insertTripData(6, "01.01.2015", 2464.7, 12, 1.0, 100.0, 45.0);
+        dbHelper.insertTripData(8, "01.01.2015", 265.0, 345, 12.0, 750.0, 25.0);
 
         compass = new Compass(this);
 
@@ -216,9 +221,9 @@ public class MainActivity
 
     protected void onDestroy()
     {
-        super.onDestroy();
+        endTrip();super.onDestroy();
 
-        endTrip();
+
     }
 
 //	***************************************************************************
@@ -280,43 +285,48 @@ public class MainActivity
 
         if (tripIdArray.length>0)
         {
-            for (int i = 0; i < tripIdArray.length; i++){
-                tripStringArray.add("Trip " + tripIdArray[i] + " (" +  dbHelper.selectTrip(tripIdArray[i]).getDate() + ")");
+            for (int i : tripIdArray){
+                tripStringArray.add(new String[] {"Trip ", String.valueOf(i), "(" + dbHelper.selectTrip(i).getDate() + ")"});
             }
         }else{
             // No trips found
-            tripStringArray.add(getString(R.string.noTripsFound));
+            tripStringArray.add(new String[] {getString(R.string.noTripsFound), "", ""});
         }
 
-        drawerAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, tripStringArray);
+        drawerAdapter = new ArrayAdapter<String[]>(this, R.layout.drawer_row, tripStringArray){
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent) {
+                // 1. Create inflater
+                LayoutInflater inflater = (LayoutInflater) this.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+                // 2. Get view from inflater
+                View view = inflater.inflate(R.layout.drawer_row, parent, false);
+
+                // 3. Get the textViews from the view
+                TextView tripText = (TextView) view.findViewById(R.id.drawerRowTrip);
+                TextView tripId   = (TextView) view.findViewById(R.id.drawerRowId);
+                TextView tripDate = (TextView) view.findViewById(R.id.drawerRowDate);
+
+                // 4. Set the text for textViews
+                String[] row = tripStringArray.get(position);
+                tripText.setText(row[0]);
+                tripId.setText(row[1]);
+                tripDate.setText(row[2]);
+
+                // 5. return view
+                return view;
+            }
+
+        };
         drawerList.setAdapter(drawerAdapter);
         drawerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                // String that was clicked
-                String clickedItem = (String)parent.getItemAtPosition(position);
-                if (!clickedItem.equals(getString(R.string.noTripsFound)))
-                {
-                    int tripId = 0;
-                    try
-                    {
-//                      cut off "Trip "
-                        clickedItem = clickedItem.replace("Trip ","");
 
-//                      cut off the date if present
-                        int space = clickedItem.indexOf(" ");
-                        if(space > 0)
-                            clickedItem = clickedItem.substring(0, space);
+                ViewGroup group = (ViewGroup) view;
+                TextView tripId = (TextView) group.findViewById(R.id.drawerRowId);
 
-                        tripId = Integer.parseInt(clickedItem);
-                    }
-                    catch(NumberFormatException nfe)
-                    {
-                        Log.e(LOG_TAG, "Could not parse string to get id: " + clickedItem);
-                    }
-
-                    showTripMessage(tripId);
-                }
+                showTripMessage(Integer.parseInt(tripId.getText().toString()));
 
             }
         });
@@ -359,10 +369,17 @@ public class MainActivity
     */
     private void refreshDrawer()
     {
-        Log.d(LOG_TAG, "currentTripId " + currentTripId);
+        String date = "";
+        TripRow row = dbHelper.selectTrip(currentTripId);
 
-        //add "Trip XX" to the top of the List and update the listAdapter
-        tripStringArray.add(0, "Trip " + currentTripId + " (" + dbHelper.selectTrip(currentTripId).getDate() + ")");
+        //If the device has no Bluetooth, and the user hits the start Button,
+        //this here is going to be called and would throw an Exception
+        if (row != null)
+        date = row.getDate();
+
+        //add "Trip ", id, date to the top of the List and update the listAdapter
+        tripStringArray.add(0, new String[] {"Trip ", String.valueOf(currentTripId),"(" +  date + ")"});
+
         new Handler(Looper.getMainLooper()).post(new Runnable()
         {
             @Override
