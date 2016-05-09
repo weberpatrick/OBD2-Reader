@@ -85,7 +85,7 @@ public class MainActivity
 
     private int currentTripId;
 
-    private List<String> tripStringArray = new ArrayList<String>();
+    private List<String> tripStringArray = new ArrayList<>();
 
     private Map<String, TextView> mapLiveTextViews;
 
@@ -125,6 +125,12 @@ public class MainActivity
 
 //      create the database if necessary
         dbHelper = new DbHelper(this);
+
+//        dbHelper.insertTripData(1, "01.01.2015", 234.4, 60, 5.0, 120.0, 75.0);
+//        dbHelper.insertTripData(2, "01.01.2015", 3453.6, 3600, 75.0, 220.0, 115.0);
+//        dbHelper.insertTripData(3, "01.01.2015", 14.4, 2345, 43.0, 20.0, 75.0);
+//        dbHelper.insertTripData(6, "01.01.2015", 2464.7, 12, 1.0, 100.0, 45.0);
+//        dbHelper.insertTripData(8, "01.01.2015", 265.0, 345, 12.0, 750.0, 25.0);
 
         compass = new Compass(this);
 
@@ -268,18 +274,14 @@ public class MainActivity
     /**
      * Init the left drawer with trips
      */
-    private void addDrawerItems() {
-        dbHelper.insertTripData(1,234.4, 60, 5.0, 120.0, 75.0);
-        dbHelper.insertTripData(2,3453.6, 3600, 75.0, 220.0, 115.0);
-        dbHelper.insertTripData(3,14.4, 2345, 43.0, 20.0, 75.0);
-        dbHelper.insertTripData(6,2464.7, 12, 1.0, 100.0, 45.0);
-        dbHelper.insertTripData(8,265.0, 345, 12.0, 750.0, 25.0);
-
+    private void addDrawerItems()
+    {
         int[] tripIdArray = dbHelper.getTripIds();
 
-        if (tripIdArray.length>0){
+        if (tripIdArray.length>0)
+        {
             for (int i = 0; i < tripIdArray.length; i++){
-                tripStringArray.add("Trip " + tripIdArray[i]);
+                tripStringArray.add("Trip " + tripIdArray[i] + " (" +  dbHelper.selectTrip(tripIdArray[i]).getDate() + ")");
             }
         }else{
             // No trips found
@@ -293,9 +295,27 @@ public class MainActivity
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 // String that was clicked
                 String clickedItem = (String)parent.getItemAtPosition(position);
-                if (!clickedItem.equals(getString(R.string.noTripsFound))){
-                    // Cuts off "Trip " it remains just the id of the trip
-                    showTripMessage(Integer.parseInt(clickedItem.replace("Trip ","")));
+                if (!clickedItem.equals(getString(R.string.noTripsFound)))
+                {
+                    int tripId = 0;
+                    try
+                    {
+//                      cut off "Trip "
+                        clickedItem = clickedItem.replace("Trip ","");
+
+//                      cut off the date if present
+                        int space = clickedItem.indexOf(" ");
+                        if(space > 0)
+                            clickedItem = clickedItem.substring(0, space);
+
+                        tripId = Integer.parseInt(clickedItem);
+                    }
+                    catch(NumberFormatException nfe)
+                    {
+                        Log.e(LOG_TAG, "Could not parse string to get id: " + clickedItem);
+                    }
+
+                    showTripMessage(tripId);
                 }
 
             }
@@ -337,10 +357,20 @@ public class MainActivity
     /*
     * in case a new Trip was made, the list in the Drawer is refreshed
     */
-    private void refreshDrawer() {
-        //add "Trip XX" to the front of the List and update the listAdapter
-        tripStringArray.add(0, "Trip " + currentTripId);
-        drawerAdapter.notifyDataSetChanged();
+    private void refreshDrawer()
+    {
+        Log.d(LOG_TAG, "currentTripId " + currentTripId);
+
+        //add "Trip XX" to the top of the List and update the listAdapter
+        tripStringArray.add(0, "Trip " + currentTripId + " (" + dbHelper.selectTrip(currentTripId).getDate() + ")");
+        new Handler(Looper.getMainLooper()).post(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                drawerAdapter.notifyDataSetChanged();
+            }
+        });
     }
 
     @Override
@@ -589,7 +619,7 @@ public class MainActivity
 
     private void endTrip()
     {
-        if(dbHelper != null) TripCalculator.calculate(dbHelper, currentTripId);
+        if(dbHelper != null) TripCalculator.calculate(dbHelper, currentTripId, INPUT_DATA_INTERVAL);
 
         refreshDrawer();
 
@@ -630,7 +660,7 @@ public class MainActivity
                                     + "Maximalgeschwindigkeit: " + tripRow.getMaxSpeed() + "\n"
                                     + "Durchschnittsgeschwindigkeit: " + tripRow.getAvgSpeed() + "\n"
                                     + "Fahrzeit: " + tripRow.getRunTime() / 60 + " Minuten " + tripRow.getRunTime() % 60 + " Sekunden" + "\n"
-                                    + "Stehzeit: " + tripRow.getStandTime()
+                                    + "Stehzeit: " + tripRow.getStandTime() / 60 + " Minuten " + tripRow.getRunTime() % 60 + " Sekunden"
                     );
                     builder.setPositiveButton("Ok", null);
 

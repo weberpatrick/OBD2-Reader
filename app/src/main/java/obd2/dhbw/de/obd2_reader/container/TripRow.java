@@ -11,8 +11,10 @@ public class TripRow
     private int runTime;
     private int standTime;
     private double distance;
+    private String date;
 
     public TripRow( int tripId
+                  , String date
                   , double distance
                   , int runTime
                   , int standTime
@@ -22,6 +24,7 @@ public class TripRow
     {
         this.maxSpeed = maxSpeed;
         this.tripId = tripId;
+        this.date = date;
         this.avgSpeed = avgSpeed;
         this.runTime = runTime;
         this.standTime = standTime;
@@ -56,5 +59,10 @@ public class TripRow
     public double getDistance()
     {
         return distance;
+    }
+
+    public String getDate()
+    {
+        return date;
     }
 }

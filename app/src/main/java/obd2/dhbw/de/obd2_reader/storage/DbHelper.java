@@ -58,6 +58,7 @@ public class DbHelper
 
 //  trip columns
     private static final String T_ID                        = TABLE_TRIP + "_" + "id";
+    private static final String T_DATE                      = TABLE_TRIP + "_" + "date";
     private static final String T_TRACK_LENGTH              = TABLE_TRIP + "_" + "trackLength";
     private static final String T_DRIVING_TIME              = TABLE_TRIP + "_" + "drivingTime";
     private static final String T_STAND_TIME                = TABLE_TRIP + "_" + "standTime";
@@ -86,6 +87,7 @@ public class DbHelper
             "CREATE TABLE " + TABLE_TRIP
                     + " ("
                     + T_ID                      + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                    + T_DATE                    + " TEXT,"
                     + T_TRACK_LENGTH            + " REAL,"
                     + T_DRIVING_TIME            + " INTEGER,"
                     + T_STAND_TIME              + " INTEGER,"
@@ -248,6 +250,7 @@ public class DbHelper
     }
 
     public boolean insertTripData( int tripId
+                                 , String date
                                  , double trackLength
                                  , int drivingTime
                                  , double standTime
@@ -257,6 +260,7 @@ public class DbHelper
     {
         ContentValues values = new ContentValues();
         values.put(T_ID, tripId);
+        values.put(T_DATE, date);
         values.put(T_TRACK_LENGTH, trackLength);
         values.put(T_DRIVING_TIME, drivingTime);
         values.put(T_STAND_TIME, standTime);
@@ -289,11 +293,12 @@ public class DbHelper
         if(cursor.moveToFirst())
         {
             return new TripRow( cursor.getInt(0)
-                    , cursor.getDouble(1)
-                    , cursor.getInt(2)
+                    , cursor.getString(1)
+                    , cursor.getDouble(2)
                     , cursor.getInt(3)
                     , cursor.getInt(4)
-                    , cursor.getDouble(5)
+                    , cursor.getInt(5)
+                    , cursor.getDouble(6)
             );
         }
         return null;

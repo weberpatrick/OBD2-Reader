@@ -3,7 +3,9 @@ package obd2.dhbw.de.obd2_reader.util;
 import android.location.Location;
 import android.util.Log;
 
+import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 import obd2.dhbw.de.obd2_reader.container.DataRow;
 import obd2.dhbw.de.obd2_reader.storage.DbHelper;
@@ -15,16 +17,17 @@ public class TripCalculator
 {
     private static final String LOG_TAG = TripCalculator.class.getName();
 
-    private static int maxSpeed = 0;
-    private static int avgSpeed = 0;
-    private static int runTime  = 0;
+    private static int maxSpeed  = 0;
+    private static int avgSpeed  = 0;
+    private static int runTime   = 0;
+    private static int standTime = 0;
 
     private static Location locOld = new Location("");
     private static Location locNew = new Location("");
     private static float distance = 0;
     private static boolean oldSet = false;
 
-    public static boolean calculate(DbHelper dbHelper, int tripId)
+    public static boolean calculate(DbHelper dbHelper, int tripId, int readIntervall)
     {
         ArrayList<DataRow> rows = dbHelper.selectTripData(tripId);
 
@@ -48,6 +51,7 @@ public class TripCalculator
 
 //            TODO calculate stand time
             int speed = row.getSpeed();
+            if(speed == 0) standTime += readIntervall/10;
             maxSpeed = Math.max(speed, maxSpeed);
             avgSpeed += speed;
             runTime = Math.max(row.getRunTime(), runTime);
@@ -55,13 +59,23 @@ public class TripCalculator
 
         avgSpeed /= rows.size();
 
+        distance = Math.round(distance);
+
         Log.d(LOG_TAG,  "runtime:  " + runTime + "\n" +
                         "maxSpeed: " + maxSpeed + "\n" +
                         "avgSpeed: " + avgSpeed + "\n" +
                         "distance: " + distance);
 
+        Date date = new Date();
+        DateFormat dateFormat = DateFormat.getDateInstance();
 
-
-        return dbHelper.insertTripData(tripId, distance, runTime, 0, maxSpeed, avgSpeed);
+        return dbHelper.insertTripData( tripId
+                                      , dateFormat.format(date)
+                                      , distance
+                                      , runTime
+                                      , standTime
+                                      , maxSpeed
+                                      , avgSpeed
+                                      );
     }
 }
