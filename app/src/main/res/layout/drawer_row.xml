@@ -7,16 +7,9 @@
     <TextView android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:id="@+id/drawerRowTrip"
-        android:paddingLeft="6dp" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/drawerRowDate"
-        android:layout_alignParentEnd="false"
-        android:layout_below="@+id/drawerRowTrip"
-        android:paddingLeft="6dp" />
+        android:id="@+id/drawerRowName"
+        android:paddingLeft="6dp"
+        android:text="Görlitz" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -24,6 +17,17 @@
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:id="@+id/drawerRowId"
         android:layout_above="@+id/drawerRowDate"
-        android:layout_toEndOf="@+id/drawerRowTrip" />
+        android:layout_toEndOf="@+id/drawerRowName"
+        android:text="4"
+        android:visibility="visible" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/drawerRowDate"
+        android:layout_alignParentEnd="false"
+        android:layout_below="@+id/drawerRowName"
+        android:paddingLeft="6dp"
+        android:text="(01.04.2015)" />
 
 </RelativeLayout>

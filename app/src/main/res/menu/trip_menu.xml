@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/tripShow"
+        android:title="@string/tripShow"
+        android:icon="@android:drawable/ic_menu_info_details"/>
+    <item
+        android:id="@+id/tripRename"
+        android:title="@string/tripRename"
+        android:icon="@android:drawable/ic_menu_edit"/>
+    <item
+        android:id="@+id/tripDelete"
+        android:title="@string/tripDelete"
+        android:icon="@android:drawable/ic_menu_delete"/>
+</menu>

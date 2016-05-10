@@ -9,5 +9,9 @@
     <string name="tripAlertCaption">Trip Daten</string>
     <string name="openDrawer">Open drawer</string>
     <string name="closeDrawer">Close drawer</string>
-    <string name="noTripsFound">Keine Trips gefunden</string>
+    <string name="noTripsFound">No Trips found</string>
+    <string name="tripDelete">Delete</string>
+    <string name="tripShow">Show</string>
+    <string name="tripRename">Rename</string>
+    <string name="newTripNameTitle">Please enter a new trip name</string>
 </resources>
