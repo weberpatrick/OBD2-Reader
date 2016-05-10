@@ -195,6 +195,7 @@ public class MainActivity
         else
         {
             Log.d(LOG_TAG, "User don´t want to enable bluetooth.");
+
             bluetoothEnabled = false;
         }
     }
@@ -253,8 +254,6 @@ public class MainActivity
                 }
                 else
                 {
-                    buttonStartStop.setBackgroundResource(R.drawable.stop_68);
-
                     isRunning = true;
 
 //                  initialize bluetooth adapter and turn it on
@@ -620,10 +619,13 @@ public class MainActivity
                 {
                     public void onClick(DialogInterface dialog, int which)
                     {
-                        if(createConnection(deviceArray.get(which))) startLiveData();
+                        if(createConnection(deviceArray.get(which)))
+                        {
+                            buttonStartStop.setBackgroundResource(R.drawable.stop_68);
+                            startLiveData();
+                        }
                         else
                         {
-                            buttonStartStop.setBackgroundResource(R.drawable.start_68);
                             isRunning = false;
                         }
                     }
