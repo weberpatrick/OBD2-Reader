@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
@@ -336,7 +337,7 @@ public class MainActivity
 
                 //do not show the TripMessage, if the user clicks the "no trips found" text
                 if (!tripName.getText().equals(getString(R.string.noTripsFound)))
-                showTripMessage(Integer.parseInt(tripId.getText().toString()));
+                showTripMessage(Integer.parseInt(tripId.getText().toString()), tripName.getText().toString());
             }
         });
 
@@ -431,17 +432,18 @@ public class MainActivity
     public boolean onContextItemSelected(MenuItem item){
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
         int pos = info.position;
-        int id = Integer.parseInt(drawerAdapter.getItem(pos)[1]);
+        int tripId = Integer.parseInt(drawerAdapter.getItem(pos)[1]);
+        String tripName = (drawerAdapter.getItem(pos)[0]);
 
         switch (item.getItemId()){
             case R.id.tripShow:
-                showTripMessage(id);
+                showTripMessage(tripId, tripName);
                 return true;
             case R.id.tripRename:
-                showRenameTripDialog(id);
+                showRenameTripDialog(tripId, tripName);
                 return true;
             case R.id.tripDelete:
-                showDeleteTripDialog(id);
+                showDeleteTripDialog(tripId, tripName);
                 return true;
             default:
                 return super.onContextItemSelected(item);
@@ -451,7 +453,7 @@ public class MainActivity
     /**
      * shows the dialog to enter a new tripName
      */
-    private void showRenameTripDialog(final int id) {
+    private void showRenameTripDialog(final int id, String tripName) {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
@@ -459,7 +461,10 @@ public class MainActivity
 
         //Input EditText
         final EditText input = new EditText(this);
-        //Text input. Capitalizes the first letter after a ". ", or at the beginning of the text
+        input.setText(tripName);
+        //Highlight all text
+        input.setSelectAllOnFocus(true);
+        //Text input. Capitalizes the first letter after a ". " and at the beginning of the text
         input.setInputType(InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
         //Max Length is 15 chars
         input.setFilters(new InputFilter[]{
@@ -523,14 +528,14 @@ public class MainActivity
     /**
      * deletes the trip from the database and drawer
      */
-    private void showDeleteTripDialog(final int id) {
+    private void showDeleteTripDialog(final int id, final String tripName) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Alert!!");
-        builder.setMessage("Are you sure to delete this trip?");
+        builder.setTitle(tripName);
+        builder.setMessage(R.string.tripDeleteQuestion);
         builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                deleteTrip(id);
+                deleteTrip(id, tripName);
                 dialog.dismiss();
             }
         });
@@ -546,10 +551,10 @@ public class MainActivity
 
 
     /**
-     * deletes the trip from the database and drawer
+     * deletes the trip from the drawer and database
      */
-    private void deleteTrip(int id) {
-//        dbHelper.deleteTrip(id);
+    private void deleteTrip(int id, String tripName) {
+
         String [] rowToDelete = new String[3];
 
         for (String[] row : tripStringArray){
@@ -558,6 +563,12 @@ public class MainActivity
             }
         }
         tripStringArray.remove(rowToDelete);
+
+        String rawText = getResources().getString(R.string.tripDeleteConfirmation);
+        String formattedText = String.format(rawText, tripName);
+        if (dbHelper.deleteTrip(id))
+            Toast.makeText(this, formattedText, Toast.LENGTH_SHORT).show();
+
         refreshDrawer();
     }
 
@@ -798,15 +809,15 @@ public class MainActivity
         if(dbHelper != null) TripCalculator.calculate(dbHelper, currentTripId, INPUT_DATA_INTERVAL);
 
         String date = "";
-        TripRow row = dbHelper.selectTrip(currentTripId);
+        TripRow tripRow = dbHelper.selectTrip(currentTripId);
 
         //If the device has no Bluetooth, and the user hits the start Button,
         //this here is going to be called and would throw an Exception
-        if (row != null)
-            date = row.getDate();
+        if (tripRow != null)
+            date = tripRow.getDate();
 
         //add "Trip ", id, date to the top of the List and update the listAdapter
-        tripStringArray.add(0, new String[] {"Trip"/*row.getName*/, String.valueOf(currentTripId),"(" +  date + ")"});
+        tripStringArray.add(0, new String[] {"Trip"/*tripRow.getName*/, String.valueOf(currentTripId),"(" +  date + ")"});
 
         refreshDrawer();
 
@@ -824,13 +835,13 @@ public class MainActivity
             e.printStackTrace();
         }
 
-        showTripMessage(currentTripId);
+        showTripMessage(currentTripId, "Platzhalter"/*tripRow.getName()*/);
     }
 
     /**
      * Show the AlertDialog for a given trip
      */
-    private void showTripMessage(final int tripId) {
+    private void showTripMessage(final int tripId, final String tripName) {
         new Handler(Looper.getMainLooper()).post(new Runnable()
         {
             @Override
@@ -841,7 +852,7 @@ public class MainActivity
                 if(tripRow != null)
                 {
                     AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                    builder.setTitle(R.string.tripAlertCaption);
+                    builder.setTitle(String.format(getResources().getString(R.string.tripAlertCaption), tripName));
                     builder.setMessage(
                             "Distanz: " + tripRow.getDistance() + "\n"
                                     + "Maximalgeschwindigkeit: " + tripRow.getMaxSpeed() + "\n"

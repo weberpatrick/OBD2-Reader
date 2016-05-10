@@ -344,4 +344,10 @@ public class DbHelper
 
         return rows;
     }
+
+    public boolean deleteTrip(int id) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        return db.delete(TABLE_TRIP, T_ID + "=?", new String[] {String.valueOf(id)}) > 0;
+    }
 }

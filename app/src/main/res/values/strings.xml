@@ -6,11 +6,13 @@
     <string name="buttonStart">Start</string>
     <string name="buttonStop">Stop</string>
     <string name="adapterSelectionDialogCaption">Wähle den Bluetooth Adapter aus!</string>
-    <string name="tripAlertCaption">Trip Daten</string>
+    <string name="tripAlertCaption">Trip: \"%1$s\"</string>
     <string name="openDrawer">Open drawer</string>
     <string name="closeDrawer">Close drawer</string>
     <string name="noTripsFound">No Trips found</string>
     <string name="tripDelete">Delete</string>
+    <string name="tripDeleteQuestion">Delete this trip?</string>
+    <string name="tripDeleteConfirmation">Trip \"%1$s\" was deleted.</string>
     <string name="tripShow">Show</string>
     <string name="tripRename">Rename</string>
     <string name="newTripNameTitle">Please enter a new trip name</string>
