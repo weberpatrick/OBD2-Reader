@@ -49,7 +49,7 @@
                         android:layout_width="@dimen/notification_large_icon_width"
                         android:layout_height="@dimen/notification_large_icon_height"
                         android:id="@+id/imageViewCompass"
-                        android:src="@drawable/compass_arrow" />
+                        android:src="@drawable/compass_arrow_white" />
                 </TableRow>
 
                 <TableRow
@@ -62,7 +62,9 @@
                         android:text="Speed"
                         android:id="@+id/textViewSpeed"
                         android:layout_weight="1"
-                        android:textSize="30sp"/>
+                        android:textSize="30sp"
+                        android:textColor="#ffffff"
+                        />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -71,7 +73,9 @@
                         android:id="@+id/textViewRpm"
                         android:layout_weight="1"
                         android:gravity="right"
-                        android:textSize="30sp"/>
+                        android:textSize="30sp"
+                        android:textColor="#ffffff"
+                        />
                 </TableRow>
 
                 <TableRow
@@ -84,7 +88,9 @@
                         android:text="0"
                         android:id="@+id/textViewSpeedValue"
                         android:layout_weight="1"
-                        android:textSize="30sp"/>
+                        android:textSize="30sp"
+                        android:textColor="#ffffff"
+                        />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -93,7 +99,9 @@
                         android:id="@+id/textViewRpmValue"
                         android:layout_weight="1"
                         android:gravity="right"
-                        android:textSize="30sp"/>
+                        android:textSize="30sp"
+                        android:textColor="#ffffff"
+                        />
 
                 </TableRow>
 
@@ -107,7 +115,9 @@
                         android:text="runtime"
                         android:id="@+id/textVieRuntime"
                         android:layout_weight="1"
-                        android:textSize="20sp"/>
+                        android:textSize="20sp"
+                        android:textColor="#ffffff"
+                        />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -116,7 +126,9 @@
                         android:id="@+id/textViewRuntimeValue"
                         android:layout_weight="1"
                         android:gravity="right"
-                        android:textSize="20sp"/>
+                        android:textSize="20sp"
+                        android:textColor="#ffffff"
+                        />
                 </TableRow>
 
                 <TableRow
@@ -129,7 +141,9 @@
                         android:text="engine load"
                         android:id="@+id/textViewEngineLoad"
                         android:layout_weight="1"
-                        android:textSize="20sp"/>
+                        android:textSize="20sp"
+                        android:textColor="#ffffff"
+                        />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -138,7 +152,9 @@
                         android:id="@+id/textViewEngineLoadValue"
                         android:layout_weight="1"
                         android:gravity="right"
-                        android:textSize="20sp"/>
+                        android:textSize="20sp"
+                        android:textColor="#ffffff"
+                        />
                 </TableRow>
 
                 <TableRow
@@ -151,7 +167,9 @@
                         android:text="throttle position"
                         android:id="@+id/textViewThrottlePosition"
                         android:layout_weight="1"
-                        android:textSize="20sp"/>
+                        android:textSize="20sp"
+                        android:textColor="#ffffff"
+                        />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -160,7 +178,9 @@
                         android:id="@+id/textViewThrottlePositionValue"
                         android:layout_weight="1"
                         android:gravity="right"
-                        android:textSize="20sp"/>
+                        android:textSize="20sp"
+                        android:textColor="#ffffff"
+                        />
                 </TableRow>
 
                 <ScrollView
@@ -194,11 +214,11 @@
                     </TableLayout>
                 </ScrollView>
 
-                <Button
+                <ImageButton
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/buttonStart"
                     android:id="@+id/buttonStartStop"
+                    android:background="@drawable/start_68"
                     android:layout_gravity="center_horizontal"/>
 
             </LinearLayout>

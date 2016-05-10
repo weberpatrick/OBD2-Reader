@@ -49,7 +49,6 @@ public class TripCalculator
 
             oldSet = true;
 
-//            TODO calculate stand time
             int speed = row.getSpeed();
             if(speed == 0) standTime += readIntervall/10;
             maxSpeed = Math.max(speed, maxSpeed);
@@ -66,11 +65,10 @@ public class TripCalculator
                         "avgSpeed: " + avgSpeed + "\n" +
                         "distance: " + distance);
 
-        Date date = new Date();
         DateFormat dateFormat = DateFormat.getDateInstance();
 
         return dbHelper.insertTripData( tripId
-                                      , dateFormat.format(date)
+                                      , dateFormat.format(new Date())
                                       , distance
                                       , runTime
                                       , standTime

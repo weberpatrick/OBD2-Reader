@@ -28,15 +28,13 @@ import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import org.w3c.dom.Text;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -99,7 +97,7 @@ public class MainActivity
 //	***************************************************************************
 
     private TableLayout tableLayoutData;
-    private Button buttonStartStop;
+    private ImageButton buttonStartStop;
 
     private ImageView imageViewCompass;
 
@@ -232,7 +230,7 @@ public class MainActivity
 
     private void initComponents()
     {
-        buttonStartStop = (Button) findViewById(R.id.buttonStartStop);
+        buttonStartStop = (ImageButton) findViewById(R.id.buttonStartStop);
         buttonStartStop.setOnClickListener(new View.OnClickListener()
         {
             @Override
@@ -241,13 +239,13 @@ public class MainActivity
 //              recording data is running
                 if(isRunning)
                 {
-                    buttonStartStop.setText(R.string.buttonStart);
+                    buttonStartStop.setBackgroundResource(R.drawable.start_68);
 
                     isRunning = false;
                 }
                 else
                 {
-                    buttonStartStop.setText(R.string.buttonStop);
+                    buttonStartStop.setBackgroundResource(R.drawable.stop_68);
 
                     isRunning = true;
 
@@ -453,7 +451,7 @@ public class MainActivity
                         if(createConnection(deviceArray.get(which))) startLiveData();
                         else
                         {
-                            buttonStartStop.setText(R.string.buttonStart);
+                            buttonStartStop.setBackgroundResource(R.drawable.start_68);
                             isRunning = false;
                         }
                     }
