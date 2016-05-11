@@ -8,10 +8,13 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
@@ -120,6 +123,7 @@ public class MainActivity
     private ActionBarDrawerToggle drawerToggle;
     private DrawerLayout drawerLayout;
     private String title;
+    private TripRow deletedTripRow;
 
 //	***************************************************************************
 //	METHOD AREA
@@ -136,11 +140,11 @@ public class MainActivity
 //      create the database if necessary
         dbHelper = new DbHelper(this);
 
-        dbHelper.insertTripData(1, "01.01.2015", 234.4, 60, 5.0, 120.0, 75.0, "abc");
-        dbHelper.insertTripData(2, "01.01.2015", 3453.6, 3600, 75.0, 220.0, 115.0, "def");
-        dbHelper.insertTripData(3, "01.01.2015", 14.4, 2345, 43.0, 20.0, 75.0, "ghi");
-        dbHelper.insertTripData(6, "01.01.2015", 2464.7, 12, 1.0, 100.0, 45.0, "jkl");
-        dbHelper.insertTripData(8, "01.01.2015", 265.0, 345, 12.0, 750.0, 25.0, "mno");
+        dbHelper.insertTripData(1, "01.01.2015", 234.4, 60, 5.0, 120.0, 75.0, "Mannheim");
+        dbHelper.insertTripData(2, "01.01.2015", 3453.6, 3600, 75.0, 220.0, 115.0, "Görlitz");
+        dbHelper.insertTripData(3, "01.01.2015", 14.4, 2345, 43.0, 20.0, 75.0, "Heusenstamm");
+        dbHelper.insertTripData(6, "01.01.2015", 2464.7, 12, 1.0, 100.0, 45.0, "Berlin");
+        dbHelper.insertTripData(8, "01.01.2015", 265.0, 345, 12.0, 750.0, 25.0, "Frankfurt");
 
         compass = new Compass(this);
 
@@ -574,7 +578,7 @@ public class MainActivity
     /**
      * deletes the trip from the drawer and database
      */
-    private void deleteTrip(int id, String tripName) {
+    private void deleteTrip(int id, final String tripName) {
 
         String [] rowToDelete = new String[3];
 
@@ -585,11 +589,36 @@ public class MainActivity
         }
         tripStringArray.remove(rowToDelete);
 
-        String rawText = getResources().getString(R.string.tripDeleteConfirmation);
-        String formattedText = String.format(rawText, tripName);
+        deletedTripRow = dbHelper.selectTrip(id);
+        Resources res = getResources();
+        String formattedText = String.format(res.getString(R.string.tripDeleteConfirmation), tripName);
         if (dbHelper.deleteTrip(id))
-            Toast.makeText(this, formattedText, Toast.LENGTH_SHORT).show();
+            Snackbar.make(findViewById(R.id.drawer_layout), formattedText, Snackbar.LENGTH_INDEFINITE)
+                .setAction(R.string.undo, new View.OnClickListener(){
+                    @Override
+                    public void onClick(View v){
+                        undoDeleteTrip(tripName);
+                     }
+                })
+                .setActionTextColor(ContextCompat.getColor(this, R.color.lightBlue))
+                .show();
 
+        refreshDrawer();
+    }
+
+    private void undoDeleteTrip(String tripName) {
+        if (dbHelper.insertTripData(deletedTripRow)) {
+            tripStringArray.add(new String[] {deletedTripRow.getName(), String.valueOf(deletedTripRow.getTripId()), "(" + deletedTripRow.getDate() + ")"});
+            Resources res = getResources();
+            String formattedText = String.format(res.getString(R.string.tripDeleteUndoConfirmation), tripName);
+            Snackbar.make(findViewById(R.id.drawer_layout), formattedText, Snackbar.LENGTH_LONG).show();
+        }
+        else
+        {
+            Resources res = getResources();
+            String formattedText = String.format(res.getString(R.string.tripDeleteUndoError), tripName);
+            Snackbar.make(findViewById(R.id.drawer_layout), formattedText, Snackbar.LENGTH_LONG).show();
+        }
         refreshDrawer();
     }
 
@@ -690,6 +719,9 @@ public class MainActivity
 
     private void startLiveData()
     {
+        //keep screen awake until trip ends
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
         adapterAgent = new AdapterAgent(dbHelper, socket, this);
 
         currentTripId = dbHelper.getLatestTripId() + 1;
@@ -844,6 +876,9 @@ public class MainActivity
 
         refreshDrawer();
 
+        //clears the keep screen awake feature
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
 //      stop gps stuff
         if(adapterAgent != null) adapterAgent.stop();
 
@@ -875,7 +910,9 @@ public class MainActivity
                 if(tripRow != null)
                 {
                     AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                    builder.setTitle(String.format(getResources().getString(R.string.tripAlertCaption), tripName));
+                    Resources res = getResources();
+                    String formattedText = String.format(res.getString(R.string.tripAlertCaption), tripName);
+                    builder.setTitle(formattedText);
                     builder.setMessage(
                             "Distanz: " + tripRow.getDistance() + "\n"
                                     + "Maximalgeschwindigkeit: " + tripRow.getMaxSpeed() + "\n"

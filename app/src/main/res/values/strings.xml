@@ -13,6 +13,9 @@
     <string name="tripDelete">Delete</string>
     <string name="tripDeleteQuestion">Delete this trip?</string>
     <string name="tripDeleteConfirmation">Trip \"%1$s\" was deleted.</string>
+    <string name="tripDeleteUndoConfirmation">Undo of trip \"%1$s\" successful.</string>
+    <string name="undo">Undo</string>
+    <string name="tripDeleteUndoError">Error while undo trip \"%1$s\". Sorry…</string>
     <string name="tripShow">Show</string>
     <string name="tripRename">Rename</string>
     <string name="newTripNameTitle">Please enter a new trip name</string>

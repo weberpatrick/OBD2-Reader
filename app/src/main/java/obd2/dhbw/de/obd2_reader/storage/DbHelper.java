@@ -280,6 +280,19 @@ public class DbHelper
         return true;
     }
 
+    public boolean insertTripData(TripRow row)
+    {
+        return insertTripData( row.getTripId()
+                             , row.getDate()
+                             , row.getDistance()
+                             , row.getRunTime()
+                             , row.getStandTime()
+                             , row.getMaxSpeed()
+                             , row.getAvgSpeed()
+                             , row.getName()
+        );
+    }
+
     public TripRow selectTrip(int tripId)
     {
         SQLiteDatabase db = this.getReadableDatabase();
