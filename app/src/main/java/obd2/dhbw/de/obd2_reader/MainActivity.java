@@ -89,7 +89,7 @@ public class MainActivity
     private BluetoothAdapter btAdapter;
 
     private boolean bluetoothEnabled;
-    private boolean isRunning;
+    private boolean isRunning = false;
 
     private AdapterAgent adapterAgent;
 
@@ -271,8 +271,6 @@ public class MainActivity
                 }
                 else
                 {
-                    isRunning = true;
-
 //                  initialize bluetooth adapter and turn it on
                     initBluetoothAdapter();
 
@@ -353,7 +351,7 @@ public class MainActivity
 
                 //do not show the TripMessage, if the user clicks the "no trips found" text
                 if (!tripName.getText().equals(getString(R.string.noTripsFound)))
-                showTripMessage(Integer.parseInt(tripId.getText().toString()), tripName.getText().toString());
+                showTripMessage(Integer.parseInt(tripId.getText().toString()));
             }
         });
 
@@ -454,7 +452,7 @@ public class MainActivity
 
         switch (item.getItemId()){
             case R.id.tripShow:
-                showTripMessage(tripId, tripName);
+                showTripMessage(tripId);
                 return true;
             case R.id.tripRename:
                 showRenameTripDialog(tripId, tripName);
@@ -685,12 +683,11 @@ public class MainActivity
                 {
                     public void onClick(DialogInterface dialog, final int which)
                     {
-
-                        Animation an = new RotateAnimation(0, 360,
+                        Animation an = new RotateAnimation(0, 359,
                                 Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF,
                                 0.5f);
 
-                        an.setDuration(520);
+                        an.setDuration(800);
                         an.setRepeatCount(Animation.INFINITE);
                         an.setFillAfter(true);
 
@@ -702,11 +699,8 @@ public class MainActivity
                                 if(createConnection(deviceArray.get(which)))
                                 {
                                     buttonStartStop.setBackgroundResource(R.drawable.stop_68);
+                                    isRunning = true;
                                     startLiveData();
-                                }
-                                else
-                                {
-                                    isRunning = false;
                                 }
                                 new Handler(Looper.getMainLooper()).post(new Runnable() {
                                     @Override
@@ -909,7 +903,7 @@ public class MainActivity
             date = tripRow.getDate();
 
         //add "Trip ", id, date to the top of the List and update the listAdapter
-        tripStringArray.add(0, new String[] {"Trip"/*tripRow.getName*/, String.valueOf(currentTripId),"(" +  date + ")"});
+        tripStringArray.add(0, new String[] {tripRow.getName(), String.valueOf(currentTripId),"(" +  date + ")"});
 
         refreshDrawer();
 
@@ -930,13 +924,13 @@ public class MainActivity
             e.printStackTrace();
         }
 
-        showTripMessage(currentTripId, "Platzhalter"/*tripRow.getName()*/);
+        showTripMessage(currentTripId);
     }
 
     /**
      * Show the AlertDialog for a given trip
      */
-    private void showTripMessage(final int tripId, final String tripName) {
+    private void showTripMessage(final int tripId) {
         new Handler(Looper.getMainLooper()).post(new Runnable()
         {
             @Override
@@ -948,7 +942,7 @@ public class MainActivity
                 {
                     AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                     Resources res = getResources();
-                    String formattedText = String.format(res.getString(R.string.tripAlertCaption), tripName);
+                    String formattedText = String.format(res.getString(R.string.tripAlertCaption), tripRow.getName());
                     builder.setTitle(formattedText);
                     builder.setMessage(
                             "Distanz: " + tripRow.getDistance() + "\n"
