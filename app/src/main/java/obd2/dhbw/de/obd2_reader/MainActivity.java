@@ -693,18 +693,30 @@ public class MainActivity
 
                         buttonStartStop.startAnimation(an);
 
-                        new Thread(new Runnable() {
+                        new Thread(new Runnable()
+                        {
                             @Override
-                            public void run() {
+                            public void run()
+                            {
                                 if(createConnection(deviceArray.get(which)))
                                 {
                                     buttonStartStop.setBackgroundResource(R.drawable.stop_68);
                                     isRunning = true;
-                                    startLiveData();
+
+                                    new Handler(Looper.getMainLooper()).post(new Runnable()
+                                    {
+                                        @Override
+                                        public void run()
+                                        {
+                                            startLiveData();
+                                        }
+                                    });
                                 }
-                                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                                new Handler(Looper.getMainLooper()).post(new Runnable()
+                                {
                                     @Override
-                                    public void run() {
+                                    public void run()
+                                    {
                                         buttonStartStop.setAnimation(null);
                                     }
                                 });
