@@ -7,6 +7,7 @@ import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Color;
@@ -76,6 +77,7 @@ public class MainActivity
 
     private final int INPUT_DATA_INTERVAL = 100;
     private final int PRESENTER_INTERVAL  = 100;
+    private final int COMPASS_INTERVAL  = 1000;
 
 //	***************************************************************************
 //	DECLARATION OF VARIABLES
@@ -137,6 +139,8 @@ public class MainActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
 //      create the database if necessary
         dbHelper = new DbHelper(this);
 
@@ -146,18 +150,29 @@ public class MainActivity
         dbHelper.insertTripData(6, "01.01.2015", 2464.7, 12, 1.0, 100.0, 45.0, "Berlin");
         dbHelper.insertTripData(8, "01.01.2015", 265.0, 345, 12.0, 750.0, 25.0, "Frankfurt");
 
-        compass = new Compass(this);
-
         mapLiveTextViews = new HashMap<>();
 
         initComponents();
+
+        compass = new Compass(this);
+        new Timer().schedule(new TimerTask()
+        {
+            @Override
+            public void run()
+            {
+                updateImageView( imageViewCompass
+                        , compass.getLastRotation()
+                        , compass.getRotation()
+                );
+            }
+        }, 0, COMPASS_INTERVAL);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu)
     {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+//        getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
 
@@ -231,9 +246,8 @@ public class MainActivity
 
     protected void onDestroy()
     {
-        endTrip();super.onDestroy();
-
-
+        endTrip();
+        super.onDestroy();
     }
 
 //	***************************************************************************
@@ -658,28 +672,53 @@ public class MainActivity
             Set<BluetoothDevice> devicesSet = btAdapter.getBondedDevices();
             final ArrayList<BluetoothDevice> deviceArray = new ArrayList<>(devicesSet);
 
-            CharSequence[] deviceNames = new String[deviceArray.size()];
+            final CharSequence[] deviceNames = new String[deviceArray.size()];
 
             for(int i=0; i<deviceArray.size(); i++)
                 deviceNames[i] = deviceArray.get(i).getName();
 
             if(devicesSet.size() > 0)
             {
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                final AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setTitle(R.string.adapterSelectionDialogCaption);
                 builder.setItems(deviceNames, new DialogInterface.OnClickListener()
                 {
-                    public void onClick(DialogInterface dialog, int which)
+                    public void onClick(DialogInterface dialog, final int which)
                     {
-                        if(createConnection(deviceArray.get(which)))
-                        {
-                            buttonStartStop.setBackgroundResource(R.drawable.stop_68);
-                            startLiveData();
-                        }
-                        else
-                        {
-                            isRunning = false;
-                        }
+
+                        Animation an = new RotateAnimation(0, 360,
+                                Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF,
+                                0.5f);
+
+                        an.setDuration(520);
+                        an.setRepeatCount(Animation.INFINITE);
+                        an.setFillAfter(true);
+
+                        buttonStartStop.startAnimation(an);
+
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if(createConnection(deviceArray.get(which)))
+                                {
+                                    buttonStartStop.setBackgroundResource(R.drawable.stop_68);
+                                    startLiveData();
+                                }
+                                else
+                                {
+                                    isRunning = false;
+                                }
+                                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        buttonStartStop.setAnimation(null);
+                                    }
+                                });
+
+                            }
+                        }).start();
+
+
                     }
                 });
                 builder.create().show();
@@ -709,10 +748,16 @@ public class MainActivity
 
         if(socket == null)
         {
-            Toast.makeText( getApplicationContext()
-                    , "Connection failed, try again."
-                    , Toast.LENGTH_SHORT
-            ).show();
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText( getApplicationContext()
+                            , "Connection failed, try again."
+                            , Toast.LENGTH_SHORT
+                    ).show();
+                }
+            });
+
             return false;
         }
         return true;
@@ -732,15 +777,6 @@ public class MainActivity
 
         timerPresenter = new Timer();
         timerPresenter.schedule(new TaskPresenter(), 0);
-
-        new Timer().schedule(new TimerTask()
-        {
-            @Override
-            public void run()
-            {
-                updateImageView(imageViewCompass, compass.getLastRotation(), compass.getRotation());
-            }
-        }, 0, 1000);
     }
 
     private void presentData()
@@ -825,7 +861,7 @@ public class MainActivity
                         Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF,
                         0.5f);
 
-                an.setDuration(PRESENTER_INTERVAL);
+                an.setDuration(COMPASS_INTERVAL);
                 an.setRepeatCount(0);
                 an.setFillAfter(true);
 
