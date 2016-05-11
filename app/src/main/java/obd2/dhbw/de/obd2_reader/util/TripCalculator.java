@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import obd2.dhbw.de.obd2_reader.container.DataRow;
+import obd2.dhbw.de.obd2_reader.container.TripRow;
 import obd2.dhbw.de.obd2_reader.storage.DbHelper;
 
 /**
@@ -27,7 +28,7 @@ public class TripCalculator
     private static float distance = 0;
     private static boolean oldSet = false;
 
-    public static boolean calculate(DbHelper dbHelper, int tripId, int readIntervall)
+    public static boolean calculate(DbHelper dbHelper, int tripId, int readIntervall, String tripName)
     {
         ArrayList<DataRow> rows = dbHelper.selectTripData(tripId);
 
@@ -74,7 +75,7 @@ public class TripCalculator
                                       , standTime
                                       , maxSpeed
                                       , avgSpeed
-                                      , null
+                                      , tripName
                                       );
     }
 }

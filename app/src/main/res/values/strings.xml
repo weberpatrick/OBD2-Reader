@@ -16,5 +16,5 @@
     <string name="tripDeleteConfirmation">Trip \"%1$s\" was deleted.</string>
     <string name="tripDeleteUndoConfirmation">Undo of trip \"%1$s\" successful.</string>
     <string name="tripDeleteUndoError">Error while undo trip \"%1$s\". Sorry…</string>
-    <string name="newTripNameTitle">Please enter a new trip name:</string>
+    <string name="enterTripNameTitle">Please enter a trip name:</string>
 </resources>

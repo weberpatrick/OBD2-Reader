@@ -246,8 +246,12 @@ public class MainActivity
 
     protected void onDestroy()
     {
-        endTrip();
+        //if (Are you sure)
+        //{
+        if(compass != null) compass.stop();
+        endStuff();
         super.onDestroy();
+        //}
     }
 
 //	***************************************************************************
@@ -472,7 +476,7 @@ public class MainActivity
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
-        builder.setTitle(R.string.newTripNameTitle);
+        builder.setTitle(R.string.enterTripNameTitle);
 
         //Input EditText
         final EditText input = new EditText(this);
@@ -482,9 +486,7 @@ public class MainActivity
         //Text input. Capitalizes the first letter after a ". " and at the beginning of the text
         input.setInputType(InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
         //Max Length is 15 chars
-        input.setFilters(new InputFilter[]{
-                new InputFilter.LengthFilter(15)
-        });
+        input.setFilters(new InputFilter[]{new InputFilter.LengthFilter(15)});
 
         //put EditText into Dialog
         builder.setView(input);
@@ -606,7 +608,7 @@ public class MainActivity
         Resources res = getResources();
         String formattedText = String.format(res.getString(R.string.tripDeleteConfirmation), tripName);
         if (dbHelper.deleteTrip(id))
-            Snackbar.make(findViewById(R.id.drawer_layout), formattedText, Snackbar.LENGTH_INDEFINITE)
+            Snackbar.make(findViewById(R.id.drawer_layout), formattedText, Snackbar.LENGTH_LONG)
                 .setAction(R.string.undo, new View.OnClickListener(){
                     @Override
                     public void onClick(View v){
@@ -904,28 +906,86 @@ public class MainActivity
 
     private void endTrip()
     {
-        if(dbHelper != null) TripCalculator.calculate(dbHelper, currentTripId, INPUT_DATA_INTERVAL);
+        makeNewTrip();
 
-        String date = "";
+        endStuff();
+    }
+
+    private void makeNewTrip(){
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        builder.setTitle(R.string.enterTripNameTitle);
+
+        //Input EditText
+        final EditText input = new EditText(this);
+
+        //Highlight all text
+        input.setSelectAllOnFocus(true);
+        //Text input. Capitalizes the first letter after a ". " and at the beginning of the text
+        input.setInputType(InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
+        //Max Length is 15 chars
+        input.setFilters(new InputFilter[]{new InputFilter.LengthFilter(15)});
+
+        //put EditText into Dialog
+        builder.setView(input);
+        //OK Button: naming the Trip
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener(){
+            @Override
+            public void onClick(DialogInterface dialog, int which){
+                TripCalculator.calculate(dbHelper, currentTripId, INPUT_DATA_INTERVAL, input.getText().toString());
+                showNewTrip();
+            }
+        });
+
+        final AlertDialog dialog = builder.create();
+        //Open keyboard
+        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+        //Dialog can be dismissed by clicking outside of it
+        dialog.setCanceledOnTouchOutside(true);
+        dialog.show();
+        //Listener, if the User clicks on ENTER on the keyboard, it will also name the trip
+        // and closes the dialog
+        input.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                if (keyCode == event.KEYCODE_ENTER){
+                    TripCalculator.calculate(dbHelper, currentTripId, INPUT_DATA_INTERVAL, input.getText().toString());
+                    showNewTrip();
+                    dialog.dismiss();
+                }
+                return false;
+            }
+        });
+
+        //if User cancels the dialog, then the tripName is default
+        dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+                TripCalculator.calculate(dbHelper, currentTripId, INPUT_DATA_INTERVAL, null);
+                showNewTrip();
+            }
+        });
+    }
+
+    private void showNewTrip()
+    {
         TripRow tripRow = dbHelper.selectTrip(currentTripId);
-
-        //If the device has no Bluetooth, and the user hits the start Button,
-        //this here is going to be called and would throw an Exception
-        if (tripRow != null)
-            date = tripRow.getDate();
-
         //add "Trip ", id, date to the top of the List and update the listAdapter
-        tripStringArray.add(0, new String[] {tripRow.getName(), String.valueOf(currentTripId),"(" +  date + ")"});
+        tripStringArray.add(0, new String[]{tripRow.getName(), String.valueOf(currentTripId), "(" + tripRow.getDate() + ")"});
 
         refreshDrawer();
 
+        showTripMessage(currentTripId);
+    }
+
+    private void endStuff()
+    {
         //clears the keep screen awake feature
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-//      stop gps stuff
+        //stop gps stuff
         if(adapterAgent != null) adapterAgent.stop();
-
-        if(compass != null) compass.stop();
 
         try
         {
@@ -935,8 +995,6 @@ public class MainActivity
         {
             e.printStackTrace();
         }
-
-        showTripMessage(currentTripId);
     }
 
     /**
@@ -961,7 +1019,7 @@ public class MainActivity
                                     + "Maximalgeschwindigkeit: " + tripRow.getMaxSpeed() + "\n"
                                     + "Durchschnittsgeschwindigkeit: " + tripRow.getAvgSpeed() + "\n"
                                     + "Fahrzeit: " + tripRow.getRunTime() / 60 + " Minuten " + tripRow.getRunTime() % 60 + " Sekunden" + "\n"
-                                    + "Stehzeit: " + tripRow.getStandTime() / 60 + " Minuten " + tripRow.getRunTime() % 60 + " Sekunden"
+                                    + "Stehzeit: " + tripRow.getStandTime() / 60 + " Minuten " + tripRow.getStandTime() % 60 + " Sekunden"
                     );
                     builder.setPositiveButton("Ok", null);
 
