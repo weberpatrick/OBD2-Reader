@@ -64,6 +64,7 @@ public class DbHelper
     private static final String T_STAND_TIME                = TABLE_TRIP + "_" + "standTime";
     private static final String T_MAX_SPEED                 = TABLE_TRIP + "_" + "maxSpeed";
     private static final String T_AVG_SPEED                 = TABLE_TRIP + "_" + "avgSpeed";
+    private static final String T_NAME                      = TABLE_TRIP + "_" + "name";
 
 //  sql commands
     private static final String TABLE_CAR_DATA_CREATE =
@@ -92,7 +93,8 @@ public class DbHelper
                     + T_DRIVING_TIME            + " INTEGER,"
                     + T_STAND_TIME              + " INTEGER,"
                     + T_MAX_SPEED               + " INTEGER,"
-                    + T_AVG_SPEED               + " REAL"
+                    + T_AVG_SPEED               + " REAL,"
+                    + T_NAME                    + " TEXT DEFAULT Standard"
                     + ");";
 
 //	***************************************************************************
@@ -256,6 +258,7 @@ public class DbHelper
                                  , double standTime
                                  , double maxSpeed
                                  , double avgSpeed
+                                 , String name
                                  )
     {
         ContentValues values = new ContentValues();
@@ -266,6 +269,7 @@ public class DbHelper
         values.put(T_STAND_TIME, standTime);
         values.put(T_MAX_SPEED, maxSpeed);
         values.put(T_AVG_SPEED, avgSpeed);
+        if(name != null) values.put(T_NAME, name);
 
         SQLiteDatabase db = this.getWritableDatabase();
         long insertId = db.insert(TABLE_TRIP, null, values);
@@ -299,6 +303,7 @@ public class DbHelper
                     , cursor.getInt(4)
                     , cursor.getInt(5)
                     , cursor.getDouble(6)
+                    , cursor.getString(7)
             );
         }
         return null;
@@ -345,9 +350,21 @@ public class DbHelper
         return rows;
     }
 
-    public boolean deleteTrip(int id) {
+    public boolean deleteTrip(int id)
+    {
         SQLiteDatabase db = this.getWritableDatabase();
 
         return db.delete(TABLE_TRIP, T_ID + "=?", new String[] {String.valueOf(id)}) > 0;
+    }
+
+    public void updateTripName(int id, String name)
+    {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+
+        values.put(T_NAME, name);
+
+        db.update(TABLE_TRIP, values, T_ID + "=?", new String[] {String.valueOf(id)});
     }
 }

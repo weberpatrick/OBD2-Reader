@@ -8,7 +8,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
@@ -137,11 +136,11 @@ public class MainActivity
 //      create the database if necessary
         dbHelper = new DbHelper(this);
 
-        dbHelper.insertTripData(1, "01.01.2015", 234.4, 60, 5.0, 120.0, 75.0);
-        dbHelper.insertTripData(2, "01.01.2015", 3453.6, 3600, 75.0, 220.0, 115.0);
-        dbHelper.insertTripData(3, "01.01.2015", 14.4, 2345, 43.0, 20.0, 75.0);
-        dbHelper.insertTripData(6, "01.01.2015", 2464.7, 12, 1.0, 100.0, 45.0);
-        dbHelper.insertTripData(8, "01.01.2015", 265.0, 345, 12.0, 750.0, 25.0);
+        dbHelper.insertTripData(1, "01.01.2015", 234.4, 60, 5.0, 120.0, 75.0, "abc");
+        dbHelper.insertTripData(2, "01.01.2015", 3453.6, 3600, 75.0, 220.0, 115.0, "def");
+        dbHelper.insertTripData(3, "01.01.2015", 14.4, 2345, 43.0, 20.0, 75.0, "ghi");
+        dbHelper.insertTripData(6, "01.01.2015", 2464.7, 12, 1.0, 100.0, 45.0, "jkl");
+        dbHelper.insertTripData(8, "01.01.2015", 265.0, 345, 12.0, 750.0, 25.0, "mno");
 
         compass = new Compass(this);
 
@@ -293,7 +292,7 @@ public class MainActivity
         {
             for (int i : tripIdArray){
                 TripRow row = dbHelper.selectTrip(i);
-                tripStringArray.add(new String[] {"Trip"/*row.getName*/, String.valueOf(i), "(" + row.getDate() + ")"});
+                tripStringArray.add(new String[] {row.getName(), String.valueOf(i), "(" + row.getDate() + ")"});
             }
         }else{
             // No trips found
@@ -509,19 +508,42 @@ public class MainActivity
     /**
      * updates the trip in the database and drawer
      */
-    private void renameTrip(int id, String newTripName) {
+    private boolean renameTrip(int id, String newTripName) {
 
         //Just update the database and drawer, if the user enters a NEW name and NOT an empty String
-//        if (!newTripName.equals(dbHelper.selectTrip(id).getName) && !newTripName.isEmpty()) {
-//            dbHelper.updateTripName(id, newTripName);
-        for (String[] row : tripStringArray) {
-            if (Integer.parseInt(row[1]) == id) {
-                row[0] = newTripName;
+        if(newTripName != null
+            && !newTripName.isEmpty())
+        {
+            String tripName;
+            TripRow tripRow = dbHelper.selectTrip(id);
+            if(tripRow != null) tripName = tripRow.getName();
+            else
+            {
+//              there is no trip with this id
+                return false;
+            }
+
+            if(!newTripName.equals(tripName))
+            {
+                dbHelper.updateTripName(id, newTripName);
+
+                for (String[] row : tripStringArray)
+                {
+                    if (row[1].equals(String.valueOf(id)))
+                    {
+                        tripRow = dbHelper.selectTrip(id);
+                        if(tripRow != null) tripName = tripRow.getName();
+                        row[0] = tripName;
+                    }
+                }
+
+                refreshDrawer();
+
+                return true;
             }
         }
 
-        refreshDrawer();
-//        }
+        return false;
     }
 
     /**
@@ -678,8 +700,7 @@ public class MainActivity
         timerPresenter = new Timer();
         timerPresenter.schedule(new TaskPresenter(), 0);
 
-        Timer timerCompass = new Timer();
-        timerCompass.schedule(new TimerTask()
+        new Timer().schedule(new TimerTask()
         {
             @Override
             public void run()

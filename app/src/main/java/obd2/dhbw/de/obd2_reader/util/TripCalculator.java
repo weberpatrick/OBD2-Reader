@@ -74,6 +74,7 @@ public class TripCalculator
                                       , standTime
                                       , maxSpeed
                                       , avgSpeed
+                                      , null
                                       );
     }
 }
