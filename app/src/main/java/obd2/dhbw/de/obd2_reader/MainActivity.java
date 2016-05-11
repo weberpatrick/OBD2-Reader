@@ -384,6 +384,7 @@ public class MainActivity
         if (tripStringArray.isEmpty()){
             tripStringArray.add(new String[] {getString(R.string.noTripsFound), "", ""});
         }else{
+            if (tripStringArray.get(0)[0].equals(getString(R.string.noTripsFound)))
             tripStringArray.remove(0);
         }
         new Handler(Looper.getMainLooper()).post(new Runnable()

@@ -1,22 +1,20 @@
 <resources>
     <string name="app_name">OBD2-Reader</string>
     <string name="action_settings">Settings</string>
-    <string name="pairedDevicesCaption">Wählen Sie ein Adapter aus:</string>
-    <string name="overview_title">Livedaten</string>
     <string name="buttonStart">Start</string>
     <string name="buttonStop">Stop</string>
-    <string name="adapterSelectionDialogCaption">Wähle den Bluetooth Adapter aus!</string>
+    <string name="adapterSelectionDialogCaption">Choose your Bluetooth-Adapter!</string>
     <string name="tripAlertCaption">Trip: \"%1$s\"</string>
     <string name="openDrawer">Open drawer</string>
     <string name="closeDrawer">Close drawer</string>
     <string name="noTripsFound">No Trips found</string>
+    <string name="tripShow">Show</string>
+    <string name="tripRename">Rename</string>
     <string name="tripDelete">Delete</string>
+    <string name="undo">Undo</string>
     <string name="tripDeleteQuestion">Delete this trip?</string>
     <string name="tripDeleteConfirmation">Trip \"%1$s\" was deleted.</string>
     <string name="tripDeleteUndoConfirmation">Undo of trip \"%1$s\" successful.</string>
-    <string name="undo">Undo</string>
     <string name="tripDeleteUndoError">Error while undo trip \"%1$s\". Sorry…</string>
-    <string name="tripShow">Show</string>
-    <string name="tripRename">Rename</string>
-    <string name="newTripNameTitle">Please enter a new trip name</string>
+    <string name="newTripNameTitle">Please enter a new trip name:</string>
 </resources>
