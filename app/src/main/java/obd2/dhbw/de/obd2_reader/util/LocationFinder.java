@@ -39,7 +39,7 @@ public class LocationFinder
     private Context context;
     private LocationManager locationManager;
 
-    private boolean isGPSActive = false;
+    private boolean isGpsActive = false;
     private boolean isNetworkActive = false;
 
     private boolean canGetLocation = false;
@@ -51,30 +51,29 @@ public class LocationFinder
      */
     public LocationFinder(Context con) {
         this.context = con;
-        start();
+        startGps();
     }
 
-    private void start() {
+    public void startGps() {
+
         locationManager = (LocationManager) context.getSystemService(LOCATION_SERVICE);
 
         //get GPS/Network Status
-        isGPSActive = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-        isNetworkActive = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+        isGpsActive = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);Log.d(LOG_TAG, "GPS: "+isGpsActive);
+        isNetworkActive = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);Log.d(LOG_TAG, "Network: "+isNetworkActive);
 
-        if (isGPSActive || isNetworkActive) {
+        if (isGpsActive || isNetworkActive) {
             if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)
                     == PackageManager.PERMISSION_GRANTED) {
                 canGetLocation = true;
 
-                if (isGPSActive){
+                if (isGpsActive){
                     locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, UPDATE_TIME, UPDATE_DISTANCE, this);
-                    Log.d(LOG_TAG, "GPS Enabled");
 
                     lastLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
                 }
                 if (isNetworkActive){
                     locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, UPDATE_TIME, UPDATE_DISTANCE, this);
-                    Log.d(LOG_TAG, "NetworkGPS Enabled");
 
                     Location loc = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
                     if (isGood(loc)){
@@ -83,16 +82,20 @@ public class LocationFinder
                 }
             } else {
                 Log.d(LOG_TAG, "No Location Permission");
+                canGetLocation = false;
             }
 
             if (locationManager != null) {
                 lastLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
             }
+        }else{
+            canGetLocation = false;
         }
     }
 
-    public void stopGPS()
+    public void stopGps()
     {
+        canGetLocation = false;
         if ( locationManager != null
           && ActivityCompat.checkSelfPermission( context
                 , Manifest.permission.ACCESS_FINE_LOCATION)
@@ -138,7 +141,7 @@ public class LocationFinder
                 dialog.cancel();
             }
         });
-        //if User cancels the dialog, then the tripName is default
+        //if User cancels the dialog
         alertDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
             @Override
             public void onCancel(DialogInterface dialog) {
@@ -166,16 +169,24 @@ public class LocationFinder
 
     @Override
     public void onProviderEnabled(String provider) {
-        Log.d(LOG_TAG, provider + " provider enabled");
+        startGps();
     }
 
     @Override
     public void onProviderDisabled(String provider)
     {
-        Log.d(LOG_TAG, provider + " provider diabled");
-        if (provider == LocationManager.GPS_PROVIDER) showGPSAlert();
+        if (provider.equals(LocationManager.GPS_PROVIDER)) {
+            isGpsActive = false;
+        }
+        if (provider.equals(LocationManager.NETWORK_PROVIDER)){
+            isNetworkActive = false;
+        }
+        if (!isGpsActive && !isNetworkActive)
+        {
+            showGPSAlert();
+            stopGps();
+        }
     }
-
 
     public boolean canGetLocation() {
         return canGetLocation;

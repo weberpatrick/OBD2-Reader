@@ -295,6 +295,7 @@ public class MainActivity
                 if(isRunning) isRunning = false;
                 else
                 {
+                    locationFinder.startGps();
                     if (locationFinder.canGetLocation())
                     {
                         //initialize bluetooth adapter and turn it on
@@ -1040,7 +1041,7 @@ public class MainActivity
         });
 
         //stop gps stuff
-        if(locationFinder != null) locationFinder.stopGPS();
+        if(locationFinder != null) locationFinder.stopGps();
 
         try
         {
