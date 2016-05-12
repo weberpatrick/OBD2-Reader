@@ -64,13 +64,12 @@ public class AdapterAgent
 //	CONSTRUCTOR AREA
 //	***************************************************************************
 
-    public AdapterAgent(DbHelper dbHelper, BluetoothSocket socket, Context context)
+    public AdapterAgent(DbHelper dbHelper, BluetoothSocket socket, LocationFinder locFinder)
     {
         this.socket = socket;
         this.dbHelper = dbHelper;
 
-        locationFinder = new LocationFinder(context);
-        if (!locationFinder.canGetLocation()) locationFinder.showGPSAlert();
+        locationFinder = locFinder;
 
         liveDataArray = new ArrayList<>();
 

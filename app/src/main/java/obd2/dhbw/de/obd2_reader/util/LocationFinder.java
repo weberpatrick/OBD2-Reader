@@ -16,6 +16,9 @@ import android.provider.Settings;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
+import android.widget.Toast;
+
+import obd2.dhbw.de.obd2_reader.R;
 
 /**
  * Created by Patrick on 12.04.2016.
@@ -118,11 +121,11 @@ public class LocationFinder
     {
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(context);
 
-        alertDialog.setTitle("GPS settings");
-        alertDialog.setMessage("GPS is not enabled. Do you want to go to settings menu?");
+        alertDialog.setTitle(R.string.gpsSettingTitle);
+        alertDialog.setMessage(R.string.gpsSettingsMessage);
 
         // Pressing Settings Button
-        alertDialog.setPositiveButton("Settings", new DialogInterface.OnClickListener() {
+        alertDialog.setPositiveButton(R.string.settings, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog,int which) {
                 Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
                 context.startActivity(intent);
@@ -130,11 +133,19 @@ public class LocationFinder
         });
 
         // Pressing Cancel Button
-        alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+        alertDialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
                 dialog.cancel();
             }
         });
+        //if User cancels the dialog, then the tripName is default
+        alertDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+                Toast.makeText(context, R.string.gpsToastMessage, Toast.LENGTH_LONG).show();
+            }
+        });
+
         alertDialog.show();
     }
 

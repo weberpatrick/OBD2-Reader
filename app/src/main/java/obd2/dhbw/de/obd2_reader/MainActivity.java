@@ -63,6 +63,7 @@ import obd2.dhbw.de.obd2_reader.container.TripRow;
 import obd2.dhbw.de.obd2_reader.storage.DbHelper;
 import obd2.dhbw.de.obd2_reader.util.AdapterAgent;
 import obd2.dhbw.de.obd2_reader.util.Compass;
+import obd2.dhbw.de.obd2_reader.util.LocationFinder;
 import obd2.dhbw.de.obd2_reader.util.TripCalculator;
 
 public class MainActivity
@@ -95,6 +96,7 @@ public class MainActivity
     private AdapterAgent adapterAgent;
 
     private Compass compass;
+    private LocationFinder locationFinder;
 
     private Timer timerAdapterAgent;
     private Timer timerPresenter;
@@ -172,6 +174,9 @@ public class MainActivity
                 );
             }
         }, 0, COMPASS_INTERVAL);
+
+        locationFinder = new LocationFinder(this);
+        if (!locationFinder.canGetLocation()) locationFinder.showGPSAlert();
     }
 
     @Override
@@ -277,10 +282,17 @@ public class MainActivity
                 if(isRunning) isRunning = false;
                 else
                 {
-//                  initialize bluetooth adapter and turn it on
-                    initBluetoothAdapter();
+                    if (locationFinder.canGetLocation())
+                    {
+                        //initialize bluetooth adapter and turn it on
+                        initBluetoothAdapter();
 
-                    showAdapterSelectionDialog();
+                        showAdapterSelectionDialog();
+                    }
+                    else
+                    {
+                        locationFinder.showGPSAlert();
+                    }
                 }
 
             }
@@ -502,7 +514,7 @@ public class MainActivity
             }
         });
         //Cancel Button: close the dialog and do nothing
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener(){
+        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener(){
             @Override
             public void onClick(DialogInterface dialog, int which){
                 dialog.cancel();
@@ -775,7 +787,7 @@ public class MainActivity
 
     private void startLiveData()
     {
-        adapterAgent = new AdapterAgent(dbHelper, socket, this);
+        adapterAgent = new AdapterAgent(dbHelper, socket, locationFinder);
 
         currentTripId = dbHelper.getLatestTripId() + 1;
 
@@ -932,59 +944,59 @@ public class MainActivity
             @Override
             public void run()
             {
-        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
 
-        builder.setTitle(R.string.enterTripNameTitle);
+                builder.setTitle(R.string.enterTripNameTitle);
 
-        //Input EditText
-        final EditText input = new EditText(MainActivity.this);
+                //Input EditText
+                final EditText input = new EditText(MainActivity.this);
 
-        //Highlight all text
-        input.setSelectAllOnFocus(true);
-        //Text input. Capitalizes the first letter after a ". " and at the beginning of the text
-        input.setInputType(InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
-        //Max Length is 15 chars
-        input.setFilters(new InputFilter[]{new InputFilter.LengthFilter(15)});
+                //Highlight all text
+                input.setSelectAllOnFocus(true);
+                //Text input. Capitalizes the first letter after a ". " and at the beginning of the text
+                input.setInputType(InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
+                //Max Length is 15 chars
+                input.setFilters(new InputFilter[]{new InputFilter.LengthFilter(15)});
 
-        //put EditText into Dialog
-        builder.setView(input);
-        //OK Button: naming the Trip
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener(){
-            @Override
-            public void onClick(DialogInterface dialog, int which){
-                TripCalculator.calculate(dbHelper, currentTripId, INPUT_DATA_INTERVAL, input.getText().toString());
-                showNewTrip();
-            }
-        });
+                //put EditText into Dialog
+                builder.setView(input);
+                //OK Button: naming the Trip
+                builder.setPositiveButton("OK", new DialogInterface.OnClickListener(){
+                    @Override
+                    public void onClick(DialogInterface dialog, int which){
+                        TripCalculator.calculate(dbHelper, currentTripId, INPUT_DATA_INTERVAL, input.getText().toString());
+                        showNewTrip();
+                    }
+                });
 
-        final AlertDialog dialog = builder.create();
-        //Open keyboard
-        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
-        //Dialog can be dismissed by clicking outside of it
-        dialog.setCanceledOnTouchOutside(true);
-        dialog.show();
-        //Listener, if the User clicks on ENTER on the keyboard, it will also name the trip
-        // and closes the dialog
-        input.setOnKeyListener(new View.OnKeyListener() {
-            @Override
-            public boolean onKey(View v, int keyCode, KeyEvent event) {
-                if (keyCode == event.KEYCODE_ENTER){
-                    TripCalculator.calculate(dbHelper, currentTripId, INPUT_DATA_INTERVAL, input.getText().toString());
-                    showNewTrip();
-                    dialog.dismiss();
-                }
-                return false;
-            }
-        });
+                final AlertDialog dialog = builder.create();
+                //Open keyboard
+                dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+                //Dialog can be dismissed by clicking outside of it
+                dialog.setCanceledOnTouchOutside(true);
+                dialog.show();
+                //Listener, if the User clicks on ENTER on the keyboard, it will also name the trip
+                // and closes the dialog
+                input.setOnKeyListener(new View.OnKeyListener() {
+                    @Override
+                    public boolean onKey(View v, int keyCode, KeyEvent event) {
+                        if (keyCode == event.KEYCODE_ENTER){
+                            TripCalculator.calculate(dbHelper, currentTripId, INPUT_DATA_INTERVAL, input.getText().toString());
+                            showNewTrip();
+                            dialog.dismiss();
+                        }
+                        return false;
+                    }
+                });
 
-        //if User cancels the dialog, then the tripName is default
-        dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
-            @Override
-            public void onCancel(DialogInterface dialog) {
-                TripCalculator.calculate(dbHelper, currentTripId, INPUT_DATA_INTERVAL, null);
-                showNewTrip();
-            }
-        });
+                //if User cancels the dialog, then the tripName is default
+                dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                    @Override
+                    public void onCancel(DialogInterface dialog) {
+                        TripCalculator.calculate(dbHelper, currentTripId, INPUT_DATA_INTERVAL, null);
+                        showNewTrip();
+                    }
+                });
             }
         });
     }

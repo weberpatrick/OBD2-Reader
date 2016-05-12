@@ -1,10 +1,14 @@
 <resources>
     <string name="app_name">OBD2-Reader</string>
-    <string name="action_settings">Settings</string>
+    <string name="settings">Settings</string>
     <string name="buttonStart">Start</string>
     <string name="buttonStop">Stop</string>
+    <string name="cancel">Cancel</string>
     <string name="adapterSelectionDialogCaption">Choose your Bluetooth-Adapter!</string>
     <string name="tripAlertCaption">Trip: \"%1$s\"</string>
+    <string name="gpsToastMessage">App not usable without GPS!"</string>
+    <string name="gpsSettingTitle">GPS settings</string>
+    <string name="gpsSettingsMessage">GPS must be enabled.\nDo you want to go to GPS settings?</string>
     <string name="openDrawer">Open drawer</string>
     <string name="closeDrawer">Close drawer</string>
     <string name="noTripsFound">No Trips found</string>
