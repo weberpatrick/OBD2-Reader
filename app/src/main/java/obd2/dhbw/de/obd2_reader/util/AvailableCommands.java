@@ -91,7 +91,7 @@ public class AvailableCommands
      */
     private static boolean validateHex(String hex)
     {
-        if (!hex.matches("([0-9A-F])+") || hex.length() != 8) return false;
+        if (hex == null || !hex.matches("([0-9A-F])+") || hex.length() != 8) return false;
         return true;
     }
 

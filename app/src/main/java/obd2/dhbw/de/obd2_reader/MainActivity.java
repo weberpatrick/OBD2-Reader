@@ -715,9 +715,9 @@ public class MainActivity
                                         @Override
                                         public void run()
                                         {
+                                            isRunning = true;
                                             startLiveData();
                                             buttonStartStop.setBackgroundResource(R.drawable.stop_68);
-                                            isRunning = true;
                                         }
                                     });
                                 }
@@ -1014,7 +1014,7 @@ public class MainActivity
                 //clears the keep screen awake feature
                 getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
             }
-    });
+        });
 
 
         //stop gps stuff
@@ -1028,6 +1028,24 @@ public class MainActivity
         {
             e.printStackTrace();
         }
+
+//      reset gui
+        new Handler(Looper.getMainLooper()).post(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                updateTextView(textViewEngineLoadValue          , "0");
+                updateTextView(textViewRpmValue                 , "0");
+                updateTextView(textViewSpeedValue               , "0");
+                updateTextView(textViewThrottlePositionValue    , "0");
+                updateProgresBar(progressBarThrottlePosition    , 0);
+                updateTextView(textViewRuntimeValue             , "0");
+
+                tableLayoutData.removeAllViews();
+                mapLiveTextViews.clear();
+            }
+        });
     }
 
     /**

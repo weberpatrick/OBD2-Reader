@@ -138,7 +138,7 @@ public class AdapterAgent
         }
         catch (UnableToConnectException e)
         {
-//          TODO catch the unable to connect exception
+//          TODO catch the unable to connect exception (3 times, than crash)
             Log.d(LOG_TAG, "unable to connect to adapter");
         }
 
@@ -193,7 +193,7 @@ public class AdapterAgent
             int runtime = Formatter.formatInt(
                     executeCommand(new RuntimeCommand(), RESULT_FORMAT.CALCULATED));
 
-            dbHelper.insertCarData( load
+            return dbHelper.insertCarData( load
                                   , rpm
                                   , speed
                                   , throttlePosition
@@ -204,8 +204,6 @@ public class AdapterAgent
                                   , locationFinder.getLongitude()
                                   , locationFinder.getAltitude()
                                   );
-
-            return true;
         }
         catch(NoDataException nde)
         {
