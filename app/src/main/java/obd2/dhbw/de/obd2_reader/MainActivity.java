@@ -139,7 +139,10 @@ public class MainActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        //Don#t let the screen rotate, just PORTRAIT mode
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        //keep screen awake
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
 //      create the database if necessary
         dbHelper = new DbHelper(this);
@@ -773,9 +776,6 @@ public class MainActivity
 
     private void startLiveData()
     {
-        //keep screen awake until trip ends
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-
         adapterAgent = new AdapterAgent(dbHelper, socket, this);
 
         currentTripId = dbHelper.getLatestTripId() + 1;
@@ -859,6 +859,10 @@ public class MainActivity
                 float newRotation = rotation;
                 float newLastRotation = lastRotation;
 
+                //if the rotation starts from left-top to right-top (example: from 350° to 15°)
+                // it would move counterclockwise, but should go clockwise.
+                // So the new location would be 375° (example: from 350° to 375°)
+                // (similar from other site)
                 if ((rotation>0 && rotation<90) && (lastRotation>270 && lastRotation<360)){
                     newRotation = rotation + 360;
                 }else if ((lastRotation>0 && lastRotation<90) && (rotation>270 && rotation<360)){
@@ -866,8 +870,8 @@ public class MainActivity
                 }
 
                 Animation an = new RotateAnimation(-newLastRotation, -newRotation,
-                        Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF,
-                        0.5f);
+                        Animation.RELATIVE_TO_SELF, 0.5f,
+                        Animation.RELATIVE_TO_SELF, 0.5f);
 
                 an.setDuration(COMPASS_INTERVAL);
                 an.setRepeatCount(0);
