@@ -42,6 +42,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -119,6 +120,8 @@ public class MainActivity
 
     private TextView textViewEngineLoadValue;
     private TextView textViewThrottlePositionValue;
+
+    private ProgressBar progressBarThrottlePosition;
 
     private ListView drawerList;
     private ArrayAdapter<String[]> drawerAdapter;
@@ -284,12 +287,14 @@ public class MainActivity
             }
         });
 
-        tableLayoutData                 = (TableLayout) findViewById(R.id.tableLayoutData);
-        imageViewCompass                = (ImageView) findViewById(R.id.imageViewCompass);
+        progressBarThrottlePosition = (ProgressBar) findViewById(R.id.progressBarTest);
 
-        textViewSpeedValue              = (TextView) findViewById(R.id.textViewSpeedValue);
-        textViewRpmValue                = (TextView) findViewById(R.id.textViewRpmValue);
-        textViewRuntimeValue            = (TextView) findViewById(R.id.textViewRuntimeValue);
+        tableLayoutData      = (TableLayout) findViewById(R.id.tableLayoutData);
+        imageViewCompass     = (ImageView) findViewById(R.id.imageViewCompass);
+
+        textViewSpeedValue   = (TextView) findViewById(R.id.textViewSpeedValue);
+        textViewRpmValue     = (TextView) findViewById(R.id.textViewRpmValue);
+        textViewRuntimeValue = (TextView) findViewById(R.id.textViewRuntimeValue);
 
         textViewEngineLoadValue         = (TextView) findViewById(R.id.textViewEngineLoadValue);
         textViewThrottlePositionValue   = (TextView) findViewById(R.id.textViewThrottlePositionValue);
@@ -702,15 +707,14 @@ public class MainActivity
                             {
                                 if(createConnection(deviceArray.get(which)))
                                 {
-                                    buttonStartStop.setBackgroundResource(R.drawable.stop_68);
-                                    isRunning = true;
-
                                     new Handler(Looper.getMainLooper()).post(new Runnable()
                                     {
                                         @Override
                                         public void run()
                                         {
                                             startLiveData();
+                                            buttonStartStop.setBackgroundResource(R.drawable.stop_68);
+                                            isRunning = true;
                                         }
                                     });
                                 }
@@ -725,7 +729,6 @@ public class MainActivity
 
                             }
                         }).start();
-
 
                     }
                 });
@@ -800,6 +803,7 @@ public class MainActivity
             updateTextView(textViewRpmValue                 , dataRow.getRpmString());
             updateTextView(textViewSpeedValue               , dataRow.getSpeedString());
             updateTextView(textViewThrottlePositionValue    , dataRow.getThrottlePositionString());
+            updateProgresBar(progressBarThrottlePosition    , dataRow.getThrottlePosition());
             updateTextView(textViewRuntimeValue             , dataRow.getRunTimeString());
         }
 
@@ -823,9 +827,9 @@ public class MainActivity
                     TextView textViewName   = new TextView(getApplicationContext());
                     TextView textViewValue  = new TextView(getApplicationContext());
 
-                    textViewName.setTextColor(Color.BLACK);
+                    textViewName.setTextColor(Color.WHITE);
                     textViewName.setText(name);
-                    textViewValue.setTextColor(Color.BLACK);
+                    textViewValue.setTextColor(Color.WHITE);
                     textViewValue.setText(value);
                     textViewValue.setGravity(Gravity.RIGHT);
 
@@ -846,6 +850,17 @@ public class MainActivity
             public void run()
             {
                 view.setText(txt);
+            }
+        });
+    }
+
+    private void updateProgresBar(final ProgressBar bar, final double value)
+    {
+        new Handler(Looper.getMainLooper()).post(new Runnable()
+        {
+            public void run()
+            {
+                bar.setProgress((int) value);
             }
         });
     }
