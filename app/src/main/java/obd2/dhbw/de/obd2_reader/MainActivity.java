@@ -931,13 +931,17 @@ public class MainActivity
     }
 
     private void makeNewTrip(){
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        new Handler(Looper.getMainLooper()).post(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
 
         builder.setTitle(R.string.enterTripNameTitle);
 
         //Input EditText
-        final EditText input = new EditText(this);
+        final EditText input = new EditText(MainActivity.this);
 
         //Highlight all text
         input.setSelectAllOnFocus(true);
@@ -985,6 +989,8 @@ public class MainActivity
                 showNewTrip();
             }
         });
+            }
+        });
     }
 
     private void showNewTrip()
@@ -1000,8 +1006,16 @@ public class MainActivity
 
     private void endStuff()
     {
-        //clears the keep screen awake feature
-        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        new Handler(Looper.getMainLooper()).post(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                //clears the keep screen awake feature
+                getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+            }
+    });
+
 
         //stop gps stuff
         if(adapterAgent != null) adapterAgent.stop();
