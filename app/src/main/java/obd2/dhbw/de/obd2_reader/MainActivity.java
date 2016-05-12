@@ -104,8 +104,19 @@ public class MainActivity
     private int currentTripId;
 
     private List<String[]> tripStringArray = new ArrayList<>();
+    private String[] noTripsString;
 
     private Map<String, TextView> mapLiveTextViews;
+
+    private ListView drawerList;
+    private ArrayAdapter<String[]> drawerAdapter;
+    private ActionBarDrawerToggle drawerToggle;
+    private DrawerLayout drawerLayout;
+
+    private String title;
+
+    private TripRow deletedTripRow;
+    private int indexOfRowToDelete;
 
 //	***************************************************************************
 //	gui components
@@ -124,13 +135,6 @@ public class MainActivity
     private TextView textViewThrottlePositionValue;
 
     private ProgressBar progressBarThrottlePosition;
-
-    private ListView drawerList;
-    private ArrayAdapter<String[]> drawerAdapter;
-    private ActionBarDrawerToggle drawerToggle;
-    private DrawerLayout drawerLayout;
-    private String title;
-    private TripRow deletedTripRow;
 
 //	***************************************************************************
 //	METHOD AREA
@@ -153,15 +157,15 @@ public class MainActivity
         dbHelper = new DbHelper(this);
 
         dbHelper.insertTripData(1, "01.01.2015", 234.4, 60, 5.0, 120.0, 75.0, "Mannheim");
-        dbHelper.insertTripData(2, "01.01.2015", 3453.6, 3600, 75.0, 220.0, 115.0, "Görlitz");
-        dbHelper.insertTripData(3, "01.01.2015", 14.4, 2345, 43.0, 20.0, 75.0, "Heusenstamm");
-        dbHelper.insertTripData(6, "01.01.2015", 2464.7, 12, 1.0, 100.0, 45.0, "Berlin");
-        dbHelper.insertTripData(8, "01.01.2015", 265.0, 345, 12.0, 750.0, 25.0, "Frankfurt");
+//        dbHelper.insertTripData(2, "01.01.2015", 3453.6, 3600, 75.0, 220.0, 115.0, "Görlitz");
+//        dbHelper.insertTripData(3, "01.01.2015", 14.4, 2345, 43.0, 20.0, 75.0, "Heusenstamm");
+//        dbHelper.insertTripData(6, "01.01.2015", 2464.7, 12, 1.0, 100.0, 45.0, "Berlin");
+//        dbHelper.insertTripData(8, "01.01.2015", 265.0, 345, 12.0, 750.0, 25.0, "Frankfurt");
 
         mapLiveTextViews = new HashMap<>();
 
         initComponents();
-
+        noTripsString = new String[] {getString(R.string.noTripsFound), "", ""};
         compass = new Compass(this);
         new Timer().schedule(new TimerTask()
         {
@@ -428,10 +432,11 @@ public class MainActivity
     private void refreshDrawer()
     {
         if (tripStringArray.isEmpty()){
-            tripStringArray.add(new String[] {getString(R.string.noTripsFound), "", ""});
+            tripStringArray.add(noTripsString);
         }else{
-            if (tripStringArray.get(0)[0].equals(getString(R.string.noTripsFound)))
-            tripStringArray.remove(0);
+            if (tripStringArray.contains(noTripsString)) {
+                tripStringArray.remove(noTripsString);
+            }
         }
         new Handler(Looper.getMainLooper()).post(new Runnable()
         {
@@ -559,20 +564,21 @@ public class MainActivity
      */
     private boolean renameTrip(int id, String newTripName) {
 
-        //Just update the database and drawer, if the user enters a NEW name and NOT an empty String
+        //Just update the database and drawer, if the user enters NOT an empty String
         if(newTripName != null
             && !newTripName.isEmpty())
         {
-            String tripName;
+            String oldTripName;
             TripRow tripRow = dbHelper.selectTrip(id);
-            if(tripRow != null) tripName = tripRow.getName();
+            if(tripRow != null) oldTripName = tripRow.getName();
             else
             {
 //              there is no trip with this id
                 return false;
             }
 
-            if(!newTripName.equals(tripName))
+            //Just update the database and drawer, if the user enters a NEW name
+            if(!newTripName.equals(oldTripName))
             {
                 dbHelper.updateTripName(id, newTripName);
 
@@ -581,8 +587,8 @@ public class MainActivity
                     if (row[1].equals(String.valueOf(id)))
                     {
                         tripRow = dbHelper.selectTrip(id);
-                        if(tripRow != null) tripName = tripRow.getName();
-                        row[0] = tripName;
+                        if(tripRow != null) oldTripName = tripRow.getName();
+                        row[0] = oldTripName;
                     }
                 }
 
@@ -591,12 +597,11 @@ public class MainActivity
                 return true;
             }
         }
-
         return false;
     }
 
     /**
-     * deletes the trip from the database and drawer
+     * show the dialog, if you really want to delete this trip
      */
     private void showDeleteTripDialog(final int id, final String tripName) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -632,9 +637,14 @@ public class MainActivity
                 rowToDelete = row;
             }
         }
+        //save the position in the list, in case of an undo, to reset it in this position
+        indexOfRowToDelete = tripStringArray.indexOf(rowToDelete);
+        //delete trip from the drawer
         tripStringArray.remove(rowToDelete);
-
+        //select trip to delet
         deletedTripRow = dbHelper.selectTrip(id);
+
+        //delete trip from database, if successful, make snackBar confirmation
         Resources res = getResources();
         String formattedText = String.format(res.getString(R.string.tripDeleteConfirmation), tripName);
         if (dbHelper.deleteTrip(id))
@@ -652,8 +662,12 @@ public class MainActivity
     }
 
     private void undoDeleteTrip(String tripName) {
+        //insert the deleted row back in the database
         if (dbHelper.insertTripData(deletedTripRow)) {
-            tripStringArray.add(new String[] {deletedTripRow.getName(), String.valueOf(deletedTripRow.getTripId()), "(" + deletedTripRow.getDate() + ")"});
+            //add Trip to the drawerList at the same position, where it was deleted
+            tripStringArray.add(indexOfRowToDelete, new String[] {deletedTripRow.getName(), String.valueOf(deletedTripRow.getTripId()), "(" + deletedTripRow.getDate() + ")"});
+
+            //make snackBar confirmation
             Resources res = getResources();
             String formattedText = String.format(res.getString(R.string.tripDeleteUndoConfirmation), tripName);
             Snackbar.make(findViewById(R.id.drawer_layout), formattedText, Snackbar.LENGTH_LONG).show();
