@@ -160,9 +160,9 @@ public class AdapterAgent
         String hex_41_60 = executeCommand( new AvailablePidsCommand_41_60()
                                          , RESULT_FORMAT.FORMATTED);
 
-        Log.d(LOG_TAG, hex_01_20);
-        Log.d(LOG_TAG, hex_21_40);
-        Log.d(LOG_TAG, hex_41_60);
+        if(hex_01_20 != null) Log.d(LOG_TAG, hex_01_20);
+        if(hex_21_40 != null) Log.d(LOG_TAG, hex_21_40);
+        if(hex_41_60 != null) Log.d(LOG_TAG, hex_41_60);
 
         availableCommands.addAll(
                 AvailableCommands.determineCommands(hex_01_20, AvailableCommands.PidArea.PIDS_01_20));

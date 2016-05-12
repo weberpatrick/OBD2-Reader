@@ -76,8 +76,8 @@ public class MainActivity
 
     private final int BLUETOOTH_REQUEST   = 1;
 
-    private final int INPUT_DATA_INTERVAL = 100;
-    private final int PRESENTER_INTERVAL  = 100;
+    private final int INPUT_DATA_INTERVAL = 0;
+    private final int PRESENTER_INTERVAL  = 300;
     private final int COMPASS_INTERVAL  = 1000;
 
 //	***************************************************************************
@@ -252,6 +252,7 @@ public class MainActivity
 
     protected void onDestroy()
     {
+//      TODO Confirm close (are you sure bitch?)
         //if (Are you sure)
         //{
         if(compass != null) compass.stop();
@@ -273,12 +274,7 @@ public class MainActivity
             public void onClick(View v)
             {
 //              recording data is running
-                if(isRunning)
-                {
-                    buttonStartStop.setBackgroundResource(R.drawable.start_68);
-
-                    isRunning = false;
-                }
+                if(isRunning) isRunning = false;
                 else
                 {
 //                  initialize bluetooth adapter and turn it on
@@ -1013,6 +1009,8 @@ public class MainActivity
             {
                 //clears the keep screen awake feature
                 getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
+                buttonStartStop.setBackgroundResource(R.drawable.start_68);
             }
         });
 
