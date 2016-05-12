@@ -149,8 +149,6 @@ public class LocationFinder
         alertDialog.show();
     }
 
-
-
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {

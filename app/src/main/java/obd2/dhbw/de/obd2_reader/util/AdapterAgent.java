@@ -232,12 +232,6 @@ public class AdapterAgent
         return false;
     }
 
-
-    public void stop()
-    {
-        locationFinder.stopGPS();
-    }
-
     public ArrayList<Pair<String, String>> getLiveData()
     {
         return liveDataArray;

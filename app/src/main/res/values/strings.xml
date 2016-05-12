@@ -21,4 +21,7 @@
     <string name="tripDeleteUndoConfirmation">Undo of trip \"%1$s\" successful.</string>
     <string name="tripDeleteUndoError">Error while undo trip \"%1$s\". Sorry…</string>
     <string name="enterTripNameTitle">Please enter a trip name:</string>
+    <string name="closeAppQuestion">Really close app??</string>
+    <string name="closeYes">Yes close</string>
+    <string name="closeNo">No</string>
 </resources>

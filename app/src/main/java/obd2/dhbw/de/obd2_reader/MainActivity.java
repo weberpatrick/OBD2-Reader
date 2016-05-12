@@ -229,6 +229,23 @@ public class MainActivity
         }
     }
 
+    /**
+     * Ask user, if he really wants to close app
+     */
+    @Override
+    public void onBackPressed()
+    {
+       AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(R.string.closeAppQuestion);
+        builder.setPositiveButton(R.string.closeYes, new  DialogInterface.OnClickListener(){
+            public void onClick(DialogInterface dialog, int which) {
+                MainActivity.this.finish();
+            }
+        });
+        builder.setNegativeButton(R.string.closeNo, null);
+        builder.create().show();
+    }
+
     @Override
     protected void onStart()
     {
@@ -257,13 +274,9 @@ public class MainActivity
 
     protected void onDestroy()
     {
-//      TODO Confirm close (are you sure bitch?)
-        //if (Are you sure)
-        //{
         if(compass != null) compass.stop();
         endStuff();
         super.onDestroy();
-        //}
     }
 
 //	***************************************************************************
@@ -1026,9 +1039,8 @@ public class MainActivity
             }
         });
 
-
         //stop gps stuff
-        if(adapterAgent != null) adapterAgent.stop();
+        if(locationFinder != null) locationFinder.stopGPS();
 
         try
         {
