@@ -59,8 +59,8 @@ public class LocationFinder
         locationManager = (LocationManager) context.getSystemService(LOCATION_SERVICE);
 
         //get GPS/Network Status
-        isGpsActive = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);Log.d(LOG_TAG, "GPS: "+isGpsActive);
-        isNetworkActive = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);Log.d(LOG_TAG, "Network: "+isNetworkActive);
+        isGpsActive = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        isNetworkActive = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
 
         if (isGpsActive || isNetworkActive) {
             if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)

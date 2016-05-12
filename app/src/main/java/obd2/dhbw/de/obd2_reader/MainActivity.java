@@ -157,10 +157,10 @@ public class MainActivity
         dbHelper = new DbHelper(this);
 
         dbHelper.insertTripData(1, "01.01.2015", 234.4, 60, 5.0, 120.0, 75.0, "Mannheim");
-//        dbHelper.insertTripData(2, "01.01.2015", 3453.6, 3600, 75.0, 220.0, 115.0, "Görlitz");
-//        dbHelper.insertTripData(3, "01.01.2015", 14.4, 2345, 43.0, 20.0, 75.0, "Heusenstamm");
-//        dbHelper.insertTripData(6, "01.01.2015", 2464.7, 12, 1.0, 100.0, 45.0, "Berlin");
-//        dbHelper.insertTripData(8, "01.01.2015", 265.0, 345, 12.0, 750.0, 25.0, "Frankfurt");
+        dbHelper.insertTripData(2, "01.01.2015", 3453.6, 3600, 75.0, 220.0, 115.0, "Görlitz");
+        dbHelper.insertTripData(3, "01.01.2015", 14.4, 2345, 43.0, 20.0, 75.0, "Heusenstamm");
+        dbHelper.insertTripData(6, "01.01.2015", 2464.7, 12, 1.0, 100.0, 45.0, "Berlin");
+        dbHelper.insertTripData(8, "01.01.2015", 265.0, 345, 12.0, 750.0, 25.0, "Frankfurt");
 
         mapLiveTextViews = new HashMap<>();
 
