@@ -51,7 +51,7 @@ public class TripCalculator
             oldSet = true;
 
             int speed = row.getSpeed();
-            if(speed == 0) standTime += readIntervall/10;
+            if(speed == 0) standTime += readIntervall/1000;
             maxSpeed = Math.max(speed, maxSpeed);
             avgSpeed += speed;
             runTime = Math.max(row.getRunTime(), runTime);
@@ -61,10 +61,11 @@ public class TripCalculator
 
         distance = Math.round(distance);
 
-        Log.d(LOG_TAG,  "runtime:  " + runTime + "\n" +
-                        "maxSpeed: " + maxSpeed + "\n" +
-                        "avgSpeed: " + avgSpeed + "\n" +
-                        "distance: " + distance);
+        Log.d(LOG_TAG,  "runtime:  "  + runTime + "\n" +
+                        "standTime: " + standTime + "\n" +
+                        "maxSpeed: "  + maxSpeed + "\n" +
+                        "avgSpeed: "  + avgSpeed + "\n" +
+                        "distance: "  + distance);
 
         DateFormat dateFormat = DateFormat.getDateInstance();
 
