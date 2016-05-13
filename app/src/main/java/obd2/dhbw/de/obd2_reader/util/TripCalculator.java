@@ -36,28 +36,33 @@ public class TripCalculator
 
         for(DataRow row : rows)
         {
-            //calculate trip length
-            locNew.setLatitude( row.getLatitude());
-            locNew.setLongitude(row.getLongitude());
-
-            //just compute distance if both locations are set AND speed > 0
-            // in the first iteration: just locNew is set
-            // if speed == 0 no distance is calculated, because the car is not moving,
-            // but Lat/Long are changing minimal
             int speed = row.getSpeed();
+
+            //car does not move
             if(speed == 0){
                 standTime += readIntervall/1000;
-            }else{
+            }
+            //just compute distance, if Lat/Long is set ( > 0), it may happen that in the first
+            // iterations the location is null, so it it saved "0"
+            if (row.getLongitude()>0 && row.getLatitude()>0) {
+                //calculate trip length
+                locNew.setLatitude(row.getLatitude());
+                locNew.setLongitude(row.getLongitude());
+
+                //just compute distance if both locations are set AND speed > 0
+                // in the first iteration: just locNew is set
+                // if speed == 0 no distance is calculated, because the car is not moving,
+                // but Lat/Long are changing minimal
+
                 if (oldSet && (speed > 0))
                     distance += locOld.distanceTo(locNew);
+
+                //the new location gets the old location. So the old is set
+                locOld.setLatitude(locNew.getLatitude());
+                locOld.setLongitude(locNew.getLongitude());
+
+                oldSet = true;
             }
-
-            //the new location gets the old location. So the old is set
-            locOld.setLatitude( locNew.getLatitude());
-            locOld.setLongitude(locNew.getLongitude());
-
-            oldSet = true;
-
             maxSpeed = Math.max(speed, maxSpeed);
             avgSpeed += speed;
             runTime = Math.max(row.getRunTime(), runTime);

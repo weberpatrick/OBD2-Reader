@@ -70,24 +70,21 @@ public class LocationFinder
                 if (isGpsActive){
                     locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, UPDATE_TIME, UPDATE_DISTANCE, this);
 
-                    lastLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+//                    lastLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
                 }
                 if (isNetworkActive){
                     locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, UPDATE_TIME, UPDATE_DISTANCE, this);
 
-                    Location loc = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-                    if (isGood(loc)){
-                        lastLocation = loc;
-                    }
+//                    Location loc = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+//                    if (isGood(loc)){
+//                        lastLocation = loc;
+//                    }
                 }
             } else {
                 Log.d(LOG_TAG, "No Location Permission");
                 canGetLocation = false;
             }
 
-            if (locationManager != null) {
-                lastLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-            }
         }else{
             canGetLocation = false;
         }
@@ -216,6 +213,6 @@ public class LocationFinder
             // speed in m/s to km/h
             return lastLocation.getSpeed()*3.6;
         }
-        else return 0;
+        else return -1;
     }
 }
