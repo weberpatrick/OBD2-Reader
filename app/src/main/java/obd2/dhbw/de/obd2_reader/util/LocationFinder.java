@@ -51,21 +51,16 @@ public class LocationFinder
      */
     public LocationFinder(Context con) {
         this.context = con;
-        startGps();
     }
 
-    public void startGps() {
+    public boolean startGps() {
 
         locationManager = (LocationManager) context.getSystemService(LOCATION_SERVICE);
 
-        //get GPS/Network Status
-        isGpsActive = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-        isNetworkActive = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-
-        if (isGpsActive || isNetworkActive) {
+        if(canGetLocation()){
             if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)
                     == PackageManager.PERMISSION_GRANTED) {
-                canGetLocation = true;
+
 
                 if (isGpsActive){
                     locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, UPDATE_TIME, UPDATE_DISTANCE, this);
@@ -79,14 +74,15 @@ public class LocationFinder
 //                    if (isGood(loc)){
 //                        lastLocation = loc;
 //                    }
+                    return true;
                 }
-            } else {
-                Log.d(LOG_TAG, "No Location Permission");
-                canGetLocation = false;
             }
-
+            Log.d(LOG_TAG, "No Location Permission");
+            canGetLocation = false;
+            return false;
         }else{
             canGetLocation = false;
+            return false;
         }
     }
 
@@ -180,12 +176,22 @@ public class LocationFinder
         }
         if (!isGpsActive && !isNetworkActive)
         {
+            lastLocation = null;
             showGPSAlert();
             stopGps();
         }
     }
 
     public boolean canGetLocation() {
+        //get GPS/Network Status
+        isGpsActive = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        isNetworkActive = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+
+        if (isGpsActive || isNetworkActive) {
+         canGetLocation = true;
+        }else{
+            canGetLocation = false;
+        }
         return canGetLocation;
     }
 
