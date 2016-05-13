@@ -180,7 +180,7 @@ public class MainActivity
         }, 0, COMPASS_INTERVAL);
 
         locationFinder = new LocationFinder(this);
-        if (!locationFinder.canGetLocation()) locationFinder.showGPSAlert();
+        if (!locationFinder.startGps()) locationFinder.showGPSAlert();
     }
 
     @Override
@@ -299,8 +299,7 @@ public class MainActivity
                 if(isRunning) isRunning = false;
                 else
                 {
-                    locationFinder.startGps();
-                    if (locationFinder.canGetLocation())
+                    if (locationFinder.startGps())
                     {
                         //initialize bluetooth adapter and turn it on
                         initBluetoothAdapter();
