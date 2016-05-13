@@ -80,6 +80,8 @@ public class TripCalculator
 
         DateFormat dateFormat = DateFormat.getDateInstance();
 
+        //TODO alle Zeilen aus der CAR_DATA_TABLE löschen, weil nicht mehr gebraucht wird...
+
         return dbHelper.insertTripData( tripId
                                       , dateFormat.format(new Date())
                                       , distance
