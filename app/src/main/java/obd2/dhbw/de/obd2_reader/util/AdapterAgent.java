@@ -1,7 +1,8 @@
 package obd2.dhbw.de.obd2_reader.util;
 
 import android.bluetooth.BluetoothSocket;
-import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.util.Pair;
@@ -39,6 +40,7 @@ public class AdapterAgent
 //	***************************************************************************
 
     private final String LOG_TAG = AdapterAgent.class.getName();
+    private boolean gpsWasOffOnce;
 
     private enum RESULT_FORMAT
     {
@@ -177,6 +179,23 @@ public class AdapterAgent
     {
 //        for(ObdCommand command : availableCommands)
 //            Log.i(LOG_TAG, command.getName() + ": " + executeCommand(command, RESULT_FORMAT.CALCULATED));
+
+        if (!locationFinder.canGetLocation()){
+            //User disables GPS
+            gpsWasOffOnce = true;
+        }
+        else {
+            //Gps is enabled, if the Gps was off before
+            if (gpsWasOffOnce){
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    public void run() {
+                        locationFinder.startGps();
+                    }
+                });
+                //so that startGPS is just called once, when user reenables GPS
+                gpsWasOffOnce =false;
+            }
+        }
 
         try
         {
