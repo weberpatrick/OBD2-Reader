@@ -51,12 +51,11 @@ public class LocationFinder
      */
     public LocationFinder(Context con) {
         this.context = con;
-        locationManager = (LocationManager) context.getSystemService(LOCATION_SERVICE);
     }
 
     public boolean startGps() {
 
-
+        locationManager = (LocationManager) context.getSystemService(LOCATION_SERVICE);
 
         if(canGetLocation()){
             if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)
