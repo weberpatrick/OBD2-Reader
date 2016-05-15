@@ -269,7 +269,7 @@ public class DbHelper
         values.put(T_STAND_TIME, standTime);
         values.put(T_MAX_SPEED, maxSpeed);
         values.put(T_AVG_SPEED, avgSpeed);
-        if(name != null) values.put(T_NAME, name);
+        if(name != null || !name.isEmpty()) values.put(T_NAME, name);
 
         SQLiteDatabase db = this.getWritableDatabase();
         long insertId = db.insert(TABLE_TRIP, null, values);
