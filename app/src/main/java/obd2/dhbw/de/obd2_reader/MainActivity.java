@@ -150,8 +150,6 @@ public class MainActivity
 
         //Don#t let the screen rotate, just PORTRAIT mode
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        //keep screen awake
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
 //      create the database if necessary
         dbHelper = new DbHelper(this);
@@ -253,6 +251,8 @@ public class MainActivity
     @Override
     protected void onStart()
     {
+        //keep screen awake
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         super.onStart();
     }
 
@@ -273,12 +273,15 @@ public class MainActivity
 
     protected void onStop()
     {
+        //clears the keep screen awake feature
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         super.onStop();
     }
 
     protected void onDestroy()
     {
         if(compass != null) compass.stop();
+
         endStuff();
         super.onDestroy();
     }
@@ -1046,9 +1049,6 @@ public class MainActivity
             @Override
             public void run()
             {
-                //clears the keep screen awake feature
-                getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-
                 buttonStartStop.setBackgroundResource(R.drawable.start_68);
             }
         });

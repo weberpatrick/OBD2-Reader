@@ -24,6 +24,7 @@ import com.github.pires.obd.commands.protocol.TimeoutCommand;
 import com.github.pires.obd.enums.ObdProtocols;
 import com.github.pires.obd.exceptions.NoDataException;
 import com.github.pires.obd.exceptions.UnableToConnectException;
+import com.github.pires.obd.exceptions.UnknownErrorException;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -136,6 +137,11 @@ public class AdapterAgent
         catch (InterruptedException e)
         {
             e.printStackTrace();
+        }
+        catch (UnknownErrorException e)
+        {
+            // A very rare Exception that may occurs 1 in 100.000 times
+            return "0";
         }
         catch (UnableToConnectException e)
         {
