@@ -232,20 +232,28 @@ public class MainActivity
     }
 
     /**
-     * Ask user, if he really wants to close app
+     * If Drawer is opened, close the drawer
+     * else ask user, if he really wants to close app
      */
     @Override
     public void onBackPressed()
     {
-       AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage(R.string.closeAppQuestion);
-        builder.setPositiveButton(R.string.closeYes, new  DialogInterface.OnClickListener(){
-            public void onClick(DialogInterface dialog, int which) {
-                MainActivity.this.finish();
-            }
-        });
-        builder.setNegativeButton(R.string.closeNo, null);
-        builder.create().show();
+        if(drawerLayout.isDrawerOpen(drawerList))
+        {
+            drawerLayout.closeDrawer(drawerList);
+        }
+        else
+        {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage(R.string.closeAppQuestion);
+            builder.setPositiveButton(R.string.closeYes, new  DialogInterface.OnClickListener(){
+                public void onClick(DialogInterface dialog, int which) {
+                    MainActivity.this.finish();
+                }
+            });
+            builder.setNegativeButton(R.string.closeNo, null);
+            builder.create().show();
+        }
     }
 
     @Override

@@ -38,7 +38,7 @@ public class Compass
     }
 
     private void start() {
-        sensorManager = (SensorManager) context.getSystemService(context.SENSOR_SERVICE);
+        sensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         magnetometer = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
 
@@ -47,7 +47,7 @@ public class Compass
     }
 
     private SensorEventListener orientationListener = new SensorEventListener() {
-
+        @Override
         public void onSensorChanged(SensorEvent event) {
             if (event.sensor == accelerometer) {
                 lastAccelerometer = event.values.clone();
