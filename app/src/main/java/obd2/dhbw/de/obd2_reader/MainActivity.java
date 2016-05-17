@@ -38,6 +38,7 @@ import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Chronometer;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -60,6 +61,7 @@ import java.util.TimerTask;
 import obd2.dhbw.de.obd2_reader.connection.BluetoothConnector;
 import obd2.dhbw.de.obd2_reader.container.DataRow;
 import obd2.dhbw.de.obd2_reader.container.TripRow;
+import obd2.dhbw.de.obd2_reader.dialog.InfoDialog;
 import obd2.dhbw.de.obd2_reader.storage.DbHelper;
 import obd2.dhbw.de.obd2_reader.util.AdapterAgent;
 import obd2.dhbw.de.obd2_reader.util.Compass;
@@ -77,9 +79,9 @@ public class MainActivity
 
     private final int BLUETOOTH_REQUEST   = 1;
 
-    private final int INPUT_DATA_INTERVAL = 0;
-    private final int PRESENTER_INTERVAL  = 300;
-    private final int COMPASS_INTERVAL  = 1000;
+    private final int INPUT_DATA_DELAY = 0;
+    private final int PRESENTER_DELAY  = 300;
+    private final int COMPASS_DELAY    = 1000;
 
 //	***************************************************************************
 //	DECLARATION OF VARIABLES
@@ -130,11 +132,11 @@ public class MainActivity
     private TextView textViewSpeedValue;
     private TextView textViewRpmValue;
     private TextView textViewRuntimeValue;
-
     private TextView textViewEngineLoadValue;
-    private TextView textViewThrottlePositionValue;
 
     private ProgressBar progressBarThrottlePosition;
+
+    private Chronometer chronometer;
 
 //	***************************************************************************
 //	METHOD AREA
@@ -175,10 +177,12 @@ public class MainActivity
                         , compass.getRotation()
                 );
             }
-        }, 0, COMPASS_INTERVAL);
+        }, 0, COMPASS_DELAY);
 
         locationFinder = new LocationFinder(this);
         if (!locationFinder.startGps()) locationFinder.showGPSAlert();
+
+        chronometer.start();
     }
 
     @Override
@@ -324,7 +328,6 @@ public class MainActivity
                         locationFinder.showGPSAlert();
                     }
                 }
-
             }
         });
 
@@ -336,9 +339,9 @@ public class MainActivity
         textViewSpeedValue   = (TextView) findViewById(R.id.textViewSpeedValue);
         textViewRpmValue     = (TextView) findViewById(R.id.textViewRpmValue);
         textViewRuntimeValue = (TextView) findViewById(R.id.textViewRuntimeValue);
+        textViewEngineLoadValue = (TextView) findViewById(R.id.textViewEngineLoadValue);
 
-        textViewEngineLoadValue         = (TextView) findViewById(R.id.textViewEngineLoadValue);
-        textViewThrottlePositionValue   = (TextView) findViewById(R.id.textViewThrottlePositionValue);
+        chronometer = (Chronometer) findViewById(R.id.chronometer);
 
         drawerList = (ListView)findViewById(R.id.drawerList);
         registerForContextMenu(drawerList);
@@ -765,6 +768,7 @@ public class MainActivity
                                         {
                                             isRunning = true;
                                             startLiveData();
+                                            chronometer.start();
                                             buttonStartStop.setBackgroundResource(R.drawable.stop_68);
                                         }
                                     });
@@ -850,7 +854,6 @@ public class MainActivity
             updateTextView(textViewEngineLoadValue          , dataRow.getEngineLoadString());
             updateTextView(textViewRpmValue                 , dataRow.getRpmString());
             updateTextView(textViewSpeedValue               , dataRow.getSpeedString());
-            updateTextView(textViewThrottlePositionValue    , dataRow.getThrottlePositionString());
             updateProgressBar(progressBarThrottlePosition    , dataRow.getThrottlePosition());
             updateTextView(textViewRuntimeValue             , dataRow.getRunTimeString());
         }
@@ -936,7 +939,7 @@ public class MainActivity
                         Animation.RELATIVE_TO_SELF, 0.5f,
                         Animation.RELATIVE_TO_SELF, 0.5f);
 
-                an.setDuration(COMPASS_INTERVAL);
+                an.setDuration(COMPASS_DELAY);
                 an.setRepeatCount(0);
                 an.setFillAfter(true);
 
@@ -955,7 +958,7 @@ public class MainActivity
                     && adapterAgent.determineLiveData()
                     && isRunning)
                 timerAdapterAgent.schedule( new TaskAdapterAgent()
-                                          , INPUT_DATA_INTERVAL);
+                                          , INPUT_DATA_DELAY);
             else endTrip();
         }
     }
@@ -967,7 +970,7 @@ public class MainActivity
         public void run()
         {
             presentData();
-            if(isRunning) timerPresenter.schedule(new TaskPresenter(), PRESENTER_INTERVAL);
+            if(isRunning) timerPresenter.schedule(new TaskPresenter(), PRESENTER_DELAY);
         }
     }
 
@@ -1004,7 +1007,7 @@ public class MainActivity
                 builder.setPositiveButton("OK", new DialogInterface.OnClickListener(){
                     @Override
                     public void onClick(DialogInterface dialog, int which){
-                        TripCalculator.calculate(dbHelper, currentTripId, INPUT_DATA_INTERVAL, input.getText().toString(), getApplicationContext());
+                        TripCalculator.calculate(dbHelper, currentTripId, INPUT_DATA_DELAY, input.getText().toString(), getApplicationContext());
                         showNewTrip();
                     }
                 });
@@ -1021,7 +1024,7 @@ public class MainActivity
                     @Override
                     public boolean onKey(View v, int keyCode, KeyEvent event) {
                         if (keyCode == event.KEYCODE_ENTER){
-                            TripCalculator.calculate(dbHelper, currentTripId, INPUT_DATA_INTERVAL, input.getText().toString(), getApplicationContext());
+                            TripCalculator.calculate(dbHelper, currentTripId, INPUT_DATA_DELAY, input.getText().toString(), getApplicationContext());
                             showNewTrip();
                             dialog.dismiss();
                         }
@@ -1033,7 +1036,7 @@ public class MainActivity
                 dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
                     @Override
                     public void onCancel(DialogInterface dialog) {
-                        TripCalculator.calculate(dbHelper, currentTripId, INPUT_DATA_INTERVAL, null, getApplicationContext());
+                        TripCalculator.calculate(dbHelper, currentTripId, INPUT_DATA_DELAY, null, getApplicationContext());
                         showNewTrip();
                     }
                 });
@@ -1056,7 +1059,7 @@ public class MainActivity
     {
         //if trip is still running then save trip Data, for example before the app is going be destroyed
         if (isRunning)
-            TripCalculator.calculate(dbHelper, currentTripId, INPUT_DATA_INTERVAL, null, getApplicationContext());
+            TripCalculator.calculate(dbHelper, currentTripId, INPUT_DATA_DELAY, null, getApplicationContext());
 
         new Handler(Looper.getMainLooper()).post(new Runnable()
         {
@@ -1088,9 +1091,9 @@ public class MainActivity
                 updateTextView(textViewEngineLoadValue          , "0");
                 updateTextView(textViewRpmValue                 , "0");
                 updateTextView(textViewSpeedValue               , "0");
-                updateTextView(textViewThrottlePositionValue    , "0");
-                updateProgressBar(progressBarThrottlePosition    , 0);
+                updateProgressBar(progressBarThrottlePosition   ,  0 );
                 updateTextView(textViewRuntimeValue             , "0");
+                chronometer.stop();
 
                 tableLayoutData.removeAllViews();
                 mapLiveTextViews.clear();
@@ -1111,20 +1114,14 @@ public class MainActivity
 
                 if(tripRow != null)
                 {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                    Resources res = getResources();
-                    String formattedText = String.format(res.getString(R.string.tripAlertCaption), tripRow.getName());
-                    builder.setTitle(formattedText);
-                    builder.setMessage(
-                            "Distanz: " + tripRow.getDistance() + "\n"
+                    InfoDialog.show(MainActivity.this
+                            , String.format(getResources().getString(R.string.tripAlertCaption), tripRow.getName())
+                            , "Distanz: " + tripRow.getDistance() + "\n"
                                     + "Maximalgeschwindigkeit: " + tripRow.getMaxSpeed() + "\n"
                                     + "Durchschnittsgeschwindigkeit: " + tripRow.getAvgSpeed() + "\n"
                                     + "Fahrzeit: " + tripRow.getRunTime() / 60 + " Minuten " + tripRow.getRunTime() % 60 + " Sekunden" + "\n"
                                     + "Stehzeit: " + tripRow.getStandTime() / 60 + " Minuten " + tripRow.getStandTime() % 60 + " Sekunden"
-                    );
-                    builder.setPositiveButton("Ok", null);
-
-                    builder.create().show();
+                            );
                 }
             }
         });

@@ -37,7 +37,7 @@ public class DbHelper
 
 //  database
     private static final int DATABASE_VERSION   = 1;
-    public static final String DATABASE_NAME   = "obdDB.db";
+    public static final String DATABASE_NAME    = "obdDB.db";
     public static final String TABLE_CAR_DATA   = "carData";
     public static final String TABLE_TRIP       = "trip";
 

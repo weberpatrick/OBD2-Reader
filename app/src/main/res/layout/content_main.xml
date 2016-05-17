@@ -42,9 +42,18 @@
                 -->
 
                 <TableRow
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="right">
+
+                    <Chronometer
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/chronometer"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:textSize="30sp"
+                        android:textColor="#ffffff"/>
 
                     <ImageView
                         android:layout_width="@dimen/notification_large_icon_width"
@@ -114,7 +123,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="runtime"
+                        android:text="engine runtime"
                         android:id="@+id/textVieRuntime"
                         android:layout_weight="1"
                         android:textSize="20sp"
@@ -147,17 +156,6 @@
                         android:textSize="20sp"
                         android:textColor="#ffffff"
                         android:textStyle="bold"/>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="0"
-                        android:id="@+id/textViewThrottlePositionValue"
-                        android:layout_weight="1"
-                        android:gravity="right"
-                        android:textSize="20sp"
-                        android:textColor="#ffffff"
-                        />
 
                     <TextView
                         android:layout_width="wrap_content"
