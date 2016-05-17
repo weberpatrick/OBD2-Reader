@@ -259,6 +259,8 @@ public class MainActivity
     @Override
     protected void onStart()
     {
+        if(compass != null) compass.registerListener();
+
         //keep screen awake
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         super.onStart();
@@ -281,6 +283,8 @@ public class MainActivity
 
     protected void onStop()
     {
+        if(compass != null) compass.unregisterListener();
+
         //clears the keep screen awake feature
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         super.onStop();
@@ -288,8 +292,6 @@ public class MainActivity
 
     protected void onDestroy()
     {
-        if(compass != null) compass.stop();
-
         endStuff();
         super.onDestroy();
     }
@@ -1042,7 +1044,7 @@ public class MainActivity
     private void showNewTrip()
     {
         TripRow tripRow = dbHelper.selectTrip(currentTripId);
-        //add "Trip ", id, date to the top of the List and update the listAdapter
+        //add tripName, id, date to the top of the List and update the listAdapter
         tripStringArray.add(0, new String[]{tripRow.getName(), String.valueOf(currentTripId), "(" + tripRow.getDate() + ")"});
 
         refreshDrawer();
@@ -1052,6 +1054,10 @@ public class MainActivity
 
     private void endStuff()
     {
+        //if trip is still running then save trip Data, for example before the app is going be destroyed
+        if (isRunning)
+            TripCalculator.calculate(dbHelper, currentTripId, INPUT_DATA_INTERVAL, null);
+
         new Handler(Looper.getMainLooper()).post(new Runnable()
         {
             @Override

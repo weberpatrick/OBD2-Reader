@@ -42,8 +42,7 @@ public class Compass
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         magnetometer = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
 
-        sensorManager.registerListener(orientationListener, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
-        sensorManager.registerListener(orientationListener, magnetometer, SensorManager.SENSOR_DELAY_NORMAL);
+        registerListener();
     }
 
     private SensorEventListener orientationListener = new SensorEventListener() {
@@ -72,9 +71,15 @@ public class Compass
         }
     };
 
-    public void stop()
+    public void unregisterListener()
     {
         sensorManager.unregisterListener(orientationListener);
+    }
+
+    public void registerListener()
+    {
+        sensorManager.registerListener(orientationListener, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager.registerListener(orientationListener, magnetometer, SensorManager.SENSOR_DELAY_NORMAL);
     }
 
     public float getRotation() {
