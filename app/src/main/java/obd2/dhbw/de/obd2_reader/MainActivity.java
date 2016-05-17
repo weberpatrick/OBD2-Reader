@@ -851,7 +851,7 @@ public class MainActivity
             updateTextView(textViewRpmValue                 , dataRow.getRpmString());
             updateTextView(textViewSpeedValue               , dataRow.getSpeedString());
             updateTextView(textViewThrottlePositionValue    , dataRow.getThrottlePositionString());
-            updateProgresBar(progressBarThrottlePosition    , dataRow.getThrottlePosition());
+            updateProgressBar(progressBarThrottlePosition    , dataRow.getThrottlePosition());
             updateTextView(textViewRuntimeValue             , dataRow.getRunTimeString());
         }
 
@@ -902,7 +902,7 @@ public class MainActivity
         });
     }
 
-    private void updateProgresBar(final ProgressBar bar, final double value)
+    private void updateProgressBar(final ProgressBar bar, final double value)
     {
         new Handler(Looper.getMainLooper()).post(new Runnable()
         {
@@ -1004,7 +1004,7 @@ public class MainActivity
                 builder.setPositiveButton("OK", new DialogInterface.OnClickListener(){
                     @Override
                     public void onClick(DialogInterface dialog, int which){
-                        TripCalculator.calculate(dbHelper, currentTripId, INPUT_DATA_INTERVAL, input.getText().toString());
+                        TripCalculator.calculate(dbHelper, currentTripId, INPUT_DATA_INTERVAL, input.getText().toString(), getApplicationContext());
                         showNewTrip();
                     }
                 });
@@ -1021,7 +1021,7 @@ public class MainActivity
                     @Override
                     public boolean onKey(View v, int keyCode, KeyEvent event) {
                         if (keyCode == event.KEYCODE_ENTER){
-                            TripCalculator.calculate(dbHelper, currentTripId, INPUT_DATA_INTERVAL, input.getText().toString());
+                            TripCalculator.calculate(dbHelper, currentTripId, INPUT_DATA_INTERVAL, input.getText().toString(), getApplicationContext());
                             showNewTrip();
                             dialog.dismiss();
                         }
@@ -1033,7 +1033,7 @@ public class MainActivity
                 dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
                     @Override
                     public void onCancel(DialogInterface dialog) {
-                        TripCalculator.calculate(dbHelper, currentTripId, INPUT_DATA_INTERVAL, null);
+                        TripCalculator.calculate(dbHelper, currentTripId, INPUT_DATA_INTERVAL, null, getApplicationContext());
                         showNewTrip();
                     }
                 });
@@ -1056,7 +1056,7 @@ public class MainActivity
     {
         //if trip is still running then save trip Data, for example before the app is going be destroyed
         if (isRunning)
-            TripCalculator.calculate(dbHelper, currentTripId, INPUT_DATA_INTERVAL, null);
+            TripCalculator.calculate(dbHelper, currentTripId, INPUT_DATA_INTERVAL, null, getApplicationContext());
 
         new Handler(Looper.getMainLooper()).post(new Runnable()
         {
@@ -1089,7 +1089,7 @@ public class MainActivity
                 updateTextView(textViewRpmValue                 , "0");
                 updateTextView(textViewSpeedValue               , "0");
                 updateTextView(textViewThrottlePositionValue    , "0");
-                updateProgresBar(progressBarThrottlePosition    , 0);
+                updateProgressBar(progressBarThrottlePosition    , 0);
                 updateTextView(textViewRuntimeValue             , "0");
 
                 tableLayoutData.removeAllViews();

@@ -6,8 +6,13 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.os.Environment;
 import android.util.Log;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 
 import obd2.dhbw.de.obd2_reader.container.DataRow;
@@ -32,7 +37,7 @@ public class DbHelper
 
 //  database
     private static final int DATABASE_VERSION   = 1;
-    private static final String DATABASE_NAME   = "obdDB.db";
+    public static final String DATABASE_NAME   = "obdDB.db";
     public static final String TABLE_CAR_DATA   = "carData";
     public static final String TABLE_TRIP       = "trip";
 
@@ -361,6 +366,44 @@ public class DbHelper
         }
 
         return rows;
+    }
+
+    public boolean deleteCarData(int id, Context c, String dateTime)
+    {
+        copyDatabase(c, dateTime);
+
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        return db.delete(TABLE_CAR_DATA, C_TRIP_ID + "=?", new String[] {String.valueOf(id)}) > 0;
+    }
+
+    public static void copyDatabase(Context c, String dateTime)
+    {
+        try
+        {
+            File sd = Environment.getExternalStorageDirectory();
+
+            if (sd.canWrite())
+            {
+                String currentDBPath = "/data/data/" + c.getPackageName() + "/databases/" + DATABASE_NAME;
+                String backupDBPath = "backup(" + dateTime + ").db";
+                File currentDB = new File(currentDBPath);
+                File backupDB = new File(sd, backupDBPath);
+
+                if (currentDB.exists())
+                {
+                    FileChannel src = new FileInputStream(currentDB).getChannel();
+                    FileChannel dst = new FileOutputStream(backupDB).getChannel();
+                    dst.transferFrom(src, 0, src.size());
+                    src.close();
+                    dst.close();
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            Log.e("fuck off", e.toString());
+        }
     }
 
     public boolean deleteTrip(int id)

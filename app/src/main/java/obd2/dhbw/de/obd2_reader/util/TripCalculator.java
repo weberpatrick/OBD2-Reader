@@ -1,5 +1,6 @@
 package obd2.dhbw.de.obd2_reader.util;
 
+import android.content.Context;
 import android.location.Location;
 import android.util.Log;
 
@@ -8,7 +9,6 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import obd2.dhbw.de.obd2_reader.container.DataRow;
-import obd2.dhbw.de.obd2_reader.container.TripRow;
 import obd2.dhbw.de.obd2_reader.storage.DbHelper;
 
 /**
@@ -28,7 +28,12 @@ public class TripCalculator
     private static float distance = 0;
     private static boolean oldSet = false;
 
-    public static boolean calculate(DbHelper dbHelper, int tripId, int readIntervall, String tripName)
+    public static boolean calculate( DbHelper dbHelper
+                                , int tripId
+                                , int readIntervall
+                                , String tripName
+                                , Context c
+                                )
     {
         ArrayList<DataRow> rows = dbHelper.selectTripData(tripId);
 
@@ -79,8 +84,9 @@ public class TripCalculator
                         "distance: "  + distance);
 
         DateFormat dateFormat = DateFormat.getDateInstance();
+        DateFormat dateTimeFormat = DateFormat.getDateTimeInstance();
 
-        //TODO alle Zeilen aus der CAR_DATA_TABLE löschen, weil nicht mehr gebraucht wird...
+        dbHelper.deleteCarData(tripId, c, dateTimeFormat.format(new Date()));
 
         return dbHelper.insertTripData( tripId
                                       , dateFormat.format(new Date())
