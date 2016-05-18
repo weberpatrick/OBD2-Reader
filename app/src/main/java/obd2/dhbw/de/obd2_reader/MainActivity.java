@@ -7,6 +7,7 @@ import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.content.res.Resources;
@@ -215,14 +216,35 @@ public class MainActivity
         //noinspection SimplifiableIfStatement
         if (id == R.id.parkPosition)
         {
-            double latitude=50.117780;
-            double longitude=8.642167;
-            String uri = String.format(Locale.ENGLISH, "geo:%f, %f?z=17&q=%f, %f(%s)"
-                    , latitude, longitude, latitude, longitude, getResources().getString(R.string.parkPosition));
-            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
-            startActivity(intent);
-        }
+            SharedPreferences prefs = getSharedPreferences(getString(R.string.pref_name), MODE_PRIVATE);
 
+            //99 is returned, if pref does not exist
+            double latitude  = Double.longBitsToDouble(prefs.getLong(getString(R.string.pref_latitude), Double.doubleToLongBits(99)));
+            double longitude = Double.longBitsToDouble(prefs.getLong(getString(R.string.pref_longitude), Double.doubleToLongBits(99)));
+
+            if (latitude == 99 || longitude == 99)
+            {
+                new Handler(Looper.getMainLooper()).post(new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        InfoDialog.show(MainActivity.this, getString(R.string.parkPosition), getString(R.string.parkPositionNotFound));
+                    }
+                });
+            }
+            else
+            {
+                //first 2 parameters:       center camera to this position
+                //z = 17:                   zoom level (0:whole world, 25:closest)
+                //next 2 doubles an string: put a mapMarker on the map
+                String uri = String.format(Locale.ENGLISH, "geo:%f, %f?z=17&q=%f, %f(%s)"
+                        , latitude, longitude, latitude, longitude, getResources().getString(R.string.parkPosition));
+                //start Intent to google maps or other Activity that can show "geo..."
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+                startActivity(intent);
+            }
+        }
         return super.onOptionsItemSelected(item);
     }
 

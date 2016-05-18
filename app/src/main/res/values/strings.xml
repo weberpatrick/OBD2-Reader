@@ -25,4 +25,11 @@
     <string name="closeYes">Yes close</string>
     <string name="closeNo">No</string>
     <string name="parkPosition">Park position</string>
+    <string name="parkPositionNotFound">No saved park position found.</string>
+    <string name="ParkPositionSaved">Current park position saved</string>
+    <string name="ParkPositionNotSaved">Current park position could not be saved</string>
+    <string name="pref_name">OBD2_Reader_Prefs</string>
+    <string name="pref_latitude">latitude</string>
+    <string name="pref_longitude">longitude</string>
+
 </resources>

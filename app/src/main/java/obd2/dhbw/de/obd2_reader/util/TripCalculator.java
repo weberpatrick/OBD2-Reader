@@ -1,13 +1,16 @@
 package obd2.dhbw.de.obd2_reader.util;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
+import obd2.dhbw.de.obd2_reader.R;
 import obd2.dhbw.de.obd2_reader.container.DataRow;
 import obd2.dhbw.de.obd2_reader.storage.DbHelper;
 
@@ -28,6 +31,8 @@ public class TripCalculator
     private static float distance = 0;
     private static boolean oldSet = false;
 
+    private static Context context;
+
     public static boolean calculate( DbHelper dbHelper
                                 , int tripId
                                 , long standTime
@@ -36,6 +41,8 @@ public class TripCalculator
                                 , Context c
                                 )
     {
+        context = c;
+
         ArrayList<DataRow> rows = dbHelper.selectTripData(tripId);
 
         if (rows == null || rows.size() == 0) return false;
@@ -82,7 +89,8 @@ public class TripCalculator
         DateFormat dateFormat = DateFormat.getDateInstance();
         DateFormat dateTimeFormat = DateFormat.getDateTimeInstance();
 
-        dbHelper.deleteCarData(tripId, c, dateTimeFormat.format(new Date()));
+        saveParkPosition();
+        dbHelper.deleteCarData(tripId, context, dateTimeFormat.format(new Date()));
 
         return dbHelper.insertTripData( tripId
                                       , dateFormat.format(new Date())
@@ -93,5 +101,34 @@ public class TripCalculator
                                       , avgSpeed
                                       , tripName
                                       );
+    }
+
+    public static void saveParkPosition() {
+        locNew.setLatitude(0);
+        locNew.setLongitude(0);
+
+        SharedPreferences prefs = context.getSharedPreferences(context.getString(R.string.pref_name), Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+
+        if (locNew.getLatitude() != 0 && locNew.getLongitude() != 0)
+        {
+            //Save the double values as Long
+            //http://stackoverflow.com/questions/16319237/cant-put-double-sharedpreferences
+            //http://stackoverflow.com/questions/3604849/where-to-save-android-gps-latitude-longitude-points
+            editor.putLong(context.getString(R.string.pref_latitude), Double.doubleToLongBits(locNew.getLatitude()));
+            editor.putLong(context.getString(R.string.pref_longitude), Double.doubleToLongBits(locNew.getLongitude()));
+
+            editor.apply();
+
+            Toast.makeText(context, R.string.ParkPositionSaved, Toast.LENGTH_SHORT).show();
+        }
+        else
+        {
+            editor.remove(context.getString(R.string.pref_latitude));
+            editor.remove(context.getString(R.string.pref_longitude));
+            editor.apply();
+
+            Toast.makeText(context, R.string.ParkPositionNotSaved, Toast.LENGTH_SHORT).show();
+        }
     }
 }
