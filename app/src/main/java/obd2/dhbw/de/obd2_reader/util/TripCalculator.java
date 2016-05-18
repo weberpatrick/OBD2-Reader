@@ -30,7 +30,8 @@ public class TripCalculator
 
     public static boolean calculate( DbHelper dbHelper
                                 , int tripId
-                                , int readIntervall
+                                , long standTime
+                                , long drivingTime
                                 , String tripName
                                 , Context c
                                 )
@@ -42,14 +43,10 @@ public class TripCalculator
         for(DataRow row : rows)
         {
             int speed = row.getSpeed();
-
-            //car does not move
-            if(speed == 0){
-                standTime += readIntervall/1000;
-            }
             //just compute distance, if Lat/Long is set ( > 0), it may happen that in the first
             // iterations the location is null, so it it saved "0"
-            if (row.getLongitude()>0 && row.getLatitude()>0) {
+            if (row.getLongitude()>0 && row.getLatitude()>0)
+            {
                 //calculate trip length
                 locNew.setLatitude(row.getLatitude());
                 locNew.setLongitude(row.getLongitude());
@@ -70,14 +67,13 @@ public class TripCalculator
             }
             maxSpeed = Math.max(speed, maxSpeed);
             avgSpeed += speed;
-            runTime = Math.max(row.getRunTime(), runTime);
         }
 
         avgSpeed /= rows.size();
 
         distance = Math.round(distance);
 
-        Log.d(LOG_TAG,  "runtime:  "  + runTime + "\n" +
+        Log.d(LOG_TAG,  "engine runtime:  "  + drivingTime + "\n" +
                         "standTime: " + standTime + "\n" +
                         "maxSpeed: "  + maxSpeed + "\n" +
                         "avgSpeed: "  + avgSpeed + "\n" +
@@ -91,7 +87,7 @@ public class TripCalculator
         return dbHelper.insertTripData( tripId
                                       , dateFormat.format(new Date())
                                       , distance
-                                      , runTime
+                                      , drivingTime
                                       , standTime
                                       , maxSpeed
                                       , avgSpeed

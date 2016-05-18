@@ -46,20 +46,39 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="right">
 
-                    <Chronometer
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/chronometer"
-                        android:layout_weight="1"
-                        android:gravity="center"
-                        android:textSize="30sp"
-                        android:textColor="#ffffff"/>
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1">
+
+                        <Chronometer
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/chronometer"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:textSize="30sp"
+                            android:textColor="#ffffff"
+                            android:layout_alignParentTop="true"
+                            android:layout_centerHorizontal="true"/>
+
+                        <ProgressBar
+                            style="?android:attr/progressBarStyleHorizontal"
+                            android:progressDrawable="@drawable/progress_bar_stand_time"
+                            android:layout_width="200dp"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/progressBarStandTime"
+                            android:layout_alignParentBottom="true"
+                            android:layout_centerHorizontal="true"
+                           />
+                    </RelativeLayout>
 
                     <ImageView
                         android:layout_width="@dimen/notification_large_icon_width"
                         android:layout_height="@dimen/notification_large_icon_height"
                         android:id="@+id/imageViewCompass"
                         android:src="@drawable/compass_arrow_white" />
+
                 </TableRow>
 
                 <TableRow
@@ -189,9 +208,10 @@
                         android:layout_height="wrap_content"
                         android:progressDrawable="@drawable/our_progress_bar"
                         android:layout_marginTop="20px"
-                        android:id="@+id/progressBarTest"
+                        android:id="@+id/progressBarThrottle"
                         android:layout_weight="2"
                         android:max="100"
+                        android:rotation="180"
                         />
 
                 </TableRow>

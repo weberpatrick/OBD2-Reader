@@ -259,8 +259,8 @@ public class DbHelper
     public boolean insertTripData( int tripId
                                  , String date
                                  , double trackLength
-                                 , int drivingTime
-                                 , double standTime
+                                 , long drivingTime
+                                 , long standTime
                                  , double maxSpeed
                                  , double avgSpeed
                                  , String name
