@@ -14,6 +14,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.SystemClock;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -77,7 +78,7 @@ public class MainActivity
 
     private final String LOG_TAG = MainActivity.class.getName();
 
-    private final int BLUETOOTH_REQUEST   = 1;
+    private final int BLUETOOTH_REQUEST = 1;
 
     private final int INPUT_DATA_DELAY = 0;
     private final int PRESENTER_DELAY  = 300;
@@ -120,6 +121,11 @@ public class MainActivity
     private TripRow deletedTripRow;
     private int indexOfRowToDelete;
 
+    private boolean isStanding = false;
+    private long startStandTime = 0;
+    private long standTime = 0;
+    private long drivingTime = 0;
+
 //	***************************************************************************
 //	gui components
 //	***************************************************************************
@@ -135,6 +141,7 @@ public class MainActivity
     private TextView textViewEngineLoadValue;
 
     private ProgressBar progressBarThrottlePosition;
+    private ProgressBar progressBarStandTime;
 
     private Chronometer chronometer;
 
@@ -156,11 +163,11 @@ public class MainActivity
 //      create the database if necessary
         dbHelper = new DbHelper(this);
 
-        dbHelper.insertTripData(1, "01.01.2015", 234.4, 60, 5.0, 120.0, 75.0, "Mannheim");
-        dbHelper.insertTripData(2, "01.01.2015", 3453.6, 3600, 75.0, 220.0, 115.0, "Görlitz");
-        dbHelper.insertTripData(3, "01.01.2015", 14.4, 2345, 43.0, 20.0, 75.0, "Heusenstamm");
-        dbHelper.insertTripData(6, "01.01.2015", 2464.7, 12, 1.0, 100.0, 45.0, "Berlin");
-        dbHelper.insertTripData(8, "01.01.2015", 265.0, 345, 12.0, 750.0, 25.0, "Frankfurt");
+        dbHelper.insertTripData(1, "01.01.2015", 234.4, 60, 5, 120.0, 75.0, "Mannheim");
+        dbHelper.insertTripData(2, "01.01.2015", 3453.6, 3600, 75, 220.0, 115.0, "Görlitz");
+        dbHelper.insertTripData(3, "01.01.2015", 14.4, 2345, 43, 20.0, 75.0, "Heusenstamm");
+        dbHelper.insertTripData(6, "01.01.2015", 2464.7, 12, 1, 100.0, 45.0, "Berlin");
+        dbHelper.insertTripData(8, "01.01.2015", 265.0, 345, 12, 750.0, 25.0, "Frankfurt");
 
         mapLiveTextViews = new HashMap<>();
 
@@ -181,8 +188,6 @@ public class MainActivity
 
         locationFinder = new LocationFinder(this);
         if (!locationFinder.startGps()) locationFinder.showGPSAlert();
-
-        chronometer.start();
     }
 
     @Override
@@ -323,15 +328,13 @@ public class MainActivity
 
                         showAdapterSelectionDialog();
                     }
-                    else
-                    {
-                        locationFinder.showGPSAlert();
-                    }
+                    else locationFinder.showGPSAlert();
                 }
             }
         });
 
-        progressBarThrottlePosition = (ProgressBar) findViewById(R.id.progressBarTest);
+        progressBarThrottlePosition = (ProgressBar) findViewById(R.id.progressBarThrottle);
+        progressBarStandTime        = (ProgressBar) findViewById(R.id.progressBarStandTime);
 
         tableLayoutData      = (TableLayout) findViewById(R.id.tableLayoutData);
         imageViewCompass     = (ImageView) findViewById(R.id.imageViewCompass);
@@ -342,12 +345,27 @@ public class MainActivity
         textViewEngineLoadValue = (TextView) findViewById(R.id.textViewEngineLoadValue);
 
         chronometer = (Chronometer) findViewById(R.id.chronometer);
+        chronometer.setOnChronometerTickListener(new Chronometer.OnChronometerTickListener()
+        {
+            @Override
+            public void onChronometerTick(Chronometer chronometer)
+            {
+                long elapsedMillis = SystemClock.elapsedRealtime() - chronometer.getBase();
+                elapsedMillis /= 1000;
+                progressBarStandTime.setMax((int) elapsedMillis);
+                progressBarStandTime.setProgress((int) standTime);
+            }
+        });
 
         drawerList = (ListView)findViewById(R.id.drawerList);
         registerForContextMenu(drawerList);
         drawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
         title = getTitle().toString();
         addDrawerItems();
+
+        isStanding     = false;
+        startStandTime = 0;
+        standTime      = 0;
     }
 
     /**
@@ -768,6 +786,8 @@ public class MainActivity
                                         {
                                             isRunning = true;
                                             startLiveData();
+
+                                            chronometer.setBase(SystemClock.elapsedRealtime());
                                             chronometer.start();
                                             buttonStartStop.setBackgroundResource(R.drawable.stop_68);
                                         }
@@ -854,8 +874,22 @@ public class MainActivity
             updateTextView(textViewEngineLoadValue          , dataRow.getEngineLoadString());
             updateTextView(textViewRpmValue                 , dataRow.getRpmString());
             updateTextView(textViewSpeedValue               , dataRow.getSpeedString());
-            updateProgressBar(progressBarThrottlePosition    , dataRow.getThrottlePosition());
+            updateProgressBar(progressBarThrottlePosition   , dataRow.getThrottlePosition());
             updateTextView(textViewRuntimeValue             , dataRow.getRunTimeString());
+
+            int speed = dataRow.getSpeed();
+
+            if(speed == 0 && !isStanding)
+            {
+                startStandTime = SystemClock.elapsedRealtime();
+                isStanding = true;
+            }
+
+            if(speed > 0 && isStanding)
+            {
+                standTime += SystemClock.elapsedRealtime() - startStandTime;
+                isStanding = false;
+            }
         }
 
 //      live data
@@ -1007,7 +1041,7 @@ public class MainActivity
                 builder.setPositiveButton("OK", new DialogInterface.OnClickListener(){
                     @Override
                     public void onClick(DialogInterface dialog, int which){
-                        TripCalculator.calculate(dbHelper, currentTripId, INPUT_DATA_DELAY, input.getText().toString(), getApplicationContext());
+                        TripCalculator.calculate(dbHelper, currentTripId, standTime, drivingTime, input.getText().toString(), getApplicationContext());
                         showNewTrip();
                     }
                 });
@@ -1024,7 +1058,7 @@ public class MainActivity
                     @Override
                     public boolean onKey(View v, int keyCode, KeyEvent event) {
                         if (keyCode == event.KEYCODE_ENTER){
-                            TripCalculator.calculate(dbHelper, currentTripId, INPUT_DATA_DELAY, input.getText().toString(), getApplicationContext());
+                            TripCalculator.calculate(dbHelper, currentTripId, standTime, drivingTime, input.getText().toString(), getApplicationContext());
                             showNewTrip();
                             dialog.dismiss();
                         }
@@ -1036,7 +1070,7 @@ public class MainActivity
                 dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
                     @Override
                     public void onCancel(DialogInterface dialog) {
-                        TripCalculator.calculate(dbHelper, currentTripId, INPUT_DATA_DELAY, null, getApplicationContext());
+                        TripCalculator.calculate(dbHelper, currentTripId, standTime, drivingTime, null, getApplicationContext());
                         showNewTrip();
                     }
                 });
@@ -1059,16 +1093,7 @@ public class MainActivity
     {
         //if trip is still running then save trip Data, for example before the app is going be destroyed
         if (isRunning)
-            TripCalculator.calculate(dbHelper, currentTripId, INPUT_DATA_DELAY, null, getApplicationContext());
-
-        new Handler(Looper.getMainLooper()).post(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                buttonStartStop.setBackgroundResource(R.drawable.start_68);
-            }
-        });
+            TripCalculator.calculate(dbHelper, currentTripId, standTime, drivingTime, null, getApplicationContext());
 
         //stop gps stuff
         if(locationFinder != null) locationFinder.stopGps();
@@ -1092,11 +1117,18 @@ public class MainActivity
                 updateTextView(textViewRpmValue                 , "0");
                 updateTextView(textViewSpeedValue               , "0");
                 updateProgressBar(progressBarThrottlePosition   ,  0 );
+                updateProgressBar(progressBarStandTime          ,  0 );
                 updateTextView(textViewRuntimeValue             , "0");
+
+                drivingTime = SystemClock.elapsedRealtime() - chronometer.getBase();
+                drivingTime /= 1000;
                 chronometer.stop();
+                chronometer.setBase(SystemClock.elapsedRealtime());
 
                 tableLayoutData.removeAllViews();
                 mapLiveTextViews.clear();
+
+                buttonStartStop.setBackgroundResource(R.drawable.start_68);
             }
         });
     }
