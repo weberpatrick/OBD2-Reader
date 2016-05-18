@@ -24,4 +24,5 @@
     <string name="closeAppQuestion">Really close app??</string>
     <string name="closeYes">Yes close</string>
     <string name="closeNo">No</string>
+    <string name="parkPosition">Park position</string>
 </resources>
