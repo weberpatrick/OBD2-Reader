@@ -942,15 +942,15 @@ public class MainActivity
                     newLastRotation = lastRotation + 360;
                 }
 
-                Animation an = new RotateAnimation(-newLastRotation, -newRotation,
+                Animation animation = new RotateAnimation(-newLastRotation, -newRotation,
                         Animation.RELATIVE_TO_SELF, 0.5f,
                         Animation.RELATIVE_TO_SELF, 0.5f);
 
-                an.setDuration(COMPASS_DELAY);
-                an.setRepeatCount(0);
-                an.setFillAfter(true);
+                animation.setDuration(COMPASS_DELAY);
+                animation.setRepeatCount(0);
+                animation.setFillAfter(true);
 
-                image.startAnimation(an);
+                image.startAnimation(animation);
             }
         });
     }
