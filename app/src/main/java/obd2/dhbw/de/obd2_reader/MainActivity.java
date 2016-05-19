@@ -382,7 +382,8 @@ public class MainActivity
                 long elapsedMillis = SystemClock.elapsedRealtime() - chronometer.getBase();
                 elapsedMillis /= 1000;
                 progressBarStandTime.setMax((int) elapsedMillis);
-                progressBarStandTime.setProgress((int) standTime);
+                progressBarStandTime.setProgress((int) standTime/1000);
+                Log.d(LOG_TAG, elapsedMillis + " : " + standTime/1000);
             }
         });
 
@@ -910,12 +911,15 @@ public class MainActivity
 
             if(speed == 0 && !isStanding)
             {
+                Log.d(LOG_TAG, "oben");
                 startStandTime = SystemClock.elapsedRealtime();
                 isStanding = true;
             }
 
             if(speed > 0 && isStanding)
             {
+                Log.d(LOG_TAG, "unten");
+                Log.d(LOG_TAG, "eben wurde "+(SystemClock.elapsedRealtime() - startStandTime)+"Milisekunden gestanden");
                 standTime += SystemClock.elapsedRealtime() - startStandTime;
                 isStanding = false;
             }

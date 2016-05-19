@@ -104,14 +104,12 @@ public class TripCalculator
     }
 
     public static void saveParkPosition() {
-        locNew.setLatitude(0);
-        locNew.setLongitude(0);
-
         SharedPreferences prefs = context.getSharedPreferences(context.getString(R.string.pref_name), Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
 
         if (locNew.getLatitude() != 0 && locNew.getLongitude() != 0)
         {
+            Log.d("XXX", "saved park");
             //Save the double values as Long
             //http://stackoverflow.com/questions/16319237/cant-put-double-sharedpreferences
             //http://stackoverflow.com/questions/3604849/where-to-save-android-gps-latitude-longitude-points
@@ -120,14 +118,17 @@ public class TripCalculator
 
             editor.apply();
 
+            //TODO Handler drum rum
             Toast.makeText(context, R.string.ParkPositionSaved, Toast.LENGTH_SHORT).show();
         }
         else
         {
+            Log.d("XXX", "Failed to save");
             editor.remove(context.getString(R.string.pref_latitude));
             editor.remove(context.getString(R.string.pref_longitude));
             editor.apply();
 
+            //TODO Handler drum rum
             Toast.makeText(context, R.string.ParkPositionNotSaved, Toast.LENGTH_SHORT).show();
         }
     }
