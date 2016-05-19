@@ -983,26 +983,39 @@ public class MainActivity
         });
     }
 
-    private void updateImageView(final ImageView image, final float lastRotation, final float rotation)
+    private void updateImageView(final ImageView image, final float fromRotation, final float toRotation)
     {
         new Handler(Looper.getMainLooper()).post(new Runnable()
         {
             public void run()
             {
-                float newRotation = rotation;
-                float newLastRotation = lastRotation;
+                //because final declaration
+                float newToRotation = toRotation;
+                float newFromRotation = fromRotation;
 
-                //if the rotation starts from left-top to right-top (example: from 350° to 15°)
-                // it would move counterclockwise, but should go clockwise.
-                // So the new location would be 375° (example: from 350° to 375°)
-                // (similar from other site)
-                if ((rotation>0 && rotation<90) && (lastRotation>270 && lastRotation<360)){
-                    newRotation = rotation + 360;
-                }else if ((lastRotation>0 && lastRotation<90) && (rotation>270 && rotation<360)){
-                    newLastRotation = lastRotation + 360;
+    /***********************************************************************************************
+    *        Old Version                                                                           *
+    ************************************************************************************************/
+//                //if the rotation starts from left-top to right-top (example: from 350° to 15°)
+//                //it would move counterclockwise, but should go clockwise.
+//                //So the new location would be 375° (example: from 350° to 375°)
+//                //(similar from other site)
+//                if ((fromRotation > 270 && fromRotation <= 360) && (toRotation >= 0 && toRotation < 90)){
+//                    // from (West-Nord) to (Nord-East)
+//                    newToRotation = toRotation + 360;
+//                }else if ((fromRotation >= 0 && fromRotation < 90) && (toRotation > 270 && toRotation<= 360)){
+//                    // from (Nord-East) to (West-Nord)
+//                    newFromRotation = fromRotation + 360;
+//                }
+
+                if ((fromRotation-toRotation)>180){
+                    newToRotation = toRotation+360;
+                }
+                if (fromRotation-toRotation<-180){
+                    newFromRotation=fromRotation+360;
                 }
 
-                Animation animation = new RotateAnimation(-newLastRotation, -newRotation,
+                Animation animation = new RotateAnimation(-newFromRotation, -newToRotation,
                         Animation.RELATIVE_TO_SELF, 0.5f,
                         Animation.RELATIVE_TO_SELF, 0.5f);
 
