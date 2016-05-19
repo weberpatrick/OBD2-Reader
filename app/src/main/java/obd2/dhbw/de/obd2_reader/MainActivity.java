@@ -1008,11 +1008,11 @@ public class MainActivity
 //                    newFromRotation = fromRotation + 360;
 //                }
 
-                if ((fromRotation-toRotation)>180){
-                    newToRotation = toRotation+360;
+                if ((fromRotation - toRotation) > 180){
+                    newToRotation = toRotation + 360;
                 }
-                if (fromRotation-toRotation<-180){
-                    newFromRotation=fromRotation+360;
+                if ((fromRotation - toRotation) < -180){
+                    newFromRotation = fromRotation + 360;
                 }
 
                 Animation animation = new RotateAnimation(-newFromRotation, -newToRotation,
