@@ -350,7 +350,7 @@ public class MainActivity
                 if(isRunning) isRunning = false;
                 else
                 {
-                    if (locationFinder.startGps())
+                    if (locationFinder.canGetLocation())
                     {
                         //initialize bluetooth adapter and turn it on
                         initBluetoothAdapter();

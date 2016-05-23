@@ -61,21 +61,13 @@ public class LocationFinder
             if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)
                     == PackageManager.PERMISSION_GRANTED) {
 
-
                 if (isGpsActive){
                     locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, UPDATE_TIME, UPDATE_DISTANCE, this);
-
-//                    lastLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
                 }
                 if (isNetworkActive){
                     locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, UPDATE_TIME, UPDATE_DISTANCE, this);
-
-//                    Location loc = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-//                    if (isGood(loc)){
-//                        lastLocation = loc;
-//                    }
-                    return true;
                 }
+                return isGpsActive || isNetworkActive;
             }
             Log.d(LOG_TAG, "No Location Permission");
             canGetLocation = false;
@@ -98,9 +90,6 @@ public class LocationFinder
         }
     }
 
-    /**
-     *  http://developer.android.com/guide/topics/location/strategies.html
-     */
     private boolean isGood(Location newLocation) {
         if (lastLocation == null) {
             // A new location is always better than no location
@@ -109,8 +98,8 @@ public class LocationFinder
         if (newLocation == null){
             return false;
         }
-        //return true if Accuracy is less than 100
-        return (newLocation.getAccuracy() < 100);
+        //return true if Accuracy is less than 50
+        return (newLocation.getAccuracy() < 50);
     }
 
     public void showGPSAlert()
@@ -188,11 +177,12 @@ public class LocationFinder
         isNetworkActive = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
 
         if (isGpsActive || isNetworkActive) {
-         canGetLocation = true;
+            canGetLocation = true;
+            return true;
         }else{
             canGetLocation = false;
+            return false;
         }
-        return canGetLocation;
     }
 
     public double getLatitude()
