@@ -383,7 +383,6 @@ public class MainActivity
                 elapsedMillis /= 1000;
                 progressBarStandTime.setMax((int) elapsedMillis);
                 progressBarStandTime.setProgress((int) standTime/1000);
-                Log.d(LOG_TAG, elapsedMillis + " : " + standTime/1000);
             }
         });
 
@@ -413,7 +412,7 @@ public class MainActivity
             }
         }else{
             // No trips found
-            tripStringArray.add(new String[] {getString(R.string.noTripsFound), "", ""});
+            tripStringArray.add(noTripsString);
         }
 
         drawerAdapter = new ArrayAdapter<String[]>(this, R.layout.drawer_row, tripStringArray){
@@ -702,24 +701,31 @@ public class MainActivity
         }
         //save the position in the list, in case of an undo, to reset it in this position
         indexOfRowToDelete = tripStringArray.indexOf(rowToDelete);
-        //delete trip from the drawer
-        tripStringArray.remove(rowToDelete);
-        //select trip to delet
+
+        //select trip to delete
         deletedTripRow = dbHelper.selectTrip(id);
 
         //delete trip from database, if successful, make snackBar confirmation
         Resources res = getResources();
         String formattedText = String.format(res.getString(R.string.tripDeleteConfirmation), tripName);
-        if (dbHelper.deleteTrip(id))
+
+        if (dbHelper.deleteTrip(id)){
+            //delete trip from the drawer
+            tripStringArray.remove(rowToDelete);
+
             Snackbar.make(findViewById(R.id.drawer_layout), formattedText, Snackbar.LENGTH_LONG)
-                .setAction(R.string.undo, new View.OnClickListener(){
-                    @Override
-                    public void onClick(View v){
-                        undoDeleteTrip(tripName);
-                     }
-                })
-                .setActionTextColor(ContextCompat.getColor(this, R.color.lightBlue))
-                .show();
+                    .setAction(R.string.undo, new View.OnClickListener(){
+                        @Override
+                        public void onClick(View v){
+                            undoDeleteTrip(tripName);
+                        }
+                    })
+                    .setActionTextColor(ContextCompat.getColor(this, R.color.lightBlue))
+                    .show();
+        }else{
+            Toast.makeText(getApplicationContext(), R.string.DeleteError, Toast.LENGTH_LONG).show();
+        }
+
 
         refreshDrawer();
     }
@@ -909,17 +915,16 @@ public class MainActivity
 
             int speed = dataRow.getSpeed();
 
+            //stops or stands still
             if(speed == 0 && !isStanding)
             {
-                Log.d(LOG_TAG, "oben");
                 startStandTime = SystemClock.elapsedRealtime();
                 isStanding = true;
             }
 
+            //starts driving or is driving
             if(speed > 0 && isStanding)
             {
-                Log.d(LOG_TAG, "unten");
-                Log.d(LOG_TAG, "eben wurde "+(SystemClock.elapsedRealtime() - startStandTime)+"Milisekunden gestanden");
                 standTime += SystemClock.elapsedRealtime() - startStandTime;
                 isStanding = false;
             }

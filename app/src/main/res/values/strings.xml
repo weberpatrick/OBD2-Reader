@@ -31,5 +31,6 @@
     <string name="pref_name">OBD2_Reader_Prefs</string>
     <string name="pref_latitude">latitude</string>
     <string name="pref_longitude">longitude</string>
+    <string name="DeleteError">Error while deleting</string>
 
 </resources>
