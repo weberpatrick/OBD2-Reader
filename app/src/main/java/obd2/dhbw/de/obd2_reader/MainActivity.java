@@ -939,7 +939,7 @@ public class MainActivity
     {
         TextView textView = mapLiveTextViews.get(name);
 
-        if(textView != null)  updateTextView(textView, value);
+        if(textView != null) updateTextView(textView, value);
         else
         {
             new Handler(Looper.getMainLooper()).post(new Runnable()
@@ -1092,7 +1092,7 @@ public class MainActivity
                 builder.setPositiveButton("OK", new DialogInterface.OnClickListener(){
                     @Override
                     public void onClick(DialogInterface dialog, int which){
-                        TripCalculator.calculate(dbHelper, currentTripId, standTime, drivingTime, input.getText().toString(), getApplicationContext());
+                        TripCalculator.calculate(dbHelper, currentTripId, (int) standTime/1000, drivingTime, input.getText().toString(), getApplicationContext());
                         showNewTrip();
                     }
                 });
@@ -1109,7 +1109,7 @@ public class MainActivity
                     @Override
                     public boolean onKey(View v, int keyCode, KeyEvent event) {
                         if (keyCode == event.KEYCODE_ENTER){
-                            TripCalculator.calculate(dbHelper, currentTripId, standTime, drivingTime, input.getText().toString(), getApplicationContext());
+                            TripCalculator.calculate(dbHelper, currentTripId, (int) standTime/1000, drivingTime, input.getText().toString(), getApplicationContext());
                             showNewTrip();
                             dialog.dismiss();
                         }
@@ -1121,7 +1121,7 @@ public class MainActivity
                 dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
                     @Override
                     public void onCancel(DialogInterface dialog) {
-                        TripCalculator.calculate(dbHelper, currentTripId, standTime, drivingTime, null, getApplicationContext());
+                        TripCalculator.calculate(dbHelper, currentTripId, (int) standTime/1000, drivingTime, null, getApplicationContext());
                         showNewTrip();
                     }
                 });
@@ -1144,7 +1144,7 @@ public class MainActivity
     {
         //if trip is still running then save trip Data, for example before the app is going be destroyed
         if (isRunning)
-            TripCalculator.calculate(dbHelper, currentTripId, standTime, drivingTime, null, getApplicationContext());
+            TripCalculator.calculate(dbHelper, currentTripId, (int) standTime/1000, drivingTime, null, getApplicationContext());
 
         //stop gps stuff
         if(locationFinder != null) locationFinder.stopGps();
